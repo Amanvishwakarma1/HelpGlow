@@ -8,7 +8,10 @@ const campaignRoutes = require('./routes/campaignRoutes');
 const app = express();
 // const cors = require('cors');
 app.use(cors({
-    origin: 'http://localhost:5173', // Your React URL
+    origin: [
+    "http://localhost:5173",
+    "https://helpglow-1.onrender.com"
+  ], // Your React URL
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
