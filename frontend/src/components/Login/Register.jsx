@@ -26,7 +26,7 @@ const Register = () => {
     e.preventDefault();
     try {
       // Map 'name' to 'username' to match your backend
-      await axios.post('http://localhost:5000/api/auth/register', {
+      await axios.post('https://helpglow.onrender.com/api/auth/register', {
         username: formData.name,
         email: formData.emailOrMobile,
         password: formData.password

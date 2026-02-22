@@ -32,7 +32,7 @@ const Campaigns = () => {
   const loadContent = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/campaigns');
+      const res = await axios.get('https://helpglow.onrender.com/api/campaigns');
       setPosts(res.data.filter(item => !item.is_video));
       setStories(res.data.filter(item => item.is_video));
       setTimeout(() => setLoading(false), 1500);
