@@ -269,7 +269,7 @@ const Campaigns = () => {
           
           .main-feed { 
             width: 100% !important; 
-            height: 72vh !important; 
+            height: 90vh !important; 
             margin: 0 !important;
             padding-top: 0 !important;
             border-radius: 5px !important;
