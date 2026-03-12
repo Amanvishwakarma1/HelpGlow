@@ -190,7 +190,7 @@ function Header() {
           <ul>
             <li><Link to="/">Home</Link></li>
             <li><Link to="/campaigns">Campaigns</Link></li>
-            <li><Link to="/monthly">Monthly</Link></li>
+            <li><Link to="/blog">Blog</Link></li>
             <li><Link to="/about">About</Link></li>
             <li><Link to="/menu">Menu</Link></li>
 

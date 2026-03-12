@@ -7,7 +7,7 @@ import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router
 import Layout from "./Layout.jsx";
 import Home from "./components/Home/Home.jsx";
 import Compaingns from "./components/Campaigns/Campaigns.jsx";
-import Monthly from "./components/Monthly/Monthly.jsx";
+import Blog from "./components/Blog/Blog.jsx";
 import About from "./components/About/About.jsx";
 import Menu from "./components/Menu/Menu.jsx";
 import Login from "./components/Login/Login.jsx";
@@ -28,8 +28,8 @@ const router = createBrowserRouter([
         element:<Compaingns/>
       },
       {
-        path:"monthly",
-        element:<Monthly/>
+        path:"blog",
+        element:<Blog/>
       },
       {
         path:"about",

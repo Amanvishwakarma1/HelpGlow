@@ -1,295 +1,258 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import { 
-  Home, Compass, Film, PlusSquare, Heart, MessageCircle, 
-  Send, Bookmark, MoreHorizontal, X, Camera, Sparkles 
-} from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ShoppingCart, Heart, Search, X, Plus, Minus, Send, Copy } from 'lucide-react';
+
+// Import your local QR image correctly for Vite
+import upiQRCode from '../../assets/WhatsApp Image 2026-02-23 at 12.51.00 PM.jpeg';
 
 const Menu = () => {
-  const [posts, setPosts] = useState([]);
-  const [stories, setStories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedStory, setSelectedStory] = useState(null);
-  const [activeShareMenu, setActiveShareMenu] = useState(null);
-  const [activeCommentBox, setActiveCommentBox] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   
-  const [comments, setComments] = useState({}); 
-  const [currentComment, setCurrentComment] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(20);
+  const [showQR, setShowQR] = useState(false);
 
-  const [isUploading, setIsUploading] = useState(false);
-  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const fileInputRef = useRef(null);
-  const [formData, setFormData] = useState({ 
-    caption: '', location: '', media_url: '', is_video: false, category: 'General' 
+  const products = [
+    { id: 1, category: 'Single Product', name: 'Food Packet', price: 30, icon: '🍲', img: 'https://i.postimg.cc/GpbC6sH2/Whats-App-Image-2026-02-23-at-12-27-10-PM.jpg' },
+    { id: 2, category: 'Single Product', name: 'Dog Foods', price: 40, icon: '🐶', img: 'https://i.postimg.cc/MZ18ZDRP/Whats-App-Image-2026-01-20-at-9-24-31-PM.jpg' },
+    { id: 3, category: 'Single Product', name: 'Basic Education Kit', price: 50, icon: '📚', img: 'https://i.postimg.cc/8kXL5RSY/Whats-App-Image-2026-01-20-at-9-15-45-PM.jpg' },
+    { id: 4, category: 'Single Product', name: 'Grocery Kit', price: 550, icon: '🧺', img: 'https://i.postimg.cc/NM4STN4y/Whats-App-Image-2026-01-20-at-9-21-49-PM.jpg' },
+    { id: 5, category: 'Single Product', name: 'Celebration Cake', price: 600, icon: '🎂', img: 'https://i.postimg.cc/TP24xjGd/Whats-App-Image-2026-02-23-at-3-36-28-PM.jpg' },
+    { id: 6, category: 'Combo Product', name: 'Food & Cake Combo', price: 850, icon: '🎁', img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg' },
+    { id: 7, category: 'Combo Product', name: 'Mini Party', price: 1500, icon: '🎉', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600' },
+    { id: 8, category: 'Combo Product', name: 'Special Party', price: 2000, icon: '✨', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=600' },
+    { id: 9, category: 'Combo Product', name: 'Golden Celebration', price: 3000, icon: '🥇', img: 'https://images.unsplash.com/photo-1511795409834-432f7b3027a0?q=80&w=600' },
+    { id: 10, category: 'Combo Product', name: 'Grand Party', price: 4500, icon: '👑', img: 'https://i.postimg.cc/zX44YHPZ/Whats-App-Image-2026-02-23-at-3-36-29-PM-(1).jpg' }
+  ];
+
+  const filteredProducts = products.filter(p => {
+    const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
-  const [likedPosts, setLikedPosts] = useState(new Set());
-
-  useEffect(() => { loadContent(); }, []);
-
-  const loadContent = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get('https://helpglow.onrender.com/api/campaigns');
-      setPosts(res.data.filter(item => !item.is_video));
-      setStories(res.data.filter(item => item.is_video));
-      setTimeout(() => setLoading(false), 1500);
-    } catch (err) { console.error(err); setLoading(false); }
+  const handleWhatsAppNotify = () => {
+    const total = selectedProduct.price * quantity;
+    const message = `Hello Helpglow Foundation! %0AI have initiated a donation for: ${selectedProduct.name} %0AQuantity: ${quantity} packets %0ATotal Amount: ₹${total}. %0AI am sharing the screenshot now.`;
+    const whatsappUrl = `https://wa.me/918528220733?text=${message}`;
+    window.open(whatsappUrl, '_blank');
   };
 
-  const generateAutoCaption = (isVideo) => {
-    setIsGeneratingCaption(true);
-    setTimeout(() => {
-      const type = isVideo ? "video" : "photo";
-      const autoText = `Check out this amazing ${type} from our latest campaign! #HelpGlow #MakingADifference`;
-      setFormData(prev => ({ ...prev, caption: autoText }));
-      setIsGeneratingCaption(false);
-    }, 1200);
+  const closeModal = () => {
+    setSelectedProduct(null);
+    setShowQR(false);
+    setQuantity(20);
   };
-
-  const handleCreatePost = async () => {
-    setIsUploading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post('https://helpglow.onrender.com/api/campaigns', formData, {
-        headers: { Authorization: `Bearer ${token}` },
-        onUploadProgress: (p) => setUploadProgress(Math.round((p.loaded * 100) / p.total))
-      });
-      loadContent();
-      setIsUploading(false);
-      setShowCreateModal(false);
-      setUploadProgress(0);
-      setFormData({ caption: '', location: '', media_url: '', is_video: false, category: 'General' });
-    } catch (err) { 
-      setIsUploading(false); 
-      setUploadProgress(0);
-      alert("Upload Failed"); 
-    }
-  };
-
-  const handleShare = (platform, post) => {
-    const url = window.location.href;
-    const text = `Check this out: ${post.caption}`;
-    let shareUrl = '';
-    if (platform === 'whatsapp') shareUrl = `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`;
-    else if (platform === 'x') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    else if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-    window.open(shareUrl, '_blank');
-    setActiveShareMenu(null);
-  };
-
-  const StorySkeleton = () => (
-    <div style={styles.storyItem}>
-      <div className="skeleton" style={styles.storyImg} />
-      <div className="skeleton" style={{height:'10px', width:'40px', marginTop:'8px', borderRadius:'4px'}} />
-    </div>
-  );
-
-  const PostSkeleton = () => (
-    <div style={styles.postCard}>
-      <div style={styles.postHeader}><div className="skeleton" style={styles.avatar} /><div className="skeleton" style={{height:'12px', width:'100px'}} /></div>
-      <div className="skeleton" style={{width:'100%', height:'300px'}} />
-    </div>
-  );
 
   return (
     <div style={styles.pageWrapper}>
-      {/* SIDEBAR */}
-      <aside className="sidebar-desktop" style={styles.sidebar}>
-        <div style={styles.logo}>HelpGlow</div>
-        <nav style={styles.navGroup}>
-          <div style={styles.navItem}><Home size={24} /> <span>Home</span></div>
-          <div style={styles.navItem}><Compass size={24} /> <span>Explore</span></div>
-          <div style={styles.navItem} onClick={() => window.open('https://www.instagram.com/helpglow_foundation?igsh=MXFnZWJqaXh3NXB1MA==', '_blank')}>
-            <Film size={24} /> <span>Reels</span>
-          </div>
-          <div style={styles.navItem} onClick={() => setShowCreateModal(true)}><PlusSquare size={24} /> <span>Create</span></div>
-        </nav>
-      </aside>
+      <div style={styles.heroBanner}>
+        <div style={styles.heroOverlayContent}>
+          <p style={styles.foundationTag}>HelpGlow Foundation</p>
+          <h1 style={styles.heroHeading}>Donation Price List</h1>
+          <p style={styles.heroSubHeading}>100% transparent and direct impact</p>
+        </div>
+      </div>
 
-      {/* FEED - MIDDLE SECTION */}
-      <main style={styles.middleSection} className="main-feed">
-        <div style={styles.stickyStoryHeader}>
-            <div className="no-scrollbar" style={styles.storyCard}>
-              {loading ? [1,2,3,4,5].map(i => <StorySkeleton key={i}/>) : stories.map(story => (
-                <div key={story.id} style={styles.storyItem} onClick={() => setSelectedStory(story)}>
-                  <div style={styles.storyRing}>
-                    <video src={story.media_url} style={styles.storyImg} muted autoPlay loop playsInline />
-                  </div>
-                  <span style={styles.storyLabel}>{story.category}</span>
-                </div>
-              ))}
-            </div>
+      <header style={styles.headerArea}>
+        <div style={styles.searchContainer}>
+          <input 
+            type="text" 
+            placeholder="Search for an item..." 
+            style={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Search size={20} style={styles.searchIcon} color="#0ea5e9" />
         </div>
 
-        <div className="no-scrollbar" style={styles.scrollContainer}>
-          <div style={styles.feed}>
-            {loading ? [1,2].map(i => <PostSkeleton key={i}/>) : posts.map(post => (
-              <article key={post.id} style={styles.postCard}>
-                <div style={styles.postHeader}>
-                  <div style={styles.avatar}>HG</div>
-                  <div style={{flex: 1}}><span style={styles.username}>helpglow_official</span><p style={styles.location}>Agra, India</p></div>
-                  <MoreHorizontal size={20} color="#8e8e8e" />
-                </div>
-                {post.is_video ? <video src={post.media_url} style={styles.postMedia} controls playsInline loop muted /> : <img src={post.media_url} style={styles.postMedia} alt="" />}
-                <div style={styles.postActions}>
-                  <Heart size={24} onClick={() => setLikedPosts(prev => { const n = new Set(prev); n.has(post.id) ? n.delete(post.id) : n.add(post.id); return n; })} fill={likedPosts.has(post.id) ? "#ff3040" : "none"} color={likedPosts.has(post.id) ? "#ff3040" : "#262626"} style={{cursor:'pointer'}} />
-                  <MessageCircle size={24} style={{cursor:'pointer'}} onClick={() => setActiveCommentBox(activeCommentBox === post.id ? null : post.id)} />
-                  <div style={{position: 'relative'}}>
-                    <Send size={24} style={{cursor:'pointer'}} onClick={() => setActiveShareMenu(activeShareMenu === post.id ? null : post.id)} />
-                    {activeShareMenu === post.id && (
-                      <div style={styles.shareDropdown}>
-                        {['whatsapp', 'x', 'facebook', 'insta'].map(plt => <div key={plt} style={styles.shareOpt} onClick={() => handleShare(plt, post)}>{plt.toUpperCase()}</div>)}
-                      </div>
-                    )}
-                  </div>
-                  <Bookmark size={24} style={{marginLeft: 'auto', cursor:'pointer'}} />
-                </div>
-                <div style={styles.postPadding}>
-                  <p style={styles.likes}>{likedPosts.has(post.id) ? 1 : 0} likes</p>
-                  <p style={styles.caption}><strong>helpglow_official</strong> {post.caption}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        {/* COMPACT ACTION AREA */}
-        <div style={styles.actionArea}>
-            <button className="mobile-create-trigger" onClick={() => setShowCreateModal(true)}>
-                <PlusSquare size={28} />
+        <div className="no-scrollbar" style={styles.categoryNav}>
+          {['All', 'Single Product', 'Combo Product'].map((cat) => (
+            <button 
+              key={cat} 
+              className="category-pill"
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                ...styles.categoryPill, 
+                backgroundColor: activeCategory === cat ? '#0ea5e9' : 'transparent',
+                color: activeCategory === cat ? '#fff' : '#0ea5e9',
+                borderColor: '#0ea5e9'
+              }}
+            >
+              {cat}s
             </button>
+          ))}
+        </div>
+      </header>
+
+      <main style={styles.feedContainer}>
+        <div style={styles.cardGrid}>
+          {filteredProducts.map((product) => (
+            <div key={product.id} className="donation-card" style={styles.donationCard}>
+              <div className="card-image-container" style={{overflow: 'hidden', height: '180px', position: 'relative'}}>
+                <div 
+                  className="card-image-bg" 
+                  style={{
+                    ...styles.cardImage, 
+                    backgroundImage: `url("${product.img}")`,
+                    backgroundColor: '#f1f5f9'
+                  }}
+                >
+                   <span style={styles.cardCatTag}>{product.category}</span>
+                </div>
+              </div>
+              <div style={styles.cardContent}>
+                <div style={styles.cardInfoMeta}>
+                    <span style={{fontSize: '24px'}}>{product.icon}</span>
+                    <h3 style={styles.cardName}>{product.name}</h3>
+                </div>
+                
+                <div style={styles.cardActionArea}>
+                    <div style={styles.priceTag}>
+                        <span style={{fontSize: '16px', marginRight: '2px'}}>₹</span>
+                        <span style={{fontSize: '22px'}}>{product.price}</span>
+                    </div>
+                    <button 
+                      className="donate-btn" 
+                      style={styles.donateBtn}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                        <ShoppingCart size={18} /> Donate
+                    </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </main>
 
-      {/* RIGHT SIDEBAR */}
-      <aside className="sidebar-desktop" style={styles.rightSidebar}>
-        <div style={styles.impactCard}>
-          <h4 style={{marginTop: 0}}>Impact Tracker</h4>
-          <div style={styles.statRow}>
-             <div style={styles.statIcon}>💧</div>
-             <div><p style={{margin:0, fontWeight:'bold'}}>50+ Wells</p><p style={{margin:0, fontSize:'12px', color:'#8e8e8e'}}>Fresh Water</p></div>
-          </div>
-          <button style={styles.donateBtn}>Donate Now</button>
-        </div>
-      </aside>
-
-      {/* STORY OVERLAY */}
-      {selectedStory && (
-        <div style={styles.storyOverlay} onClick={() => setSelectedStory(null)}>
-          <div style={styles.storyContent} onClick={(e) => e.stopPropagation()}>
-            <X size={30} color="white" style={styles.closeStory} onClick={() => setSelectedStory(null)} />
-            <video src={selectedStory.media_url} style={styles.fullStoryVideo} autoPlay playsInline controls />
-          </div>
-        </div>
-      )}
-
-      {/* CREATE MODAL */}
-      {showCreateModal && (
+      {/* DONATION & PAYMENT MODAL */}
+      {selectedProduct && (
         <div style={styles.modalOverlay}>
-          <div className="modal-container">
-            <div style={{display:'flex', justifyContent:'space-between', marginBottom:'15px', alignItems: 'center'}}>
-                <h3 style={{margin:0}}>{isUploading ? `Uploading...` : 'New Post'}</h3>
-                <X onClick={() => setShowCreateModal(false)} style={{cursor:'pointer'}} />
+          <div style={styles.modalContent}>
+            <div style={styles.modalHeader}>
+              <h3 style={{fontSize: '18px', margin: 0, fontWeight: '800'}}>{showQR ? "Payment Details" : `Donate: ${selectedProduct.name}`}</h3>
+              <X cursor="pointer" onClick={closeModal} />
             </div>
 
-            {/* --- PROGRESS BAR --- */}
-            {isUploading && (
-              <div style={styles.progressWrapper}>
-                <div style={{...styles.progressBar, width: `${uploadProgress}%`}}></div>
-                <span style={styles.progressLabel}>{uploadProgress}%</span>
+            {!showQR ? (
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>Select Packets (Min 20 - Max 50)</p>
+                <div style={styles.counterRow}>
+                  <button style={styles.countBtn} onClick={() => setQuantity(q => Math.max(20, q - 1))}><Minus size={20} /></button>
+                  <span style={styles.quantityDisplay}>{quantity}</span>
+                  <button style={styles.countBtn} onClick={() => setQuantity(q => Math.min(50, q + 1))}><Plus size={20} /></button>
+                </div>
+                <div style={styles.totalBox}>
+                  <span>Total Amount:</span>
+                  <span style={{ fontWeight: '800', color: '#0ea5e9' }}>₹{selectedProduct.price * quantity}</span>
+                </div>
+                <button style={styles.confirmBtn} onClick={() => setShowQR(true)}>Confirm Donation</button>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center' }}>
+                <div style={styles.accountBox}>
+                    <p style={styles.accountTitle}>Bank Account Details</p>
+                    <div style={styles.accountDetailRow}><span>Bank:</span> <strong>SBI</strong></div>
+                    <div style={styles.accountDetailRow}><span>A/C Name:</span> <strong>Helpglow Foundation</strong></div>
+                    <div style={styles.accountDetailRow}><span>A/C No:</span> <strong>12345678901</strong></div>
+                    <div style={styles.accountDetailRow}><span>IFSC:</span> <strong>SBIN0001234</strong></div>
+                </div>
+                <p style={{margin: '15px 0 10px', fontSize: '14px', fontWeight: '600', color: '#64748b'}}>OR Scan QR Code</p>
+                <div style={styles.qrContainer}>
+                  <img src={upiQRCode} alt="UPI QR Code" style={{ width: '100%', borderRadius: '15px' }} />
+                </div>
+                <p style={{ marginTop: '15px', fontWeight: '800', fontSize: '20px', color: '#0ea5e9' }}>Total: ₹{selectedProduct.price * quantity}</p>
+                <div style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
+                    <button style={{...styles.confirmBtn, backgroundColor: '#25D366', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}} onClick={handleWhatsAppNotify}>
+                        <Send size={18}/> WhatsApp
+                    </button>
+                    <button style={{...styles.confirmBtn, backgroundColor: '#64748b', flex: 1}} onClick={closeModal}>Done</button>
+                </div>
               </div>
             )}
-
-            <div className="modal-upload-box" onClick={() => fileInputRef.current.click()}>
-              {formData.media_url ? (formData.is_video ? <video src={formData.media_url} style={styles.preview} muted /> : <img src={formData.media_url} style={styles.preview} alt="" />) : <Camera size={40} color="#ccc" />}
-              <input type="file" ref={fileInputRef} hidden onChange={(e) => {
-                const file = e.target.files[0];
-                if(!file) return;
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  const isVideo = file.type.startsWith('video');
-                  setFormData({ ...formData, media_url: reader.result, is_video: isVideo });
-                  generateAutoCaption(isVideo);
-                };
-                reader.readAsDataURL(file);
-              }} />
-            </div>
-            <div style={{position: 'relative'}}>
-                <textarea className="modal-textarea" value={formData.caption} placeholder="Caption..." onChange={(e) => setFormData({...formData, caption: e.target.value})} />
-                {isGeneratingCaption && <div style={styles.captionLoader}><Sparkles size={14} /> AI is writing...</div>}
-            </div>
-            <button className="modal-submit-btn" onClick={handleCreatePost} disabled={isUploading}>{isUploading ? 'Posting...' : 'Post'}</button>
           </div>
         </div>
       )}
 
       <style>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        .skeleton { animation: pulse 1.5s infinite ease-in-out; background-color: #f0f0f0 !important; }
-        .modal-container { background: #fff; width: 90%; max-width: 400px; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .modal-upload-box { height: 180px; background: #fafafa; border: 1px dashed #ccc; border-radius: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; width: 100%; }
-        .modal-textarea { width: 100%; height: 80px; margin: 15px 0; border: 1px solid #eee; padding: 10px; border-radius: 10px; resize: none; outline: none; }
-        .modal-submit-btn { width: 100%; padding: 12px; background: #0095f6; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        @media (max-width: 768px) {
-          .sidebar-desktop { display: none !important; }
-          .main-feed { width: 100% !important; height: 90vh !important; margin: 0 !important; padding-top: 0 !important; border-radius: 5px !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; }
-          .mobile-create-trigger { background: #0095f6; color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,149,246,0.25); transition: transform 0.2s; }
-          .mobile-create-trigger:active { transform: scale(0.95); }
-        }
+        
+        .donation-card { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease; cursor: pointer; }
+        .donation-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px rgba(14, 165, 233, 0.2); }
+        
+        .card-image-bg { transition: transform 0.6s ease; background-size: cover; background-position: center; width: 100%; height: 100%; }
+        .donation-card:hover .card-image-bg { transform: scale(1.15); }
+
+        .category-pill:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .donate-btn:hover { background-color: #0284c7 !important; transform: translateY(-1px); }
+        .confirm-btn:active { transform: scale(0.98); }
       `}</style>
     </div>
   );
 };
 
 const styles = {
-  pageWrapper: { display: 'flex', height: '100vh', width: '100vw', background: 'linear-gradient(to bottom, #e0f2fe 0%, #ffffff 100%)', overflow: 'hidden' },
-  sidebar: { width: '22%', padding: '40px 50px', display: 'flex', flexDirection: 'column' },
-  logo: { fontSize: '28px', fontWeight: 'bold', marginBottom: '40px', fontFamily: 'cursive' },
-  navGroup: { display: 'flex', flexDirection: 'column', gap: '25px' },
-  navItem: { display: 'flex', alignItems: 'center', gap: '15px', fontSize: '18px', cursor: 'pointer' },
-  middleSection: { width: '40%', height: '92vh', borderRadius: '5px', background: '#fff', boxShadow: '0 10px 40px rgba(0,0,0,0.06)', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' },
-  actionArea: { padding: '8px 0', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'transparent', gap: '15px' },
-  stickyStoryHeader: { position: 'sticky', top: 0, background: '#fff', zIndex: 10, padding: '20px 20px 10px 20px', borderBottom: '1px solid #f0f0f0' },
-  scrollContainer: { overflowY: 'auto', height: '100%', padding: '10px 20px 20px 20px' },
-  storyCard: { display: 'flex', gap: '20px', overflowX: 'auto' },
-  storyItem: { textAlign: 'center', minWidth: '70px', cursor: 'pointer' },
-  storyRing: { padding: '3px', background: 'linear-gradient(45deg, #f09433, #bc1888)', borderRadius: '50%' },
-  storyImg: { width: '55px', height: '55px', borderRadius: '50%', border: '2px solid #fff', objectFit: 'cover' },
-  storyLabel: { fontSize: '11px', marginTop: '5px' },
-  postCard: { background: '#fff', borderRadius: '15px', border: '1px solid #f0f0f0', marginBottom: '25px' },
-  postHeader: { padding: '12px 15px', display: 'flex', alignItems: 'center', gap: '12px' },
-  avatar: { width: '32px', height: '32px', borderRadius: '50%', background: '#0095f6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight:'bold' },
-  username: { fontWeight: 'bold', fontSize: '14px' },
-  location: { fontSize: '11px', color: '#8e8e8e', margin: 0 },
-  postMedia: { width: '100%', display: 'block', maxHeight: '500px', objectFit: 'cover' },
-  postActions: { padding: '12px 15px', display: 'flex', gap: '18px' },
-  postPadding: { padding: '0 15px 15px 15px' },
-  likes: { fontWeight: 'bold', margin: '0 0 5px 0', fontSize: '14px' },
-  caption: { margin: 0, fontSize: '14px' },
-  shareDropdown: { position: 'absolute', bottom: '35px', left: 0, background: '#fff', border: '1px solid #eee', borderRadius: '8px', width: '140px', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
-  shareOpt: { padding: '10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f9f9f9' },
-  rightSidebar: { width: '30%', padding: '40px 30px' },
-  impactCard: { background: '#fff', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' },
-  statRow: { display: 'flex', alignItems: 'center', gap: '15px', margin: '15px 0' },
-  statIcon: { fontSize: '24px', background: '#f0f9ff', padding: '10px', borderRadius: '12px' },
-  donateBtn: { width: '100%', padding: '12px', background: '#0095f6', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold' },
-  modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 99999 },
-  preview: { width: '100%', height: '100%', objectFit: 'cover' },
-  captionLoader: { position: 'absolute', bottom: '25px', right: '10px', fontSize: '10px', color: '#0095f6', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' },
-  storyOverlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 210000 },
-  storyContent: { position: 'relative', height: '90vh' },
-  fullStoryVideo: { height: '100%', borderRadius: '15px' },
-  closeStory: { position: 'absolute', top: '-40px', right: '-40px', cursor: 'pointer' },
+  pageWrapper: { minHeight: '100vh', backgroundColor: '#fcfdfe', overflowX: 'hidden' },
+  heroBanner: { width: '100%', height: '280px', background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 60%, #bae6fd 100%)', display: 'flex', alignItems: 'center', padding: '0 8%', color: '#fff', marginBottom: '20px' },
+  heroOverlayContent: { zIndex: 2 },
+  foundationTag: { fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', margin: '0 0 10px 0' },
+  heroHeading: { fontSize: '48px', fontWeight: '800', margin: 0, lineHeight: '1.2' },
+  heroSubHeading: { fontSize: '18px', fontWeight: '400', marginTop: '12px', maxWidth: '500px', opacity: 0.9 },
+  headerArea: { textAlign: 'center', padding: '30px 20px', backgroundColor: '#fff', borderBottom: '1px solid #f1f5f9' },
+  searchContainer: { position: 'relative', maxWidth: '500px', margin: '0 auto 25px', boxShadow: '0 8px 25px rgba(14, 165, 233, 0.08)', borderRadius: '50px' },
+  searchInput: { width: '100%', padding: '16px 25px', borderRadius: '50px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '15px', backgroundColor: '#f9fafb' },
+  searchIcon: { position: 'absolute', right: '22px', top: '18px' },
+  categoryNav: { display: 'flex', gap: '12px', overflowX: 'auto', padding: '5px 0 15px', maxWidth: '1000px', margin: '0 auto' },
+  categoryPill: { padding: '10px 24px', borderRadius: '50px', whiteSpace: 'nowrap', fontSize: '13px', fontWeight: '600', cursor: 'pointer', border: '1px solid transparent' },
+  feedContainer: { maxWidth: '1300px', margin: '30px auto', padding: '0 20px 80px' },
+  cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' },
+  donationCard: { borderRadius: '20px', overflow: 'hidden', backgroundColor: '#fff', border: '1px solid #f1f5f9' },
+  cardImage: { height: '100%', width: '100%', position: 'relative' },
+  cardCatTag: { position: 'absolute', top: '12px', left: '12px', fontSize: '9px', background: 'rgba(15, 23, 42, 0.8)', padding: '4px 10px', borderRadius: '5px', fontWeight: 'bold', textTransform: 'uppercase', color: '#fff', zIndex: 10 },
+  cardContent: { padding: '20px' },
+  cardInfoMeta: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', borderBottom: '1px solid #f1f5f9', paddingBottom: '15px' },
+  cardName: { fontSize: '16px', color: '#0f172a', fontWeight: '600', margin: 0, lineHeight: '1.4' },
+  cardActionArea: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  priceTag: { display: 'flex', alignItems: 'baseline', color: '#0ea5e9', fontWeight: '800' },
+  donateBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' },
   
-  // Progress Bar Styles
-  progressWrapper: { width: '100%', height: '10px', background: '#eee', borderRadius: '5px', overflow: 'hidden', marginBottom: '15px', position: 'relative' },
-  progressBar: { height: '100%', background: '#0095f6', transition: 'width 0.3s ease' },
-  progressLabel: { position: 'absolute', right: '0', top: '-18px', fontSize: '12px', fontWeight: 'bold', color: '#0095f6' }
+  // MODAL STYLES (Updated with Margin & Scroll)
+  modalOverlay: { 
+    position: 'fixed', 
+    inset: 0, 
+    backgroundColor: 'rgba(15, 23, 42, 0.6)', 
+    backdropFilter: 'blur(4px)', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    zIndex: 1000,
+    padding: '20px' // Provides a safety gap from the screen edges
+  },
+  modalContent: { 
+    backgroundColor: '#fff', 
+    padding: '30px', 
+    borderRadius: '28px', 
+    width: '100%', 
+    maxWidth: '420px', 
+    maxHeight: 'calc(100vh - 40px)', // Keeps modal height smaller than viewport height
+    overflowY: 'auto', // Enables internal scrolling
+    boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
+    position: 'relative',
+    margin: 'auto' // Centers it properly
+  },
+  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 5 },
+  counterRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '25px', marginBottom: '20px' },
+  countBtn: { width: '50px', height: '50px', borderRadius: '50%', border: 'none', backgroundColor: '#f0f9ff', color: '#0ea5e9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  quantityDisplay: { fontSize: '28px', fontWeight: '800' },
+  totalBox: { backgroundColor: '#f8fafc', padding: '20px', borderRadius: '15px', display: 'flex', justifyContent: 'space-between', margin: '20px 0' },
+  confirmBtn: { width: '100%', padding: '16px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '16px' },
+  qrContainer: { padding: '10px', background: '#f8fafc', borderRadius: '20px', border: '1px dashed #cbd5e1' },
+  accountBox: { textAlign: 'left', background: '#f0f9ff', padding: '15px', borderRadius: '15px', border: '1px solid #bae6fd' },
+  accountTitle: { fontWeight: '800', color: '#0ea5e9', marginBottom: '10px', textAlign: 'center', textTransform: 'uppercase', fontSize: '12px' },
+  accountDetailRow: { display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '5px' }
 };
 
 export default Menu;
