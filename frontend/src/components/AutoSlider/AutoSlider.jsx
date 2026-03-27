@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Heart, Users, Cake, Globe, Utensils, Play } from 'lucide-react';
 
 const slides = [
@@ -26,7 +27,7 @@ const statsData = [
 
 const AutoSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex(prev => prev === slides.length - 1 ? 0 : prev + 1);
@@ -81,7 +82,7 @@ const AutoSlider = () => {
                   e.target.style.backgroundColor = "#ffcc00";
                   e.target.style.boxShadow = "none";
                 }}
-                onClick={() => { window.open("https://wa.me/message/ZMTBXKUYV7MWB1", "_blank") }}
+                onClick={() => navigate("/menu")}
               >
                 Donate Now
               </button>
