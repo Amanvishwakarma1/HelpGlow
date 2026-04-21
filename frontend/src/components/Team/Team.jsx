@@ -2,28 +2,38 @@ import React from 'react'
 import Card from '../Card/Card'
 
 function Team() {
+  // Brand Colors
+  const colors = {
+    magenta: '#8e2382',
+    pink: '#e61e6e',
+    orange: '#f37021',
+    gold: '#d4af37',
+    lightBg: '#fffdf9'
+  };
+
   const headingStyle = {
-    color: '#0284c7',
     textAlign: 'center',
-    fontSize: '32px',
-    fontWeight: 'bold',
+    fontSize: '34px',
+    fontWeight: '900',
     marginTop: '60px',
     marginBottom: '5px',
     textTransform: 'uppercase',
-    letterSpacing: '3px',
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    letterSpacing: '4px',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
     cursor: 'default',
     display: 'block',
-    transition: 'all 0.3s ease'
+    transition: 'all 0.3s ease',
+    // Gradient Text
+    background: `linear-gradient(to right, ${colors.magenta}, ${colors.pink})`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   };
 
-  // Main container style - now using Grid for Desktop
   const containerStyle = {
     display: 'grid',
-    // On desktop, this forces 4 equal columns
     gridTemplateColumns: 'repeat(4, 1fr)', 
-    gap: '20px',
-    padding: '0 20px 60px 20px',
+    gap: '30px',
+    padding: '0 20px 80px 20px',
     maxWidth: '1300px',
     margin: '0 auto',
     justifyItems: 'center'
@@ -35,7 +45,7 @@ function Team() {
         {`
           .team-title-container {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
           }
 
           .team-title {
@@ -46,42 +56,47 @@ function Team() {
           .team-title::after {
             content: '';
             position: absolute;
-            width: 40px;
-            height: 4px;
-            bottom: -8px;
+            width: 50px;
+            height: 5px;
+            bottom: -10px;
             left: 50%;
-            background-color: #0ea5e9;
+            background: linear-gradient(to right, ${colors.magenta}, ${colors.gold});
             transform: translateX(-50%);
             transition: all 0.4s ease-in-out;
-            border-radius: 2px;
+            border-radius: 50px;
           }
 
-          /* Tablet View: 2 cards per row */
+          /* Hover effect for the title underline */
+          .team-title:hover::after {
+            width: 80px;
+          }
+
           @media (max-width: 1024px) {
             .team-grid {
               grid-template-columns: repeat(2, 1fr) !important;
+              gap: 20px !important;
             }
           }
 
-          /* Mobile View: 1 card per row */
           @media (max-width: 650px) {
             .team-grid {
               grid-template-columns: repeat(1, 1fr) !important;
-              gap: 10px !important;
+              gap: 15px !important;
             }
           }
 
           .team-card-wrapper {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             width: 100%;
             display: flex;
             justify-content: center;
+            border-radius: 20px;
           }
 
           .team-card-wrapper:hover {
-            transform: translateY(-12px);
-            filter: drop-shadow(0 15px 25px rgba(2, 132, 199, 0.15));
+            transform: translateY(-15px) scale(1.02);
+            filter: drop-shadow(0 20px 30px rgba(142, 35, 130, 0.15));
           }
         `}
       </style>

@@ -28,6 +28,16 @@ const statsData = [
 const AutoSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
+
+  // Brand Colors
+  const colors = {
+    magenta: '#8e2382',
+    pink: '#e61e6e',
+    orange: '#f37021',
+    gold: '#d4af37',
+    deepBg: '#2d0a27'
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex(prev => prev === slides.length - 1 ? 0 : prev + 1);
@@ -42,14 +52,16 @@ const AutoSlider = () => {
           .stats-scroll-container::-webkit-scrollbar { display: none; }
           .stats-scroll-container { -ms-overflow-style: none; scrollbar-width: none; }
           
-          /* Button Glow Animation */
           @keyframes glow {
-            0% { box-shadow: 0 0 5px rgba(255, 204, 0, 0.4); }
-            50% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.8); }
-            100% { box-shadow: 0 0 5px rgba(255, 204, 0, 0.4); }
+            0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.4); }
           }
           .donate-btn-glow {
             animation: glow 2s infinite;
+          }
+          .slide-text-shadow {
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
           }
         `}
       </style>
@@ -68,19 +80,17 @@ const AutoSlider = () => {
             <img src={slide.image} alt={`Slide ${index}`} style={styles.image} />
             <div style={styles.overlay} />
             <div style={styles.content}>
-              <h1 style={styles.text}>{slide.text}</h1>
+              <h1 style={styles.text} className="slide-text-shadow">{slide.text}</h1>
               <button
                 className="donate-btn-glow"
-                style={styles.button}
+                style={{...styles.button, backgroundColor: colors.gold}}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = "scale(1.1)";
-                  e.target.style.backgroundColor = "#ffd633";
-                  e.target.style.boxShadow = "0 12px 30px rgba(255, 204, 0, 0.6)";
+                  e.target.style.transform = "scale(1.08)";
+                  e.target.style.filter = "brightness(1.1)";
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = "scale(1)";
-                  e.target.style.backgroundColor = "#ffcc00";
-                  e.target.style.boxShadow = "none";
+                  e.target.style.filter = "brightness(1)";
                 }}
                 onClick={() => navigate("/menu")}
               >
@@ -92,24 +102,24 @@ const AutoSlider = () => {
       </div>
 
       {/* IMPACT STATS SECTION */}
-      <div style={styles.statsSection}>
+      <div style={{...styles.statsSection, background: `linear-gradient(135deg, ${colors.deepBg} 0%, ${colors.magenta} 100%)`}}>
         <div className="stats-scroll-container" style={styles.statsGrid}>
           {statsData.map((item, idx) => (
             <div 
               key={idx} 
               style={styles.statCard}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-10px) scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(2, 132, 199, 0.4)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.transform = 'translateY(-10px)';
+                e.currentTarget.style.borderColor = colors.gold;
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
               }}
             >
-              <div style={styles.iconWrapper}>{item.icon}</div>
+              <div style={{...styles.iconWrapper, color: colors.pink}}>{item.icon}</div>
               <h2 style={styles.statValue}>{item.value}</h2>
               <p style={styles.statLabel}>{item.label}</p>
             </div>
@@ -117,9 +127,9 @@ const AutoSlider = () => {
         </div>
         
         {/* WATCH NOW STRIP */}
-        <div style={styles.watchNowStrip}>
-          <div style={styles.playIcon}>
-            <Play size={14} fill="white" />
+        <div style={{...styles.watchNowStrip, background: `linear-gradient(to right, ${colors.pink}, ${colors.orange})`}}>
+          <div style={{...styles.playIcon, backgroundColor: colors.magenta}}>
+            <Play size={14} fill="white" stroke="white" />
           </div>
           <span style={styles.watchText}>How to Donate? Watch Now!</span>
         </div>
@@ -133,37 +143,38 @@ const styles = {
   container: { position: 'relative', width: '100vw', height: '75vh', overflow: 'hidden', backgroundColor: '#000' },
   slide: { position: 'absolute', inset: 0, transition: 'opacity 1.2s ease-in-out' },
   image: { width: '100%', height: '100%', objectFit: 'cover' },
-  overlay: { position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3))' },
-  content: { position: 'absolute', left: '8%', bottom: '20%', maxWidth: '520px', color: '#fff', zIndex: 5 },
-  text: { fontSize: '2.6rem', lineHeight: '1.3', marginBottom: '25px', fontWeight: '700' },
+  overlay: { position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.2))' },
+  content: { position: 'absolute', left: '8%', bottom: '20%', maxWidth: '600px', color: '#fff', zIndex: 5 },
+  text: { fontSize: '2.8rem', lineHeight: '1.2', marginBottom: '30px', fontWeight: '800', letterSpacing: '-0.5px' },
   
   button: { 
-    padding: '14px 34px', 
+    padding: '16px 40px', 
     fontSize: '1.1rem', 
-    fontWeight: '600', 
+    fontWeight: '800', 
     border: 'none', 
-    borderRadius: '30px', 
+    borderRadius: '50px', 
     cursor: 'pointer', 
-    backgroundColor: '#ffcc00', 
-    color: '#000', 
-    transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' 
+    color: '#fff', 
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' 
   },
 
   /* IMPACT STATS SECTION */
   statsSection: {
     width: '100%',
-    background: 'linear-gradient(90deg, #034d75 0%, #0284c7 100%)',
     display: 'flex',
     flexDirection: 'column',
+    borderTop: '1px solid rgba(212, 175, 55, 0.3)',
   },
   statsGrid: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    padding: '40px 20px',
+    padding: '50px 20px',
     overflowX: 'auto',
-    gap: '20px',
+    gap: '25px',
     WebkitOverflowScrolling: 'touch',
   },
   statCard: {
@@ -171,40 +182,40 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    padding: '25px 15px',
-    minWidth: '180px',
+    padding: '30px 20px',
+    minWidth: '200px',
     flexShrink: 0,
-    background: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(10px)',
-    borderRadius: '24px',
+    background: 'rgba(255, 255, 255, 0.08)',
+    backdropFilter: 'blur(12px)',
+    borderRadius: '30px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     color: '#fff',
-    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+    transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
     cursor: 'pointer',
   },
-  iconWrapper: { marginBottom: '12px', color: '#fff' },
-  statValue: { fontSize: '1.8rem', fontWeight: '900', margin: '5px 0' },
-  statLabel: { fontSize: '0.85rem', opacity: 0.9, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  iconWrapper: { marginBottom: '15px' },
+  statValue: { fontSize: '2rem', fontWeight: '900', margin: '5px 0', letterSpacing: '0.5px' },
+  statLabel: { fontSize: '0.8rem', opacity: 0.85, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1.2px' },
 
   watchNowStrip: {
-    backgroundColor: '#ffcc00',
-    padding: '15px 0',
+    padding: '18px 0',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '12px',
+    gap: '15px',
     cursor: 'pointer',
+    boxShadow: '0 -5px 20px rgba(0,0,0,0.1)'
   },
   playIcon: {
-    width: '32px',
-    height: '32px',
-    backgroundColor: '#034d75',
+    width: '36px',
+    height: '36px',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
   },
-  watchText: { color: '#034d75', fontWeight: '800', fontSize: '1.1rem', textTransform: 'uppercase' }
+  watchText: { color: '#fff', fontWeight: '900', fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '0.5px' }
 };
 
 export default AutoSlider;

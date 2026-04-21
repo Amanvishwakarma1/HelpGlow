@@ -6,7 +6,7 @@ const works = [
     title: "Essential Grocery Kits", 
     img: "https://i.postimg.cc/yN4Ttrb9/Whats-App-Image-2026-02-23-at-3-38-57-PM.jpg", 
     desc: "Providing a month of nutritious staples and hygiene essentials to families in crisis.", 
-    price: "Rs 50", 
+    price: "Rs 650", 
     unit: "per family", 
     videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" 
   },
@@ -24,7 +24,7 @@ const works = [
     title: "Feed a Friend", 
     img: "https://i.postimg.cc/Pf0zC5Wt/Whats-App-Image-2026-02-25-at-7-00-57-PM.jpg", 
     desc: "Your small contribution provides a full day of healthy meals and love for a stray dog in need.", 
-    price: "Rs 50", 
+    price: "Rs 40", 
     unit: "per meal", 
     videoUrl: "https://www.youtube.com/embed/EngW7tLk6R8" 
   },
@@ -33,7 +33,7 @@ const works = [
     title: "Food Security", 
     img: "https://i.postimg.cc/nhScFR6t/Whats-App-Image-2026-02-22-at-1-59-36-AM-(1).jpg", 
     desc: "Fueling lives and restoring dignity through consistent access to healthy food.", 
-    price: "Rs 50", 
+    price: "Rs 30", 
     unit: "per meal", 
     videoUrl: "https://www.youtube.com/embed/6m6uT_UInL8" 
   },
@@ -84,6 +84,14 @@ function OurWorks() {
   const [displayText, setDisplayText] = useState("");
   const fullText = "Our core values";
 
+  const colors = {
+    magenta: '#8e2382',
+    pink: '#e61e6e',
+    orange: '#f37021',
+    gold: '#d4af37',
+    lightPink: '#fff5f8'
+  };
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener('resize', handleResize);
@@ -117,7 +125,7 @@ function OurWorks() {
   }, []);
 
   return (
-    <section style={styles.section}>
+    <section style={{...styles.section, backgroundColor: colors.lightPink}}>
       <style>
         {`
           @keyframes blink {
@@ -127,13 +135,17 @@ function OurWorks() {
           .cursor-blink {
             animation: blink 0.8s infinite;
           }
+          .work-card-active:hover {
+            transform: translate(-50%, -55%) scale(1.02) !important;
+            box-shadow: 0 40px 80px rgba(142, 35, 130, 0.2) !important;
+          }
         `}
       </style>
 
       {activeVideo && (
         <div style={styles.modalOverlay} onClick={() => setActiveVideo(null)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button style={styles.closeBtn} onClick={() => setActiveVideo(null)}>✕</button>
+          <div style={{...styles.modalContent, border: `2px solid ${colors.gold}`}} onClick={(e) => e.stopPropagation()}>
+            <button style={{...styles.closeBtn, color: colors.magenta}} onClick={() => setActiveVideo(null)}>✕</button>
             <div style={styles.videoWrapper}>
               <iframe 
                 style={styles.iframe} 
@@ -148,8 +160,8 @@ function OurWorks() {
       )}
 
       <div style={styles.header}>
-        <h2 style={styles.heading}>Our Impactful Works</h2>
-        <div style={styles.underline}></div>
+        <h2 style={{...styles.heading, color: colors.magenta}}>Our Impactful Works</h2>
+        <div style={{...styles.underline, background: `linear-gradient(to right, ${colors.magenta}, ${colors.pink}, ${colors.orange})`}}></div>
         <p style={styles.subText}>Your kindness, their future. Explore our journey.</p>
       </div>
 
@@ -164,26 +176,11 @@ function OurWorks() {
               return (
                 <div 
                   key={work.id} 
-                  style={{ ...styles.card, ...styles[position] }}
-                  onMouseEnter={(e) => {
-                    if(position === "active") {
-                        e.currentTarget.style.transform = 'translate(-50%, -55%) scale(1.02)';
-                        e.currentTarget.style.boxShadow = '0 40px 80px rgba(2, 132, 199, 0.25)';
-                        const img = e.currentTarget.querySelector('.card-img');
-                        if(img) img.style.transform = 'translateY(-5px) scale(1.1)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if(position === "active") {
-                        e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
-                        e.currentTarget.style.boxShadow = '0 30px 60px rgba(0,0,0,0.12)';
-                        const img = e.currentTarget.querySelector('.card-img');
-                        if(img) img.style.transform = 'translateY(-5px) scale(1)';
-                    }
-                  }}
+                  className={i === index ? "work-card-active" : ""}
+                  style={{ ...styles.card, ...styles[position], border: position === 'active' ? `2px solid ${colors.gold}` : '1px solid rgba(0,0,0,0.03)' }}
                 >
                   <div style={styles.imageWrapper}>
-                    <div style={styles.priceBadge}>
+                    <div style={{...styles.priceBadge, background: `linear-gradient(135deg, ${colors.magenta} 0%, ${colors.pink} 100%)`, border: `1px solid ${colors.gold}`}}>
                         <span style={styles.priceVal}>{work.price}</span>
                         <span style={styles.priceUnit}>{work.unit}</span>
                     </div>
@@ -192,18 +189,18 @@ function OurWorks() {
                   </div>
                   
                   <div style={styles.cardContent}>
-                    <h3 style={styles.cardTitle}>{work.title}</h3>
+                    <h3 style={{...styles.cardTitle, color: colors.magenta}}>{work.title}</h3>
                     <p style={styles.cardDesc}>{work.desc}</p>
                     <div style={styles.buttonGroup}>
                       <button 
-                        style={styles.btnDonate}
-                        onMouseEnter={(e) => e.target.style.background = 'linear-gradient(135deg, #0284c7 0%, #034d75 100%)'}
-                        onMouseLeave={(e) => e.target.style.background = '#034d75'}
+                        style={{...styles.btnDonate, background: `linear-gradient(135deg, ${colors.magenta} 0%, ${colors.pink} 100%)`}}
+                        onMouseEnter={(e) => e.target.style.filter = 'brightness(1.1)'}
+                        onMouseLeave={(e) => e.target.style.filter = 'none'}
                       >
                         Donate {work.price}
                       </button>
                       <button 
-                        style={styles.btnDemo} 
+                        style={{...styles.btnDemo, color: colors.magenta, borderColor: colors.gold}} 
                         onClick={() => setActiveVideo(work.videoUrl)}
                       >
                         Watch Demo
@@ -217,14 +214,14 @@ function OurWorks() {
         </div>
         <div style={styles.dotContainer}>
           {works.map((_, i) => (
-            <button key={i} onClick={() => setIndex(i)} style={{ ...styles.dot, ...(index === i ? styles.dotActive : {}) }} />
+            <button key={i} onClick={() => setIndex(i)} style={{ ...styles.dot, backgroundColor: index === i ? colors.magenta : '#cbd5e1', ...(index === i ? styles.dotActive : {}) }} />
           ))}
         </div>
       </div>
       
       <hr style={styles.divider} />
 
-      <div style={{...styles.impactSection, maxWidth: isMobile ? '95%' : '1200px'}}>
+      <div style={{...styles.impactSection, maxWidth: isMobile ? '95%' : '1200px', border: `1px solid ${colors.gold}50`}}>
         <div style={{...styles.impactGrid, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr'}}>
           <div style={{...styles.impactImageContainer, height: isMobile ? '300px' : 'auto'}}>
             <img 
@@ -236,9 +233,9 @@ function OurWorks() {
           </div>
 
           <div style={{...styles.impactTextContainer, padding: isMobile ? '40px 20px' : '70px'}}>
-            <h4 style={styles.storyLabel}>Why Donate?</h4>
+            <h4 style={{...styles.storyLabel, color: colors.magenta}}>Why Donate?</h4>
             <h5 style={styles.impactCategory}>{impactStories[storyIndex].label}</h5>
-            <h2 style={{...styles.impactTitle, fontSize: isMobile ? '2.2rem' : '3.2rem'}}>{impactStories[storyIndex].title}</h2>
+            <h2 style={{...styles.impactTitle, fontSize: isMobile ? '2.2rem' : '3.2rem', color: colors.magenta}}>{impactStories[storyIndex].title}</h2>
             <p style={{...styles.impactPara, fontSize: isMobile ? '1.1rem' : '1.4rem'}}>{impactStories[storyIndex].para}</p>
             
             <div style={styles.miniDotContainer}>
@@ -246,7 +243,7 @@ function OurWorks() {
                 <div 
                   key={i} 
                   onClick={() => setStoryIndex(i)}
-                  style={{...styles.miniDot, backgroundColor: storyIndex === i ? '#0284c7' : '#cbd5e1'}} 
+                  style={{...styles.miniDot, backgroundColor: storyIndex === i ? colors.pink : '#cbd5e1'}} 
                 />
               ))}
             </div>
@@ -256,9 +253,9 @@ function OurWorks() {
 
       {/* --- CORE VALUES SECTION --- */}
       <div style={styles.valuesContainer}>
-        <h2 style={styles.writingHeading}>
+        <h2 style={{...styles.writingHeading, color: colors.magenta}}>
           {displayText}
-          <span className="cursor-blink" style={styles.cursor}>|</span>
+          <span className="cursor-blink" style={{...styles.cursor, backgroundColor: colors.pink}}>|</span>
         </h2>
         
         <div style={styles.valuesGrid}>
@@ -267,18 +264,18 @@ function OurWorks() {
               key={idx} 
               style={styles.valueCard}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 25px 50px rgba(2, 132, 199, 0.15)'; // Sky blue shadow
-                e.currentTarget.style.borderColor = '#0284c7';
+                e.currentTarget.style.transform = 'translateY(-10px)';
+                e.currentTarget.style.boxShadow = `0 25px 50px rgba(230, 30, 110, 0.15)`; 
+                e.currentTarget.style.borderColor = colors.gold;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.05)';
                 e.currentTarget.style.borderColor = '#f1f5f9';
               }}
             >
               <div style={styles.valueIcon}>{val.icon}</div>
-              <h3 style={styles.valueTitle}>{val.title}</h3>
+              <h3 style={{...styles.valueTitle, color: colors.magenta}}>{val.title}</h3>
               <p style={styles.valueDesc}>{val.desc}</p>
             </div>
           ))}
@@ -289,10 +286,10 @@ function OurWorks() {
 }
 
 const styles = {
-  section: { width: '100vw', padding: '100px 0', backgroundColor: '#fcfcfc', overflow: 'hidden' },
+  section: { width: '100vw', padding: '100px 0', overflow: 'hidden' },
   header: { textAlign: 'center', marginBottom: '40px' },
-  heading: { color: '#0f172a', fontSize: '3rem', fontWeight: '900', letterSpacing: '-1px' },
-  underline: { width: '60px', height: '6px', background: '#0284c7', margin: '15px auto', borderRadius: '50px' },
+  heading: { fontSize: '3rem', fontWeight: '900', letterSpacing: '-1px' },
+  underline: { width: '80px', height: '6px', margin: '15px auto', borderRadius: '50px' },
   subText: { color: '#64748b', fontSize: '1.2rem' },
 
   sliderContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '40px' },
@@ -304,7 +301,7 @@ const styles = {
     background: '#fff', borderRadius: '32px', 
     boxShadow: '0 30px 60px rgba(0,0,0,0.12)',
     transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)', 
-    overflow: 'hidden', border: '1px solid rgba(0,0,0,0.03)', cursor: 'pointer'
+    overflow: 'hidden', cursor: 'pointer'
   },
   
   imageWrapper: { width: '100%', height: '398px', overflow: 'hidden', position: 'relative', backgroundColor: '#f1f5f9' },
@@ -312,23 +309,23 @@ const styles = {
   imgOverlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.05))' },
 
   priceBadge: {
-    position: 'absolute', top: '20px', left: '20px', background: 'rgba(2, 132, 199, 0.85)', backdropFilter: 'blur(10px)',
+    position: 'absolute', top: '20px', left: '20px', backdropFilter: 'blur(10px)',
     color: '#fff', padding: '10px 18px', borderRadius: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 5
   },
   priceVal: { fontSize: '1.2rem', fontWeight: '900' },
   priceUnit: { fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: '600' },
 
   cardContent: { padding: '30px', textAlign: 'left' },
-  cardTitle: { color: '#1e293b', fontSize: '1.6rem', fontWeight: '800', marginBottom: '12px' },
+  cardTitle: { fontSize: '1.6rem', fontWeight: '800', marginBottom: '12px' },
   cardDesc: { color: '#64748b', fontSize: '1rem', marginBottom: '25px', lineHeight: '1.6', minHeight: '50px' },
 
   buttonGroup: { display: 'flex', gap: '15px' },
-  btnDonate: { flex: 2, padding: '15px', background: '#034d75', color: '#fff', border: 'none', borderRadius: '16px', cursor: 'pointer', fontWeight: '700', transition: '0.3s' },
-  btnDemo: { flex: 1, padding: '15px', background: 'transparent', color: '#034d75', border: '2px solid #e2e8f0', borderRadius: '16px', cursor: 'pointer', fontWeight: '700' },
+  btnDonate: { flex: 2, padding: '15px', color: '#fff', border: 'none', borderRadius: '16px', cursor: 'pointer', fontWeight: '700', transition: '0.3s' },
+  btnDemo: { flex: 1, padding: '15px', background: 'transparent', border: '2px solid', borderRadius: '16px', cursor: 'pointer', fontWeight: '700', transition: '0.3s' },
 
   dotContainer: { display: 'flex', gap: '10px', marginTop: '20px' },
-  dot: { width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#cbd5e1', border: 'none', cursor: 'pointer', transition: '0.4s' },
-  dotActive: { backgroundColor: '#0284c7', width: '35px', borderRadius: '10px' },
+  dot: { width: '10px', height: '10px', borderRadius: '50%', border: 'none', cursor: 'pointer', transition: '0.4s' },
+  dotActive: { width: '35px', borderRadius: '10px' },
 
   active: { transform: 'translate(-50%, -50%) scale(1)', opacity: 1, zIndex: 10 },
   prev: { transform: 'translate(-125%, -50%) scale(0.8) rotateY(20deg)', opacity: 0.5, zIndex: 5 },
@@ -338,15 +335,15 @@ const styles = {
   impactGrid: { display: 'grid', minHeight: '550px' },
   impactImageContainer: { overflow: 'hidden' },
   impactImg: { width: '100%', height: '100%', objectFit: 'cover' },
-  impactTextContainer: { display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)' },
-  storyLabel: { color: '#0284c7', textTransform: 'uppercase', letterSpacing: '5px', fontWeight: '800', fontSize: '1.2rem', marginBottom: '15px' },
+  impactTextContainer: { display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'linear-gradient(135deg, #ffffff 0%, #fffbfd 100%)' },
+  storyLabel: { textTransform: 'uppercase', letterSpacing: '5px', fontWeight: '800', fontSize: '1.2rem', marginBottom: '15px' },
   impactCategory: { color: '#64748b', fontSize: '1.4rem', fontWeight: '500', marginBottom: '10px' },
-  impactTitle: { color: '#0f172a', fontWeight: '900', lineHeight: '1.1', marginBottom: '25px' },
+  impactTitle: { fontWeight: '900', lineHeight: '1.1', marginBottom: '25px' },
   impactPara: { color: '#475569', lineHeight: '1.8', marginBottom: '40px' },
   miniDotContainer: { display: 'flex', gap: '12px' },
   miniDot: { width: '12px', height: '12px', borderRadius: '50%', transition: '0.3s', cursor: 'pointer' },
 
-  divider: { maxWidth: '1100px', margin: '60px auto', border: 'none', borderTop: '2px solid #f1f5f9' },
+  divider: { maxWidth: '1100px', margin: '60px auto', border: 'none', borderTop: '2px solid rgba(212, 175, 55, 0.2)' },
   modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
   modalContent: { width: '90%', maxWidth: '900px', position: 'relative', borderRadius: '24px', overflow: 'hidden' },
   closeBtn: { position: 'absolute', top: '20px', right: '20px', background: '#fff', border: 'none', width: '35px', height: '35px', borderRadius: '50%', cursor: 'pointer', fontWeight: 'bold', zIndex: 1010 },
@@ -354,8 +351,8 @@ const styles = {
   iframe: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
 
   valuesContainer: { maxWidth: '1200px', margin: '100px auto 0 auto', padding: '0 20px', textAlign: 'center' },
-  writingHeading: { fontSize: '3.5rem', fontWeight: '900', color: '#034d75', marginBottom: '50px', minHeight: '4.5rem' },
-  cursor: { display: 'inline-block', width: '4px', marginLeft: '5px', backgroundColor: '#0284c7' },
+  writingHeading: { fontSize: '3.5rem', fontWeight: '900', marginBottom: '50px', minHeight: '4.5rem' },
+  cursor: { display: 'inline-block', width: '4px', marginLeft: '5px' },
   valuesGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px', paddingBottom: '80px' },
   valueCard: { 
     background: '#fff', padding: '45px 35px', borderRadius: '28px', border: '1px solid #f1f5f9', 
@@ -363,7 +360,7 @@ const styles = {
     display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'default' 
   },
   valueIcon: { fontSize: '3.5rem', marginBottom: '25px' },
-  valueTitle: { fontSize: '1.6rem', fontWeight: '800', color: '#1e293b', marginBottom: '18px' },
+  valueTitle: { fontSize: '1.6rem', fontWeight: '800', marginBottom: '18px' },
   valueDesc: { color: '#64748b', lineHeight: '1.7', fontSize: '1.05rem' },
 };
 

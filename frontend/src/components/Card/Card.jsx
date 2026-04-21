@@ -1,53 +1,61 @@
 import React from "react";
 
 function Card(props) {
+  // Brand Colors
+  const colors = {
+    magenta: '#8e2382',
+    pink: '#e61e6e',
+    gold: '#d4af37',
+    lightBg: '#fffdf9'
+  };
+
   const styles = {
     founderCardWrapper: {
       display: "inline-block",
-      // margin creates the gap from top/bottom and left/right
       margin: "15px", 
-      // This ensures the wrapper takes up available space
       width: "calc(100% - 30px)", 
-      maxWidth: "320px", // Increased base size, but caps on desktop
+      maxWidth: "300px", 
     },
     founderCard: {
-      width: "100%", // Takes full width of the wrapper
+      width: "100%", 
       backgroundColor: "#ffffff",
-      borderRadius: "12px",
-      boxShadow: "0 10px 20px rgba(0, 0, 0, 0.08)",
+      borderRadius: "24px", // Matches premium theme
+      boxShadow: "0 10px 25px rgba(142, 35, 130, 0.08)",
       overflow: "hidden",
       textAlign: "center",
-      transition: "all 0.3s ease-in-out",
-      border: "1px solid rgba(0, 0, 0, 0.05)",
+      transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+      border: `1px solid rgba(212, 175, 55, 0.2)`, // Subtle gold border
     },
     imageArea: {
       width: "100%",
-      // Height is set to auto or a larger fixed value to maintain aspect ratio
-      height: "280px", 
+      height: "300px", 
       overflow: "hidden",
     },
     founderImg: {
       width: "100%",
       height: "100%",
       objectFit: "cover",
+      transition: "transform 0.5s ease",
     },
     founderInfo: {
-      padding: "20px",
-      backgroundColor: "#F5EBD7", 
-      borderTop: "1px solid rgba(0, 0, 0, 0.05)",
+      padding: "25px 20px",
+      backgroundColor: "#ffffff", // Pure white for a clean look
+      borderTop: `1px solid #f1f5f9`,
     },
     founderName: {
       margin: "0 0 5px 0",
-      fontSize: "1.3rem", // Slightly larger for the bigger card
-      color: "#005689", 
-      fontWeight: "700",
+      fontSize: "1.35rem",
+      color: colors.magenta, // Deep Magenta for the Name
+      fontWeight: "800",
+      letterSpacing: "-0.5px"
     },
     founderTitle: {
       margin: 0,
-      fontSize: "1rem", // Slightly larger for readability
-      color: "#547295", 
-      fontWeight: "500",
-      lineHeight: "1.4",
+      fontSize: "0.9rem",
+      color: colors.pink, // Vibrant Pink for the Title
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: "1.5px",
     },
   };
 
@@ -55,13 +63,21 @@ function Card(props) {
     <div style={styles.founderCardWrapper}>
       <div 
         style={styles.founderCard}
+        className="team-hover-card"
         onMouseOver={(e) => {
-          e.currentTarget.style.transform = "translateY(-8px)";
-          e.currentTarget.style.boxShadow = "0 20px 30px rgba(0, 0, 0, 0.12)";
+          e.currentTarget.style.transform = "translateY(-12px)";
+          e.currentTarget.style.boxShadow = "0 25px 50px rgba(142, 35, 130, 0.15)";
+          e.currentTarget.style.borderColor = colors.gold;
+          // Zoom image on hover
+          const img = e.currentTarget.querySelector('img');
+          if(img) img.style.transform = "scale(1.1)";
         }}
         onMouseOut={(e) => {
           e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 10px 20px rgba(0, 0, 0, 0.08)";
+          e.currentTarget.style.boxShadow = "0 10px 25px rgba(142, 35, 130, 0.08)";
+          e.currentTarget.style.borderColor = "rgba(212, 175, 55, 0.2)";
+          const img = e.currentTarget.querySelector('img');
+          if(img) img.style.transform = "scale(1)";
         }}
       >
         <div style={styles.imageArea}>

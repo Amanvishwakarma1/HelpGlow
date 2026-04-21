@@ -14,6 +14,15 @@ const Menu = () => {
   const [copiedAcc, setCopiedAcc] = useState(false);
   const [copiedIfsc, setCopiedIfsc] = useState(false);
 
+  // Brand Colors
+  const colors = {
+    magenta: '#8e2382',
+    pink: '#e61e6e',
+    orange: '#f37021',
+    gold: '#d4af37',
+    lightBg: '#fffdf9'
+  };
+
   // Form State
   const [formData, setFormData] = useState({
     userName: '',
@@ -31,18 +40,16 @@ const Menu = () => {
     { id: 1, category: 'Single Product', name: 'Food Packet', price: 30, icon: '🍲', img: 'https://i.postimg.cc/GpbC6sH2/Whats-App-Image-2026-02-23-at-12-27-10-PM.jpg' },
     { id: 2, category: 'Single Product', name: 'Dog Foods', price: 40, icon: '🐶', img: 'https://i.postimg.cc/MZ18ZDRP/Whats-App-Image-2026-01-20-at-9-24-31-PM.jpg' },
     { id: 3, category: 'Single Product', name: 'Basic Education Kit', price: 50, icon: '📚', img: 'https://i.postimg.cc/8kXL5RSY/Whats-App-Image-2026-01-20-at-9-15-45-PM.jpg' },
-    { id: 4, category: 'Single Product', name: 'Grocery Kit', price: 550, icon: '🧺', img: 'https://i.postimg.cc/NM4STN4y/Whats-App-Image-2026-01-20-at-9-21-49-PM.jpg' },
+    { id: 4, category: 'Single Product', name: 'Grocery Kit', price: 650, icon: '🧺', img: 'https://i.postimg.cc/NM4STN4y/Whats-App-Image-2026-01-20-at-9-21-49-PM.jpg' },
     { id: 5, category: 'Single Product', name: 'Celebration Cake', price: 600, icon: '🎂', img: 'https://i.postimg.cc/TP24xjGd/Whats-App-Image-2026-02-23-at-3-36-28-PM.jpg' },
     { id: 6, category: 'Combo Product', name: 'Food & Cake Combo', price: 850, icon: '🎁', img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg' },
     { id: 7, category: 'Combo Product', name: 'Mini Party', price: 1500, icon: '🎉', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600' },
     { id: 8, category: 'Combo Product', name: 'Special Party', price: 2000, icon: '✨', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=600' },
-    { id: 9, category: 'Combo Product', name: 'Golden Celebration', price: 3000, icon: '🥇', img: 'https://images.unsplash.com/photo-1511795409834-432f7b3027a0?q=80&w=600' },
+    { id: 9, category: 'Combo Product', name: 'Golden Celebration', price: 3000, icon: '🥇', img: 'https://i.postimg.cc/VNfF6vQF/20260411-175139-jpg.jpg' },
     { id: 10, category: 'Combo Product', name: 'Grand Party', price: 4500, icon: '👑', img: 'https://i.postimg.cc/zX44YHPZ/Whats-App-Image-2026-02-23-at-3-36-29-PM-(1).jpg' }
   ];
 
   const getMinQty = (price) => Math.ceil(600 / price);
-
-  // Validations
   const isPhoneValid = /^\d{10}$/.test(formData.whatsapp);
   const isEmailValid = formData.email === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
   const isFormValid = formData.userName && isPhoneValid && isEmailValid;
@@ -106,7 +113,6 @@ const Menu = () => {
       `*Video Date:* ${formData.videoDate}%0A%0A` +
       `I have uploaded the payment screenshot. Please verify.`;
     
-    // Updated to use the specific business WhatsApp link
     const whatsappUrl = `https://wa.me/message/ZMTBXKUYV7MWB1?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -119,12 +125,12 @@ const Menu = () => {
   };
 
   return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.heroBanner}>
+    <div style={{...styles.pageWrapper, backgroundColor: colors.lightBg}}>
+      <div style={{...styles.heroBanner, background: `linear-gradient(135deg, ${colors.magenta} 0%, ${colors.pink} 60%, ${colors.orange} 100%)`}}>
         <div style={styles.heroOverlayContent}>
-          <p style={styles.foundationTag}>HelpGlow Foundation</p>
+          <p style={styles.foundationTag}>Premium Donation Portal</p>
           <h1 style={styles.heroHeading}>Donation Price List</h1>
-          <p style={styles.heroSubHeading}>100% transparent and direct impact</p>
+          <p style={styles.heroSubHeading}>Every small gift lights a spark of hope.</p>
         </div>
       </div>
 
@@ -137,7 +143,7 @@ const Menu = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Search size={20} style={styles.searchIcon} color="#0ea5e9" />
+          <Search size={20} style={styles.searchIcon} color={colors.pink} />
         </div>
 
         <div className="no-scrollbar" style={styles.categoryNav}>
@@ -148,9 +154,9 @@ const Menu = () => {
               onClick={() => setActiveCategory(cat)}
               style={{
                 ...styles.categoryPill, 
-                backgroundColor: activeCategory === cat ? '#0ea5e9' : 'transparent',
-                color: activeCategory === cat ? '#fff' : '#0ea5e9',
-                borderColor: '#0ea5e9'
+                backgroundColor: activeCategory === cat ? colors.magenta : 'transparent',
+                color: activeCategory === cat ? '#fff' : colors.magenta,
+                borderColor: colors.magenta
               }}
             >
               {cat}s
@@ -162,33 +168,32 @@ const Menu = () => {
       <main style={styles.feedContainer}>
         <div style={styles.cardGrid}>
           {filteredProducts.map((product) => (
-            <div key={product.id} className="donation-card" style={styles.donationCard}>
+            <div key={product.id} className="donation-card" style={{...styles.donationCard, border: `1px solid rgba(212, 175, 55, 0.2)`}}>
               <div style={{overflow: 'hidden', height: '180px', position: 'relative'}}>
                 <div 
                   className="card-image-bg" 
                   style={{
                     ...styles.cardImage, 
                     backgroundImage: `url("${product.img}")`,
-                    backgroundColor: '#f1f5f9'
                   }}
                 >
-                   <span style={styles.cardCatTag}>{product.category}</span>
+                   <span style={{...styles.cardCatTag, background: colors.magenta}}>{product.category}</span>
                 </div>
               </div>
               <div style={styles.cardContent}>
                 <div style={styles.cardInfoMeta}>
                     <span style={{fontSize: '24px'}}>{product.icon}</span>
-                    <h3 style={styles.cardName}>{product.name}</h3>
+                    <h3 style={{...styles.cardName, color: '#1e293b'}}>{product.name}</h3>
                 </div>
                 
                 <div style={styles.cardActionArea}>
-                    <div style={styles.priceTag}>
+                    <div style={{...styles.priceTag, color: colors.magenta}}>
                         <span style={{fontSize: '16px', marginRight: '2px'}}>₹</span>
                         <span style={{fontSize: '22px'}}>{product.price}</span>
                     </div>
                     <button 
                       className="donate-btn" 
-                      style={styles.donateBtn}
+                      style={{...styles.donateBtn, background: `linear-gradient(135deg, ${colors.magenta}, ${colors.pink})`}}
                       onClick={() => handleSelectProduct(product)}
                     >
                         <ShoppingCart size={18} /> Donate
@@ -202,7 +207,7 @@ const Menu = () => {
 
       {selectedProduct && (
         <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
+          <div style={{...styles.modalContent, border: `2px solid ${colors.gold}`}}>
             <div style={styles.modalHeader}>
               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                 {(showForm || showQR) && (
@@ -210,126 +215,106 @@ const Menu = () => {
                     cursor="pointer" 
                     size={20} 
                     onClick={() => showQR ? setShowQR(false) : setShowForm(false)} 
-                    style={{color: '#64748b'}}
+                    style={{color: colors.magenta}}
                    />
                 )}
-                <h3 style={{fontSize: '18px', margin: 0, fontWeight: '800'}}>
-                  {showQR ? "Payment" : showForm ? "Information" : "Quantity"}
+                <h3 style={{fontSize: '18px', margin: 0, fontWeight: '800', color: colors.magenta}}>
+                  {showQR ? "Secure Payment" : showForm ? "Details" : "Quantity"}
                 </h3>
               </div>
-              <X cursor="pointer" onClick={closeModal} />
+              <X cursor="pointer" onClick={closeModal} color="#94a3b8" />
             </div>
 
             {!showForm && !showQR ? (
               <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '4px' }}>Select Units</p>
+                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>How many units would you like to sponsor?</p>
                 <div style={styles.counterRow}>
-                  <button style={styles.countBtn} onClick={() => setQuantity(q => Math.max(getMinQty(selectedProduct.price), q - 1))}><Minus size={20} /></button>
+                  <button style={{...styles.countBtn, color: colors.magenta}} onClick={() => setQuantity(q => Math.max(getMinQty(selectedProduct.price), q - 1))}><Minus size={20} /></button>
                   <div style={{display:'flex', flexDirection:'column'}}>
-                    <span style={styles.quantityDisplay}>{quantity}</span>
-                    <span style={{fontSize:'10px', color:'#94a3b8'}}>Units</span>
+                    <span style={{...styles.quantityDisplay, color: colors.magenta}}>{quantity}</span>
+                    <span style={{fontSize:'10px', color:'#94a3b8', fontWeight: '800'}}>UNITS</span>
                   </div>
-                  <button style={styles.countBtn} onClick={() => setQuantity(q => q + 1)}><Plus size={20} /></button>
+                  <button style={{...styles.countBtn, color: colors.magenta}} onClick={() => setQuantity(q => q + 1)}><Plus size={20} /></button>
                 </div>
-                <div style={styles.totalBox}>
-                  <span>Total Amount:</span>
-                  <span style={{ fontWeight: '800', color: '#0ea5e9' }}>₹{selectedProduct.price * quantity}</span>
+                <div style={{...styles.totalBox, border: `1px solid ${colors.gold}40`}}>
+                  <span style={{fontWeight: '700'}}>Total Donation:</span>
+                  <span style={{ fontWeight: '800', color: colors.pink }}>₹{selectedProduct.price * quantity}</span>
                 </div>
-                <button style={styles.confirmBtn} onClick={() => setShowForm(true)}>Continue</button>
+                <button style={{...styles.confirmBtn, background: `linear-gradient(to right, ${colors.magenta}, ${colors.pink})`}} onClick={() => setShowForm(true)}>Continue</button>
               </div>
             ) : showForm && !showQR ? (
               <div style={{ textAlign: 'left' }}>
-                <div style={styles.inputGroup}><label style={styles.label}>Name:</label><input style={styles.input} type="text" name="userName" value={formData.userName} onChange={handleInputChange} placeholder="Full Name" /></div>
+                <div style={styles.inputGroup}><label style={styles.label}>FULL NAME</label><input style={styles.input} type="text" name="userName" value={formData.userName} onChange={handleInputChange} /></div>
+                <div style={styles.inputGroup}><label style={styles.label}>WHATSAPP NUMBER</label><input style={styles.input} type="number" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} /></div>
+                <div style={styles.inputGroup}><label style={styles.label}>PRINT NAME (ON VIDEO)</label><input style={styles.input} type="text" name="printName" value={formData.printName} onChange={handleInputChange} /></div>
+                <div style={styles.inputGroup}><label style={styles.label}>VIDEO DATE</label><input style={styles.input} type="date" name="videoDate" value={formData.videoDate} onChange={handleInputChange} /></div>
                 
                 <div style={styles.inputGroup}>
-                  <label style={styles.label}>WhatsApp Number:</label>
-                  <input style={{...styles.input, borderColor: formData.whatsapp && !isPhoneValid ? '#ef4444' : '#e2e8f0'}} type="number" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} placeholder="10 Digits" />
-                </div>
-
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Email ID (optional):</label>
-                  <input style={{...styles.input, borderColor: !isEmailValid ? '#ef4444' : '#e2e8f0'}} type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email" />
-                </div>
-
-                <div style={styles.inputGroup}><label style={styles.label}>Print Name:</label><input style={styles.input} type="text" name="printName" value={formData.printName} onChange={handleInputChange} /></div>
-                <div style={styles.inputGroup}><label style={styles.label}>Kids Wishing:</label><input style={styles.input} type="text" name="kidsWishing" value={formData.kidsWishing} onChange={handleInputChange} /></div>
-                <div style={styles.inputGroup}><label style={styles.label}>Video Date:</label><input style={styles.input} type="date" name="videoDate" value={formData.videoDate} onChange={handleInputChange} /></div>
-                
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Photo Needed:</label>
+                  <label style={styles.label}>WANT TO UPLOAD PHOTO?</label>
                   <select style={styles.input} name="photoNeeded" value={formData.photoNeeded} onChange={handleInputChange}>
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
+                    <option value="No">No, thanks</option>
+                    <option value="Yes">Yes, upload photo</option>
                   </select>
                 </div>
 
                 {formData.photoNeeded === 'Yes' && (
-                  <div style={{...styles.uploadBox, background: '#f0f9ff', borderColor: '#0ea5e9', marginBottom: '10px'}}>
-                    <label style={{cursor: 'pointer', color: '#0ea5e9', fontSize: '13px', fontWeight: 'bold'}}>
-                      <Upload size={14}/> {formData.selectedImage ? "Photo Selected" : "Upload Photo"}
+                  <div style={{...styles.uploadBox, background: '#fff5f8', borderColor: colors.pink, marginBottom: '15px'}}>
+                    <label style={{cursor: 'pointer', color: colors.pink, fontSize: '13px', fontWeight: 'bold'}}>
+                      <Upload size={14}/> {formData.selectedImage ? "Photo Ready" : "Select Photo"}
                       <input type="file" hidden onChange={(e) => handleFileChange(e, 'selectedImage')} accept="image/*" />
                     </label>
                   </div>
                 )}
 
                 <button 
-                  style={{...styles.confirmBtn, opacity: isFormValid ? 1 : 0.5}} 
+                  style={{...styles.confirmBtn, background: `linear-gradient(to right, ${colors.magenta}, ${colors.pink})`, opacity: isFormValid ? 1 : 0.5}} 
                   disabled={!isFormValid} 
                   onClick={() => setShowQR(true)}
                 >
-                  Confirm & Pay ₹{selectedProduct.price * quantity}
+                  Pay ₹{selectedProduct.price * quantity}
                 </button>
               </div>
             ) : (
               <div style={{ textAlign: 'center' }}>
-                <div style={styles.accountBox}>
-                    <p style={styles.accountTitle}>Uco Bank Details (Tap to Copy)</p>
-                    <div 
-                      className="copy-click" 
-                      onClick={() => handleCopyText("22040210005699", "acc")}
-                      style={{...styles.accountDetailRow, cursor: 'pointer'}}
-                    >
-                      <span>A/C: <strong>22040210005699</strong></span>
-                      {copiedAcc ? <span style={styles.copiedBadge}><Check size={12}/> Copied</span> : <Copy size={14} color="#0ea5e9" />}
+                <div style={{...styles.accountBox, background: '#fffdf5', borderColor: colors.gold}}>
+                    <p style={{...styles.accountTitle, color: colors.magenta}}>Bank Transfer Details</p>
+                    <div onClick={() => handleCopyText("22040210005699", "acc")} style={styles.accountDetailRow}>
+                      <span style={{fontSize: '12px'}}>A/C: <strong>22040210005699</strong></span>
+                      {copiedAcc ? <span style={styles.copiedBadge}><Check size={12}/> Copied</span> : <Copy size={14} color={colors.gold} />}
                     </div>
-                    <div 
-                      className="copy-click" 
-                      onClick={() => handleCopyText("UCBA0002204", "ifsc")}
-                      style={{...styles.accountDetailRow, border: 0, cursor: 'pointer'}}
-                    >
-                      <span>IFSC: <strong>UCBA0002204</strong></span>
-                      {copiedIfsc ? <span style={styles.copiedBadge}><Check size={12}/> Copied</span> : <Copy size={14} color="#0ea5e9" />}
+                    <div onClick={() => handleCopyText("UCBA0002204", "ifsc")} style={{...styles.accountDetailRow, border: 0}}>
+                      <span style={{fontSize: '12px'}}>IFSC: <strong>UCBA0002204</strong></span>
+                      {copiedIfsc ? <span style={styles.copiedBadge}><Check size={12}/> Copied</span> : <Copy size={14} color={colors.gold} />}
                     </div>
-                    <div style={{fontSize: '11px', textAlign: 'center', color: '#64748b', marginTop: '4px'}}>Name: <strong>Helpglow Foundation</strong></div>
                 </div>
                 
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', margin: '15px 0 10px'}}>
-                  <p style={{fontSize: '13px', fontWeight: '700', color: '#64748b'}}>Scan QR Code</p>
-                  <button onClick={handleDownloadQR} style={styles.downloadLink}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', margin: '20px 0 10px'}}>
+                  <p style={{fontSize: '13px', fontWeight: '800', color: colors.magenta}}>Scan to Donate</p>
+                  <button onClick={handleDownloadQR} style={{...styles.downloadLink, color: colors.pink}}>
                     <Download size={14}/> Save QR
                   </button>
                 </div>
 
-                <div style={styles.qrContainer}>
-                  <img src={upiQRCode} alt="QR" style={{ width: '150px', borderRadius: '15px' }} />
+                <div style={{...styles.qrContainer, borderColor: colors.gold}}>
+                  <img src={upiQRCode} alt="QR" style={{ width: '160px', borderRadius: '12px' }} />
                 </div>
 
-                <div style={{...styles.uploadBox, marginTop: '15px', borderColor: formData.paymentScreenshot ? '#22c55e' : '#ef4444'}}>
-                   <label style={{cursor: 'pointer', color: formData.paymentScreenshot ? '#22c55e' : '#ef4444', fontSize: '13px', fontWeight: 'bold'}}>
-                      <ImageIcon size={14}/> {formData.paymentScreenshot ? "Screenshot Ready" : "Upload Screenshot *"}
+                <div style={{...styles.uploadBox, marginTop: '20px', borderColor: formData.paymentScreenshot ? '#22c55e' : colors.magenta}}>
+                   <label style={{cursor: 'pointer', color: formData.paymentScreenshot ? '#22c55e' : colors.magenta, fontSize: '13px', fontWeight: 'bold'}}>
+                      <ImageIcon size={14}/> {formData.paymentScreenshot ? "Ready to Verify" : "Upload Payment Screenshot *"}
                       <input type="file" hidden onChange={(e) => handleFileChange(e, 'paymentScreenshot')} accept="image/*" />
                    </label>
                 </div>
 
-                <div style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
+                <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
                     <button 
                       style={{...styles.confirmBtn, backgroundColor: '#25D366', flex: 1, opacity: formData.paymentScreenshot ? 1 : 0.5}} 
                       onClick={handleWhatsAppNotify}
                       disabled={!formData.paymentScreenshot}
                     >
-                        <Send size={18}/> Send WhatsApp
+                        <Send size={18}/> Verify on WhatsApp
                     </button>
-                    <button style={{...styles.confirmBtn, backgroundColor: '#64748b', flex: 1}} onClick={closeModal}>Done</button>
+                    <button style={{...styles.confirmBtn, backgroundColor: '#475569', flex: 1}} onClick={closeModal}>Done</button>
                 </div>
               </div>
             )}
@@ -339,56 +324,58 @@ const Menu = () => {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; transition: all 0.2s ease; }
+        * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .donation-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(14, 165, 233, 0.2); }
-        .copy-click:active { transform: scale(0.96); background: #e0f2fe; }
+        .donation-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .donation-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(142, 35, 130, 0.15); }
+        .copy-click:active { transform: scale(0.96); }
+        input:focus, select:focus { border-color: ${colors.pink} !important; box-shadow: 0 0 0 3px ${colors.pink}15; }
       `}</style>
     </div>
   );
 };
 
 const styles = {
-  pageWrapper: { minHeight: '100vh', backgroundColor: '#fcfdfe', overflowX: 'hidden' },
-  heroBanner: { width: '100%', height: '280px', background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 60%, #bae6fd 100%)', display: 'flex', alignItems: 'center', padding: '0 8%', color: '#fff', marginBottom: '20px' },
-  heroHeading: { fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: '800', margin: 0 },
-  heroSubHeading: { fontSize: '18px', marginTop: '12px', opacity: 0.9 },
-  foundationTag: { fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', margin: '0 0 10px 0' },
-  headerArea: { textAlign: 'center', padding: '30px 20px', backgroundColor: '#fff', borderBottom: '1px solid #f1f5f9' },
-  searchContainer: { position: 'relative', maxWidth: '500px', margin: '0 auto 25px', boxShadow: '0 8px 25px rgba(14, 165, 233, 0.08)', borderRadius: '50px' },
-  searchInput: { width: '100%', padding: '16px 25px', borderRadius: '50px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '15px' },
-  searchIcon: { position: 'absolute', right: '22px', top: '18px' },
-  categoryNav: { display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '15px', maxWidth: '1000px', margin: '0 auto' },
-  categoryPill: { padding: '10px 24px', borderRadius: '50px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', border: '1px solid' },
-  feedContainer: { maxWidth: '1300px', margin: '30px auto', padding: '0 20px 80px' },
-  cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' },
-  donationCard: { borderRadius: '20px', overflow: 'hidden', background: '#fff', border: '1px solid #f1f5f9' },
-  cardImage: { backgroundSize: 'cover', backgroundPosition: 'center', width: '100%', height: '100%' },
-  cardCatTag: { position: 'absolute', top: '12px', left: '12px', fontSize: '10px', background: 'rgba(15, 23, 42, 0.8)', padding: '4px 10px', borderRadius: '5px', color: '#fff' },
+  pageWrapper: { minHeight: '100vh', overflowX: 'hidden' },
+  heroBanner: { width: '100%', height: '260px', display: 'flex', alignItems: 'center', padding: '0 8%', color: '#fff' },
+  heroHeading: { fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: '800', margin: 0, letterSpacing: '-1px' },
+  heroSubHeading: { fontSize: '17px', marginTop: '10px', opacity: 0.9, fontWeight: '600' },
+  foundationTag: { fontSize: '13px', fontWeight: '800', textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', margin: '0 0 8px 0', letterSpacing: '1px' },
+  headerArea: { textAlign: 'center', padding: '40px 20px', backgroundColor: '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' },
+  searchContainer: { position: 'relative', maxWidth: '500px', margin: '0 auto 25px' },
+  searchInput: { width: '100%', padding: '15px 25px', borderRadius: '50px', border: '1.5px solid #edf2f7', outline: 'none', fontSize: '15px', backgroundColor: '#f8fafc' },
+  searchIcon: { position: 'absolute', right: '22px', top: '16px' },
+  categoryNav: { display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '10px', maxWidth: '1000px', margin: '0 auto', justifyContent: 'center' },
+  categoryPill: { padding: '10px 24px', borderRadius: '50px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: '2px solid', transition: '0.3s' },
+  feedContainer: { maxWidth: '1250px', margin: '20px auto', padding: '0 25px 100px' },
+  cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' },
+  donationCard: { borderRadius: '25px', overflow: 'hidden', background: '#fff' },
+  cardImage: { backgroundSize: 'cover', backgroundPosition: 'center', width: '100%', height: '100%', backgroundColor: '#fafafa' },
+  cardCatTag: { position: 'absolute', top: '15px', left: '15px', fontSize: '10px', padding: '5px 12px', borderRadius: '50px', color: '#fff', fontWeight: '800' },
   cardContent: { padding: '20px' },
-  cardInfoMeta: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', borderBottom: '1px solid #f1f5f9', paddingBottom: '15px' },
-  cardName: { fontSize: '16px', fontWeight: '600', margin: 0 },
-  cardActionArea: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  priceTag: { display: 'flex', alignItems: 'baseline', color: '#0ea5e9', fontWeight: '800' },
-  donateBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' },
-  modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '28px', width: '100%', maxWidth: '420px', maxHeight: '95vh', overflowY: 'auto' },
-  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
-  counterRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '25px', marginBottom: '20px' },
-  countBtn: { width: '45px', height: '45px', borderRadius: '50%', border: 'none', backgroundColor: '#f0f9ff', color: '#0ea5e9', cursor: 'pointer' },
-  quantityDisplay: { fontSize: '24px', fontWeight: '800' },
-  totalBox: { backgroundColor: '#f8fafc', padding: '15px', borderRadius: '15px', display: 'flex', justifyContent: 'space-between', margin: '20px 0' },
-  confirmBtn: { width: '100%', padding: '14px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' },
-  qrContainer: { padding: '10px', background: '#f8fafc', borderRadius: '20px', border: '1px dashed #cbd5e1' },
-  accountBox: { textAlign: 'left', background: '#f0f9ff', padding: '15px', borderRadius: '15px', border: '1px solid #bae6fd' },
-  accountTitle: { fontWeight: '800', color: '#0ea5e9', marginBottom: '8px', textAlign: 'center', fontSize: '12px' },
-  accountDetailRow: { display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '5px', padding: '8px', borderRadius: '8px' },
-  label: { display: 'block', fontSize: '12px', fontWeight: '800', color: '#64748b', marginBottom: '5px' },
-  input: { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '12px', outline: 'none' },
-  uploadBox: { padding: '15px', border: '1px dashed', borderRadius: '12px', textAlign: 'center' },
-  inputGroup: { marginBottom: '5px' },
-  downloadLink: { background:'none', border:'none', color:'#0ea5e9', display:'flex', alignItems:'center', gap:'4px', fontSize:'12px', fontWeight:'700', cursor:'pointer' },
-  copiedBadge: { background: '#22c55e', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '2px' }
+  cardInfoMeta: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' },
+  cardName: { fontSize: '17px', fontWeight: '700', margin: 0 },
+  cardActionArea: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '15px' },
+  priceTag: { display: 'flex', alignItems: 'baseline', fontWeight: '900' },
+  donateBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 22px', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: '800', cursor: 'pointer' },
+  modalOverlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(26, 32, 44, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' },
+  modalContent: { backgroundColor: '#fff', padding: '35px', borderRadius: '30px', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto' },
+  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' },
+  counterRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '30px', marginBottom: '25px' },
+  countBtn: { width: '48px', height: '48px', borderRadius: '50%', border: 'none', backgroundColor: '#fff5f9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  quantityDisplay: { fontSize: '28px', fontWeight: '900' },
+  totalBox: { backgroundColor: '#fdfcf7', padding: '18px', borderRadius: '20px', display: 'flex', justifyContent: 'space-between', margin: '20px 0', fontSize: '16px' },
+  confirmBtn: { width: '100%', padding: '16px', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' },
+  qrContainer: { padding: '15px', background: '#fff', borderRadius: '20px', border: '2px dashed #e2e8f0', display: 'inline-block' },
+  accountBox: { textAlign: 'left', padding: '18px', borderRadius: '20px', border: '2.5px solid' },
+  accountTitle: { fontWeight: '900', marginBottom: '12px', textAlign: 'center', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' },
+  accountDetailRow: { display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '8px', padding: '10px', borderRadius: '10px', background: '#fff', border: '1px solid #f1f5f9' },
+  label: { display: 'block', fontSize: '11px', fontWeight: '900', color: '#94a3b8', marginBottom: '6px', letterSpacing: '0.5px' },
+  input: { width: '100%', padding: '12px 15px', borderRadius: '12px', border: '1.5px solid #edf2f7', marginBottom: '15px', outline: 'none', fontSize: '14px', fontWeight: '600' },
+  uploadBox: { padding: '18px', border: '2px dashed', borderRadius: '15px', textAlign: 'center' },
+  inputGroup: { marginBottom: '4px' },
+  downloadLink: { background:'none', border:'none', display:'flex', alignItems:'center', gap:'6px', fontSize:'12px', fontWeight:'800', cursor:'pointer' },
+  copiedBadge: { background: '#22c55e', color: '#fff', fontSize: '10px', padding: '3px 8px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '3px' }
 };
 
 export default Menu;

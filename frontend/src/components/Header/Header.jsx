@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { User, LogOut, Settings, X, Menu, ChevronDown } from "lucide-react";
 import axios from "axios";
-import toast from "react-hot-toast"; // Import toast
+import toast from "react-hot-toast";
 
 function Header() {
   const location = useLocation();
@@ -17,7 +17,15 @@ function Header() {
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
-  // --- AUTOMATIC DONATION NOTIFICATION LOGIC ---
+  // Branding Colors
+  const colors = {
+    magenta: '#8e2382',
+    pink: '#e61e6e',
+    orange: '#f37021',
+    gold: '#d4af37',
+    glass: 'rgba(255, 255, 255, 0.7)'
+  };
+
   useEffect(() => {
     const names = ["Raju", "Amit", "Priya", "Sneha", "Vikram", "Anjali", "Rahul", "Sandeep", "Karan", "Meera"];
     const campaigns = ["Medical Emergency", "Education Fund", "Clean Water Project", "Animal Shelter", "Food Relief"];
@@ -25,7 +33,6 @@ function Header() {
     const showRandomDonation = () => {
       const randomName = names[Math.floor(Math.random() * names.length)];
       const randomCampaign = campaigns[Math.floor(Math.random() * campaigns.length)];
-      // Random amount between 600 and 5000
       const randomAmount = Math.floor(Math.random() * (5000 - 600 + 1)) + 600;
 
       toast.custom((t) => (
@@ -42,12 +49,11 @@ function Header() {
           </button>
         </div>
       ), { 
-        position: 'bottom-left', 
+        position: 'top-center', 
         duration: 4000 
       });
     };
 
-    // First one after 4 seconds, then every 10-15 seconds
     const initialTimeout = setTimeout(showRandomDonation, 4000);
     const interval = setInterval(() => {
       showRandomDonation();
@@ -65,7 +71,6 @@ function Header() {
 
   const dropdownRef = useRef(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -76,12 +81,10 @@ function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close menu on navigation
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location]);
 
-  // LOCK SCROLL
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -94,7 +97,7 @@ function Header() {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    const tId = toast.loading("Updating profile..."); // Use toast instead of alert
+    const tId = toast.loading("Updating profile...");
     try {
       const token = localStorage.getItem('token');
       const res = await axios.put('http://localhost:5000/api/auth/update-profile', 
@@ -121,15 +124,6 @@ function Header() {
     <>
       <style>
         {`
-          html, body {
-            max-width: 100vw;
-            overflow-x: hidden !important;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            position: relative;
-          }
-
           .glass-header {
             position: sticky; 
             top: 0; 
@@ -137,118 +131,136 @@ function Header() {
             display: flex;
             align-items: center; 
             justify-content: space-between;
-            padding: 0 20px; 
-            background: rgba(186, 230, 253, 0.6);
-            backdrop-filter: blur(14px); 
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(56, 189, 248, 0.3);
-            height: 65px;
+            padding: 0 40px; 
+            background: ${colors.glass};
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            height: 70px;
             width: 100%;
             box-sizing: border-box;
           }
           
-          .logo-wrapper { display: flex; align-items: center; gap: 10px; text-decoration: none; z-index: 1100; }
-          .logo-img { height: 38px; width: 38px; border-radius: 50%; background: white; padding: 2px; }
-          .logo-text { font-size: 1.3rem; font-weight: 800; color: #0369a1; text-decoration: none; }
+          .logo-wrapper { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+          .logo-img { height: 42px; width: 42px; border-radius: 50%; border: 2px solid ${colors.gold}; background: white; }
+          .logo-text { 
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            background: linear-gradient(to right, ${colors.magenta}, ${colors.pink});
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none; 
+          }
           
-          .nav-links ul { list-style: none; display: flex; gap: 5px; align-items: center; margin: 0; padding: 0; }
+          .nav-links ul { list-style: none; display: flex; gap: 8px; align-items: center; margin: 0; padding: 0; }
           
           .nav-links a, .user-trigger { 
             text-decoration: none; 
-            color: #0369a1; 
+            color: #4a5568; 
             font-weight: 600; 
-            padding: 8px 14px; 
-            border-radius: 10px; 
-            font-size: 14px !important; 
-            transition: background 0.2s ease; 
+            padding: 8px 16px; 
+            border-radius: 50px; 
+            font-size: 14px; 
+            transition: all 0.3s ease; 
             display: flex; 
             align-items: center; 
             gap: 6px;
             background: transparent; 
             border: none; 
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
           }
           
           .nav-links a:hover, .user-trigger:hover { 
-            background: rgba(56, 189, 248, 0.15); 
+            color: ${colors.pink};
+            background: rgba(230, 30, 110, 0.05);
           }
 
-          .nav-links a:active {
-            background: rgba(56, 189, 248, 0.25);
-            font-size: 14px !important;
-          }
-
-          .mobile-toggle { display: none; cursor: pointer; color: #0284c7; z-index: 1100; background: none; border: none; }
-          .user-menu-container { position: relative; }
+          .mobile-toggle { display: none; cursor: pointer; color: ${colors.magenta}; background: none; border: none; }
           
           .profile-dropdown {
-            position: absolute; top: 50px; right: 0; width: 190px;
-            background: white; border-radius: 12px; padding: 6px;
-            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1); border: 1px solid #e0f2fe;
+            position: absolute; top: 55px; right: 0; width: 200px;
+            background: white; border-radius: 15px; padding: 8px;
+            box-shadow: 0 15px 35px rgba(142, 35, 130, 0.15); border: 1px solid rgba(212, 175, 55, 0.1);
           }
 
           .dropdown-item {
-            padding: 10px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
             font-size: 14px;
-            border-radius: 8px;
-            color: #0369a1;
+            border-radius: 10px;
+            color: #4a5568;
+            transition: 0.2s;
           }
-          .dropdown-item:hover { background: #f0f9ff; }
+          .dropdown-item:hover { background: ${colors.lightPink}; color: ${colors.magenta}; }
 
           @media (max-width: 850px) {
+            .glass-header { padding: 0 20px; }
             .mobile-toggle { display: block; }
             .nav-links {
-              position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #ffffff;
+              position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: white;
               z-index: 1050; padding-top: 80px;
               transform: translateX(${isMenuOpen ? '0' : '100%'});
-              visibility: ${isMenuOpen ? 'visible' : 'hidden'};
-              transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
-              display: block;
+              transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              display: ${isMenuOpen ? 'block' : 'none'};
             }
-            .nav-links ul { flex-direction: column; width: 100%; gap: 0; }
-            .nav-links li { width: 100%; border-bottom: 1px solid #f8fafc; }
-            .nav-links a, .user-trigger { width: 100%; padding: 18px 25px; border-radius: 0; font-size: 17px !important; }
-            .profile-dropdown { position: static; box-shadow: none; border: none; width: 100%; padding-left: 45px; background: #fbfdff; }
+            .nav-links ul { flex-direction: column; width: 100%; }
+            .nav-links a { width: 100%; padding: 20px 30px; font-size: 18px !important; border-bottom: 1px solid #f7fafc; }
           }
 
-          /* Notification Popup Styles */
+          /* --- BRANDED TOP NOTIFICATION --- */
           .custom-social-toast {
-            background: white; padding: 12px; border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            display: flex; align-items: center; gap: 12px;
-            border: 1px solid #e0f2fe; min-width: 280px; position: relative;
-            animation: slideInBottom 0.3s ease-out;
+            background: white; 
+            padding: 12px 20px; 
+            border-radius: 50px; 
+            box-shadow: 0 15px 40px rgba(142, 35, 130, 0.2);
+            display: flex; 
+            align-items: center; 
+            gap: 14px;
+            border: 1.5px solid ${colors.gold}; 
+            min-width: 320px; 
+            animation: slideInTop 0.5s cubic-bezier(0.23, 1, 0.32, 1);
           }
-          .toast-avatar { 
-            width: 35px; height: 35px; background: #0ea5e9; color: white; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;
-          }
-          .toast-user { margin: 0; font-size: 13px; font-weight: 700; color: #1e293b; }
-          .toast-action { font-weight: 400; color: #64748b; }
-          .toast-subtext { margin: 0; font-size: 12px; color: #0369a1; }
-          .toast-close-btn { background: none; border: none; color: #94a3b8; cursor: pointer; position: absolute; top: 8px; right: 8px; }
 
-          @keyframes slideInBottom {
-            from { transform: translateY(100%); opacity: 0; }
+          .toast-avatar { 
+            width: 36px; height: 36px; 
+            background: linear-gradient(135deg, ${colors.magenta}, ${colors.pink}); 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 800;
+          }
+
+          .toast-user { margin: 0; font-size: 14px; font-weight: 700; color: #1a202c; }
+          .toast-subtext { margin: 0; font-size: 12px; color: ${colors.magenta}; font-weight: 600; }
+          .toast-close-btn { background: none; border: none; color: #a0aec0; cursor: pointer; }
+
+          @keyframes slideInTop {
+            from { transform: translateY(-130%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
           }
 
           .modal-overlay {
             position: fixed; inset: 0;
-            background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
+            background: rgba(26, 32, 44, 0.6); backdrop-filter: blur(8px);
             display: flex; justify-content: center; align-items: center; z-index: 2000;
-            padding: 15px;
           }
           .modal-card { 
-            background: white; width: 100%; max-width: 380px; padding: 25px; 
-            border-radius: 20px; position: relative; box-sizing: border-box;
+            background: white; width: 90%; max-width: 400px; padding: 30px; 
+            border-radius: 24px; border: 2px solid ${colors.gold};
           }
-          .input-field { width: 100%; padding: 12px; margin: 8px 0 18px 0; border: 1.5px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
+          .input-field { 
+            width: 100%; padding: 12px; margin: 8px 0 20px 0; 
+            border: 1.5px solid #e2e8f0; border-radius: 12px; outline: none;
+            transition: 0.3s;
+          }
+          .input-field:focus { border-color: ${colors.pink}; box-shadow: 0 0 0 3px rgba(230, 30, 110, 0.1); }
+          .save-btn {
+             width: 100%; background: linear-gradient(to right, ${colors.magenta}, ${colors.pink}); 
+             color: white; padding: 14px; border: none; borderRadius: 12px; fontWeight: 800; cursor: pointer;
+          }
         `}
       </style>
 
@@ -259,7 +271,7 @@ function Header() {
         </div>
 
         <button className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
         <nav className="nav-links">
@@ -273,23 +285,25 @@ function Header() {
             {user ? (
               <li className="user-menu-container" ref={dropdownRef}>
                 <button className="user-trigger" onClick={() => setShowDropdown(!showDropdown)}>
-                  <User size={19} />
-                  <span>{user.username}</span>
-                  <ChevronDown size={14} style={{ transform: showDropdown ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
+                  <div style={{ background: colors.lightPink, padding: '5px', borderRadius: '50%', display: 'flex' }}>
+                    <User size={18} color={colors.magenta} />
+                  </div>
+                  <span style={{color: colors.magenta, fontWeight: '700'}}>{user.username}</span>
+                  <ChevronDown size={14} color={colors.magenta} style={{ transform: showDropdown ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
                 </button>
                 {showDropdown && (
                   <div className="profile-dropdown">
                     <div className="dropdown-item" onClick={() => { setShowProfileModal(true); setShowDropdown(false); setIsMenuOpen(false); }}>
                       <Settings size={18} /> Edit Profile
                     </div>
-                    <div className="dropdown-item" style={{color: '#ef4444'}} onClick={handleLogout}>
+                    <div className="dropdown-item" style={{color: colors.pink}} onClick={handleLogout}>
                       <LogOut size={18} /> Logout
                     </div>
                   </div>
                 )}
               </li>
             ) : (
-              <li><Link to="/login">Login</Link></li>
+              <li><Link to="/login" style={{ color: colors.magenta, fontWeight: '800' }}>Login</Link></li>
             )}
           </ul>
         </nav>
@@ -299,19 +313,17 @@ function Header() {
         <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <X 
-               size={20} 
-               style={{position:'absolute', top: 20, right: 20, cursor:'pointer'}} 
+               size={22} 
+               style={{position:'absolute', top: 25, right: 25, cursor:'pointer', color: colors.textLight}} 
                onClick={() => setShowProfileModal(false)} 
             />
-            <h2 style={{marginTop: 0, fontSize: '20px'}}>Account Settings</h2>
+            <h2 style={{marginTop: 0, fontSize: '22px', color: colors.magenta}}>Account Settings</h2>
             <form onSubmit={handleUpdateProfile}>
-              <label style={{fontSize: '13px', fontWeight: '600'}}>Username</label>
+              <label style={{fontSize: '13px', fontWeight: '700', color: '#4a5568'}}>Username</label>
               <input className="input-field" value={newName} onChange={(e) => setNewName(e.target.value)} required />
-              <label style={{fontSize: '13px', fontWeight: '600'}}>New Password</label>
+              <label style={{fontSize: '13px', fontWeight: '700', color: '#4a5568'}}>New Password</label>
               <input className="input-field" type="password" placeholder="Leave blank to keep current" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-              <button type="submit" style={{
-                width: '100%', background: '#0ea5e9', color: 'white', padding: '12px', border: 'none', borderRadius: '10px', fontWeight: 'bold'
-              }}>Save Changes</button>
+              <button type="submit" className="save-btn">Save Changes</button>
             </form>
           </div>
         </div>
