@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom"; // Added for seamless login redirects
 import { ShoppingCart, Search, X, Plus, Minus, Send, Download, Copy, Check, Upload, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 
 // Import your local QR image correctly for Vite
 import upiQRCode from '../../assets/donation-qr.jpeg';
 
 const Menu = () => {
+  const navigate = useNavigate(); // Hook for standard react router routing
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -37,17 +39,104 @@ const Menu = () => {
   });
 
   const products = [
-    { id: 1, category: 'Single Product', name: 'Food Packet', price: 30, icon: '🍲', img: 'https://i.postimg.cc/GpbC6sH2/Whats-App-Image-2026-02-23-at-12-27-10-PM.jpg' },
-    { id: 2, category: 'Single Product', name: 'Dog Foods', price: 40, icon: '🐶', img: 'https://i.postimg.cc/MZ18ZDRP/Whats-App-Image-2026-01-20-at-9-24-31-PM.jpg' },
-    { id: 3, category: 'Single Product', name: 'Basic Education Kit', price: 50, icon: '📚', img: 'https://i.postimg.cc/8kXL5RSY/Whats-App-Image-2026-01-20-at-9-15-45-PM.jpg' },
-    { id: 4, category: 'Single Product', name: 'Grocery Kit', price: 650, icon: '🧺', img: 'https://i.postimg.cc/NM4STN4y/Whats-App-Image-2026-01-20-at-9-21-49-PM.jpg' },
-    { id: 5, category: 'Single Product', name: 'Celebration Cake', price: 600, icon: '🎂', img: 'https://i.postimg.cc/TP24xjGd/Whats-App-Image-2026-02-23-at-3-36-28-PM.jpg' },
-    { id: 6, category: 'Combo Product', name: 'Food & Cake Combo', price: 850, icon: '🎁', img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg' },
-    { id: 7, category: 'Combo Product', name: 'Mini Party', price: 1500, icon: '🎉', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600' },
-    { id: 8, category: 'Combo Product', name: 'Special Party', price: 2000, icon: '✨', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=600' },
-    { id: 9, category: 'Combo Product', name: 'Golden Celebration', price: 3000, icon: '🥇', img: 'https://i.postimg.cc/VNfF6vQF/20260411-175139-jpg.jpg' },
-    { id: 10, category: 'Combo Product', name: 'Grand Party', price: 4500, icon: '👑', img: 'https://i.postimg.cc/zX44YHPZ/Whats-App-Image-2026-02-23-at-3-36-29-PM-(1).jpg' }
+    { 
+      id: 1, 
+      category: 'Single Product', 
+      name: 'Food Packet', 
+      price: 30, 
+      icon: '🍲', 
+      desc: 'Provide a warm, nutritious meal to an elderly or homeless person today.',
+      img: 'https://i.postimg.cc/GpbC6sH2/Whats-App-Image-2026-02-23-at-12-27-10-PM.jpg' 
+    },
+    { 
+      id: 2, 
+      category: 'Single Product', 
+      name: 'Dog Foods', 
+      price: 40, 
+      icon: '🐶', 
+      desc: 'Help us feed the stray dogs in our community who are wandering hungry.',
+      img: 'https://i.postimg.cc/MZ18ZDRP/Whats-App-Image-2026-01-20-at-9-24-31-PM.jpg' 
+    },
+    { 
+      id: 3, 
+      category: 'Single Product', 
+      name: 'Basic Education Kit', 
+      price: 50, 
+      icon: '📚', 
+      desc: 'Sponsor essential stationery like notebooks and pens for a slum child.',
+      img: 'https://i.postimg.cc/8kXL5RSY/Whats-App-Image-2026-01-20-at-9-15-45-PM.jpg' 
+    },
+    { 
+      id: 4, 
+      category: 'Single Product', 
+      name: 'Grocery Kit', 
+      price: 650, 
+      icon: '🧺', 
+      desc: 'A complete monthly ration kit including rice, dal, and oil for a poor family.',
+      img: 'https://i.postimg.cc/NM4STN4y/Whats-App-Image-2026-01-20-at-9-21-49-PM.jpg' 
+    },
+    { 
+      id: 5, 
+      category: 'Single Product', 
+      name: 'Celebration Cake', 
+      price: 600, 
+      icon: '🎂', 
+      desc: 'Bring a smile to a child’s face by sponsoring their very first birthday cake.',
+      img: 'https://i.postimg.cc/TP24xjGd/Whats-App-Image-2026-02-23-at-3-36-28-PM.jpg' 
+    },
+    { 
+      id: 6, 
+      category: 'Combo Product', 
+      name: 'Food & Cake Combo', 
+      price: 850, 
+      icon: '🎁', 
+      desc: 'Celebrate your special day by sharing a cake and meals with 20+ children.',
+      img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg' 
+    },
+    { 
+      id: 7, 
+      category: 'Combo Product', 
+      name: 'Mini Party', 
+      price: 1500, 
+      icon: '🎉', 
+      desc: 'Includes meals, small gifts, and a fun evening for a group of orphans.',
+      img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600' 
+    },
+    { 
+      id: 8, 
+      category: 'Combo Product', 
+      name: 'Special Party', 
+      price: 2000, 
+      icon: '✨', 
+      desc: 'A full grand meal with toys and interactive games for our foundation kids.',
+      img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=600' 
+    },
+    { 
+      id: 9, 
+      category: 'Combo Product', 
+      name: 'Golden Celebration', 
+      price: 3000, 
+      icon: '🥇', 
+      desc: 'Our most popular choice for anniversaries. Includes premium meal kits.',
+      img: 'https://i.postimg.cc/VNfF6vQF/20260411-175139-jpg.jpg' 
+    },
+    { 
+      id: 10, 
+      category: 'Combo Product', 
+      name: 'Grand Party', 
+      price: 4500, 
+      icon: '👑', 
+      desc: 'The ultimate sponsorship covering food, clothes, and sweets for 50+ kids.',
+      img: 'https://i.postimg.cc/zX44YHPZ/Whats-App-Image-2026-02-23-at-3-36-29-PM-(1).jpg' 
+    }
   ];
+
+  // Helper function to check if the product is a single-entity package
+  // Covers: Mini Party (7), Special Party (8), Golden Celebration (9), Grand Party (10)
+  const isSingleEntity = (product) => {
+    if (!product) return false;
+    return [7, 8, 9, 10].includes(product.id);
+  };
 
   const getMinQty = (price) => Math.ceil(600 / price);
   const isPhoneValid = /^\d{10}$/.test(formData.whatsapp);
@@ -61,9 +150,27 @@ const Menu = () => {
   });
 
   const handleSelectProduct = (product) => {
+    // 1. Session verification check (evaluates standard login flags)
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || !!localStorage.getItem('user');
+    
+    if (!isLoggedIn) {
+      alert("Authentication required. Redirecting you to the login page...");
+      navigate('/login');
+      return;
+    }
+
+    // 2. Load product configurations
     setSelectedProduct(product);
-    setQuantity(getMinQty(product.price));
-    setShowForm(false);
+    
+    if (isSingleEntity(product)) {
+      // Bypass quantity screen completely for party entities
+      setQuantity(1);
+      setShowForm(true); 
+    } else {
+      // Standard flow (requires quantity adjustments first)
+      setQuantity(getMinQty(product.price));
+      setShowForm(false);
+    }
     setShowQR(false);
   };
 
@@ -186,6 +293,8 @@ const Menu = () => {
                     <h3 style={{...styles.cardName, color: '#1e293b'}}>{product.name}</h3>
                 </div>
                 
+                <p style={styles.cardDescription}>{product.desc}</p>
+                
                 <div style={styles.cardActionArea}>
                     <div style={{...styles.priceTag, color: colors.magenta}}>
                         <span style={{fontSize: '16px', marginRight: '2px'}}>₹</span>
@@ -205,6 +314,7 @@ const Menu = () => {
         </div>
       </main>
 
+      {/* Dynamic Modal Section */}
       {selectedProduct && (
         <div style={styles.modalOverlay}>
           <div style={{...styles.modalContent, border: `2px solid ${colors.gold}`}}>
@@ -214,7 +324,18 @@ const Menu = () => {
                    <ChevronLeft 
                     cursor="pointer" 
                     size={20} 
-                    onClick={() => showQR ? setShowQR(false) : setShowForm(false)} 
+                    onClick={() => {
+                      if (showQR) {
+                        setShowQR(false);
+                      } else {
+                        // Dynamic back trigger: Single entity package has no quantity screen to fallback to
+                        if (isSingleEntity(selectedProduct)) {
+                          closeModal();
+                        } else {
+                          setShowForm(false);
+                        }
+                      }
+                    }} 
                     style={{color: colors.magenta}}
                    />
                 )}
@@ -353,8 +474,9 @@ const styles = {
   cardImage: { backgroundSize: 'cover', backgroundPosition: 'center', width: '100%', height: '100%', backgroundColor: '#fafafa' },
   cardCatTag: { position: 'absolute', top: '15px', left: '15px', fontSize: '10px', padding: '5px 12px', borderRadius: '50px', color: '#fff', fontWeight: '800' },
   cardContent: { padding: '20px' },
-  cardInfoMeta: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' },
+  cardInfoMeta: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' },
   cardName: { fontSize: '17px', fontWeight: '700', margin: 0 },
+  cardDescription: { fontSize: '13px', color: '#64748b', lineHeight: '1.5', marginBottom: '18px', fontWeight: '500', minHeight: '40px' },
   cardActionArea: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '15px' },
   priceTag: { display: 'flex', alignItems: 'baseline', fontWeight: '900' },
   donateBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 22px', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: '800', cursor: 'pointer' },

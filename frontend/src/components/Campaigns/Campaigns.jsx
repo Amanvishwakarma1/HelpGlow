@@ -1,13 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { 
-  PlusSquare, X, Camera, Search 
-} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PlusSquare, X, Camera, Search, MessageSquare, Copy, Send, Heart } from 'lucide-react';
+import { COLORS, CATEGORIES } from './config';
+import { styles } from './styles';
+import { CardSkeleton, CampaignCard } from './SubComponents';
 
-const Menu = () => {
+export default function Menu() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Modals & Drawers States
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [commentDrawerPost, setCommentDrawerPost] = useState(null);
+  const [shareDrawerPost, setShareDrawerPost] = useState(null);
+  const [newCommentText, setNewCommentText] = useState('');
+  
+  // Localized comment stores fallback caching
+  const [localComments, setLocalComments] = useState({});
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   
@@ -19,32 +31,24 @@ const Menu = () => {
     caption: '', location: '', media_url: '', is_video: false, category: 'General' 
   });
 
-  // Branded Colors
-  const colors = {
-    magenta: '#8e2382',
-    pink: '#e61e6e',
-    orange: '#f37021',
-    gold: '#d4af37',
-    lightPink: '#fff5f8'
-  };
+  // 🛡️ ADMIN-ONLY GATING: Checks standard role configurations
+  const isAdmin = localStorage.getItem('isAdmin') === 'true' || 
+                  localStorage.getItem('role') === 'admin' || 
+                  localStorage.getItem('userEmail') === 'admin@helpglow.org';
 
-  const categories = [
-    "All Causes", "Birthday Giving", "Anniversary Giving", "Animal", 
-    "Giving To The Needy", "Nature", "Valentine's Day Giving", 
-    "Memorial Giving", "Women Care", "Education"
-  ];
-
-  useEffect(() => { loadContent(); }, []);
+  useEffect(() => { 
+    loadContent(); 
+  }, []);
 
   const loadContent = async () => {
     setLoading(true);
     try {
       const res = await axios.get('https://helpglow.onrender.com/api/campaigns');
-      setPosts(res.data.filter(item => !item.is_video));
-      setTimeout(() => setLoading(false), 1000);
+      setPosts(res.data);
     } catch (err) { 
       console.error(err); 
-      setLoading(false); 
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,7 +62,7 @@ const Menu = () => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    const matchedCat = categories.find(cat => 
+    const matchedCat = CATEGORIES.find(cat => 
       cat.toLowerCase().startsWith(value.toLowerCase()) && value.length > 2
     );
     if (matchedCat) setActiveCategory(matchedCat);
@@ -76,22 +80,91 @@ const Menu = () => {
       setIsUploading(false);
       setShowCreateModal(false);
       setUploadProgress(0);
+      setFormData({ caption: '', location: '', media_url: '', is_video: false, category: 'General' });
     } catch (err) { 
       setIsUploading(false); 
       alert("Upload Failed"); 
     }
   };
 
+  // Add Comment Function with Local Fallbacks
+  const handleAddComment = (e) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) return;
+
+    const postId = commentDrawerPost.id || commentDrawerPost._id;
+    const commentRecord = {
+      username: localStorage.getItem('username') || 'helpglow_donor',
+      text: newCommentText,
+      timestamp: new Date().toLocaleDateString()
+    };
+
+    // Load active list, append new comment, and sync
+    const activeList = localComments[postId] || [];
+    const updatedList = [...activeList, commentRecord];
+    
+    setLocalComments(prev => ({ ...prev, [postId]: updatedList }));
+    localStorage.setItem(`post_comments_${postId}`, JSON.stringify(updatedList));
+    setNewCommentText('');
+  };
+
+  // Load comment details dynamically on click
+  const handleOpenComments = (post) => {
+    const postId = post.id || post._id;
+    const cached = localStorage.getItem(`post_comments_${postId}`);
+    if (cached) {
+      setLocalComments(prev => ({ ...prev, [postId]: JSON.parse(cached) }));
+    }
+    setCommentDrawerPost(post);
+  };
+
+  const handleCopyShareLink = () => {
+    const path = `${window.location.origin}/campaigns/${shareDrawerPost.id || shareDrawerPost._id}`;
+    navigator.clipboard.writeText(path);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
   return (
-    <div style={{...styles.pageWrapper, backgroundColor: colors.lightPink}}>
-      {/* 1. HERO SECTION (Branded Theme) */}
-      <div style={{...styles.heroBanner, background: `linear-gradient(135deg, ${colors.magenta} 0%, ${colors.pink} 60%, ${colors.orange} 100%)`}}>
+    <div style={{ ...styles.pageWrapper, backgroundColor: COLORS.lightPink }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .skeleton { background: #fff; border-radius: 24px; border: 1px solid #fce4ec; }
+        
+        .instagram-input:focus {
+          border-color: ${COLORS.pink} !important;
+          box-shadow: 0 0 0 3px ${COLORS.pink}20 !important;
+        }
+      `}</style>
+
+      {/* ── DESIGN HERO BANNER DISPLAY STRIP ── */}
+      <div style={{ ...styles.heroBanner, background: `linear-gradient(135deg, ${COLORS.magenta} 0%, ${COLORS.pink} 60%, ${COLORS.orange} 100%)` }}>
         <div style={styles.heroOverlayContent}>
-          <h1 style={styles.heroHeading}>Explore Campaigns</h1>
-          <p style={styles.heroSubHeading}>Every life matters. Extend your support and ignite a spark of hope today!</p>
+          <motion.h1 
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            style={styles.heroHeading}
+          >
+            Explore Campaigns
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.95 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            style={styles.heroSubHeading}
+          >
+            Every life matters. Extend your support and ignite a spark of hope today!
+          </motion.p>
         </div>
         <div style={styles.heroImageContainer}>
-          <img 
+          <motion.img 
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.7, type: "spring" }}
             src="https://i.postimg.cc/Qxfkcgsr/Whats-App-Image-2026-02-21-at-11-29-12-PM-(1).png" 
             alt="Campaign Hero" 
             style={styles.heroImg}
@@ -99,8 +172,10 @@ const Menu = () => {
         </div>
       </div>
 
+      {/* ── FILTER ARCHITECTURE HEAD AREA ── */}
       <header style={styles.headerArea}>
-        <h1 style={{...styles.mainTitle, color: colors.magenta}}>Causes That Matter</h1>
+        <h1 style={{ ...styles.mainTitle, color: COLORS.magenta }}>Causes That Matter</h1>
+        
         <div style={styles.searchContainer}>
           <input 
             type="text" 
@@ -109,179 +184,467 @@ const Menu = () => {
             value={searchQuery}
             onChange={handleSearchChange}
           />
-          <Search size={20} style={styles.searchIcon} color={colors.pink} />
+          <Search size={20} style={styles.searchIcon} color={COLORS.pink} />
         </div>
 
-        <div className="no-scrollbar" style={styles.categoryNav}>
-          {categories.map((cat) => (
-            <button 
+        {/* Swipeable Horizontal Scroll Nav Strip */}
+        <motion.div className="no-scrollbar" style={styles.categoryNav}>
+          {CATEGORIES.map((cat) => (
+            <motion.button 
               key={cat} 
-              className="category-pill"
               onClick={() => setActiveCategory(cat)}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               style={{
                 ...styles.categoryPill, 
-                backgroundColor: activeCategory === cat ? colors.magenta : 'transparent',
-                color: activeCategory === cat ? '#fff' : colors.magenta,
-                borderColor: colors.magenta
+                backgroundColor: activeCategory === cat ? COLORS.magenta : 'transparent',
+                color: activeCategory === cat ? '#fff' : COLORS.magenta,
+                borderColor: COLORS.magenta
               }}
             >
               {cat}
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
       </header>
 
+      {/* ── STAGGERED FEED GRID FRAME ── */}
       <main style={styles.feedContainer}>
-        <div style={styles.cardGrid}>
-          {loading ? [1,2,3,4].map(i => <div key={i} className="skeleton" style={styles.cardSkeleton} />) : 
-            filteredPosts.map((post) => (
-              <div key={post.id} className="cause-card" style={{...styles.causeCard, border: `1px solid ${colors.gold}40`}}>
-                <div className="card-image-bg" style={{...styles.cardImage, backgroundImage: `url(${post.media_url})`}}>
-                  <div style={styles.whatsappBadge} onClick={() => window.open('https://wa.me/message/ZMTBXKUYV7MWB1')}>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" alt="WA" />
-                  </div>
-                  <div style={styles.cardOverlay}>
-                    <span style={{...styles.cardCatTag, background: colors.gold}}>{post.category}</span>
-                    <p style={styles.cardCaption}>{post.caption}</p>
-                  </div>
-                </div>
-              </div>
-            ))
-          }
-        </div>
+        <motion.div 
+          layout="position"
+          style={styles.cardGrid}
+          initial="hidden"
+          animate="show"
+          variants={{
+            show: { transition: { staggerChildren: 0.05 } }
+          }}
+        >
+          <AnimatePresence mode="popLayout">
+            {loading ? 
+              [1, 2, 3, 4, 5, 6].map(i => <CardSkeleton key={`skeleton-${i}`} />) : 
+              filteredPosts.map((post) => (
+                <CampaignCard 
+                  key={post.id || post._id} 
+                  post={post} 
+                  onOpenComments={handleOpenComments}
+                  onOpenShare={setShareDrawerPost}
+                />
+              ))
+            }
+          </AnimatePresence>
+        </motion.div>
       </main>
 
-      <button className="fab-btn" style={{...styles.fab, background: colors.magenta}} onClick={() => setShowCreateModal(true)}>
-        <PlusSquare size={28} />
-      </button>
-
-      {/* MODAL SECTION */}
-      {showCreateModal && (
-        <div style={styles.modalOverlay}>
-          <div className="modal-content-branded" style={{...styles.modalContent, border: `2px solid ${colors.gold}`}}>
-            <div style={{display:'flex', justifyContent:'space-between', marginBottom:'20px'}}>
-              <h3 style={{color: colors.magenta, fontWeight: '800'}}>New Campaign Update</h3>
-              <X onClick={() => setShowCreateModal(false)} cursor="pointer" color="#94a3b8" />
-            </div>
-            <div style={{...styles.uploadBox, borderColor: colors.gold, background: colors.lightPink}} onClick={() => fileInputRef.current.click()}>
-              {formData.media_url ? <img src={formData.media_url} style={styles.preview} alt="" /> : <Camera color={colors.magenta} size={40} />}
-              <input type="file" ref={fileInputRef} hidden onChange={(e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onloadend = () => setFormData({ ...formData, media_url: reader.result, is_video: file.type.startsWith('video') });
-                reader.readAsDataURL(file);
-              }} />
-            </div>
-            <button className="submit-btn" style={{...styles.submitBtn, background: `linear-gradient(to right, ${colors.magenta}, ${colors.pink})`}} onClick={handleCreatePost} disabled={isUploading}>
-              {isUploading ? 'Spreading Hope...' : 'Post Campaign'}
-            </button>
-          </div>
-        </div>
+      {/* ── 🛡️ ADMIN-ONLY UPLOAD FAB BUTTON ── */}
+      {isAdmin && (
+        <motion.button 
+          className="fab-btn" 
+          style={{ ...styles.fab, background: COLORS.magenta }} 
+          onClick={() => setShowCreateModal(true)}
+          whileHover={{ scale: 1.1, rotate: 90, filter: "brightness(1.1)" }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <PlusSquare size={28} />
+        </motion.button>
       )}
 
-      {/* RESTORED CSS EFFECTS */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; transition: all 0.3s ease; }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        .cause-card { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease; cursor: pointer; }
-        .cause-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px rgba(142, 35, 130, 0.2); }
-        .card-image-bg { transition: transform 0.6s ease; }
-        .cause-card:hover .card-image-bg { transform: scale(1.1); }
+      {/* ── INSTAGRAM COMMENT DRAWER MODAL ── */}
+      <AnimatePresence>
+        {commentDrawerPost && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={styles.modalOverlay}
+            onClick={() => setCommentDrawerPost(null)}
+          >
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              style={drawerStyles.container}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Drawer drag chin */}
+              <div style={drawerStyles.dragHandle} onClick={() => setCommentDrawerPost(null)} />
+              
+              <div style={drawerStyles.header}>
+                <h3 style={{ margin: 0, fontWeight: '800', color: COLORS.magenta }}>Comments</h3>
+                <X size={20} cursor="pointer" onClick={() => setCommentDrawerPost(null)} color="#94a3b8" />
+              </div>
 
-        .category-pill:hover { transform: scale(1.05); filter: brightness(1.1); }
+              {/* Comments Feed Area */}
+              <div style={drawerStyles.scrollArea} className="no-scrollbar">
+                {(!localComments[commentDrawerPost.id || commentDrawerPost._id] || 
+                  localComments[commentDrawerPost.id || commentDrawerPost._id].length === 0) ? (
+                  <div style={drawerStyles.emptyState}>
+                    <MessageSquare size={40} color="#cbd5e1" style={{ marginBottom: '10px' }} />
+                    <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '700' }}>No comments yet.</span>
+                    <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Start the conversation by typing below!</span>
+                  </div>
+                ) : (
+                  localComments[commentDrawerPost.id || commentDrawerPost._id].map((c, i) => (
+                    <div key={i} style={drawerStyles.commentRow}>
+                      <div style={drawerStyles.avatarStub}>
+                        {c.username.substring(0, 2).toUpperCase()}
+                      </div>
+                      <div style={drawerStyles.commentBubble}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '3px' }}>
+                          <strong style={{ fontSize: '12px', color: '#1e293b' }}>{c.username}</strong>
+                          <span style={{ fontSize: '9px', color: '#cbd5e1' }}>{c.timestamp}</span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: '1.4' }}>{c.text}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
 
-        .fab-btn { transition: transform 0.4s ease, background-color 0.3s ease; }
-        .fab-btn:hover { transform: rotate(90deg) scale(1.15); filter: brightness(1.2); }
+              {/* Sticky Input Bar */}
+              <form onSubmit={handleAddComment} style={drawerStyles.inputContainer}>
+                <input 
+                  type="text" 
+                  placeholder="Add a comment..."
+                  style={drawerStyles.input}
+                  className="instagram-input"
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
+                />
+                <button type="submit" style={{ ...drawerStyles.sendBtn, color: COLORS.pink }}>
+                  Post
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        .submit-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+      {/* ── INSTAGRAM SHARE SHEET DRAWER ── */}
+      <AnimatePresence>
+        {shareDrawerPost && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={styles.modalOverlay}
+            onClick={() => setShareDrawerPost(null)}
+          >
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              style={shareStyles.container}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={drawerStyles.dragHandle} onClick={() => setShareDrawerPost(null)} />
+              
+              <div style={drawerStyles.header}>
+                <h3 style={{ margin: 0, fontWeight: '800', color: COLORS.magenta }}>Share Campaign</h3>
+                <X size={20} cursor="pointer" onClick={() => setShareDrawerPost(null)} color="#94a3b8" />
+              </div>
 
-        .skeleton { animation: pulse 1.5s infinite ease-in-out; background: #fff; border-radius: 28px; border: 1px solid #fce4ec; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-      `}</style>
+              <div style={shareStyles.body}>
+                {/* Copy Link Button */}
+                <div onClick={handleCopyShareLink} style={shareStyles.actionRow}>
+                  <div style={shareStyles.iconCircle}>
+                    <Copy size={18} color={COLORS.magenta} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <span style={{ fontSize: '14px', fontWeight: '800', color: '#1e293b' }}>Copy Link</span>
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>Save post address to clipboard</span>
+                  </div>
+                  {copiedLink ? (
+                    <span style={shareStyles.badge}><CheckCircle2 size={12}/> Copied</span>
+                  ) : (
+                    <ArrowRight size={16} color="#cbd5e1" />
+                  )}
+                </div>
+
+                {/* WhatsApp Button */}
+                <div 
+                  onClick={() => {
+                    const message = `Check out this urgent HelpGlow campaign: "${shareDrawerPost.caption}". Help us make an impact!`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+                  }} 
+                  style={{ ...shareStyles.actionRow, borderBottom: 0 }}
+                >
+                  <div style={{ ...shareStyles.iconCircle, backgroundColor: '#e8f5e9' }}>
+                    <Send size={18} color="#25D366" />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <span style={{ fontSize: '14px', fontWeight: '800', color: '#1e293b' }}>Share to WhatsApp</span>
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>Send to your friends and chats</span>
+                  </div>
+                  <ArrowRight size={16} color="#cbd5e1" />
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── CAMPAIGN SUBMISSION PORTAL OVERLAY ── */}
+      <AnimatePresence>
+        {showCreateModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={styles.modalOverlay}
+          >
+            <motion.div 
+              initial={{ scale: 0.92, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.92, y: 15 }}
+              style={{ ...styles.modalContent, border: `2px solid ${COLORS.gold}` }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h3 style={{ color: COLORS.magenta, fontWeight: '800' }}>New Campaign Update</h3>
+                <X onClick={() => setShowCreateModal(false)} cursor="pointer" color="#94a3b8" />
+              </div>
+
+              <div 
+                style={{ ...styles.uploadBox, borderColor: COLORS.gold, background: COLORS.lightPink }} 
+                onClick={() => fileInputRef.current.click()}
+              >
+                {formData.media_url ? (
+                  <img src={formData.media_url} style={styles.preview} alt="Upload preview" />
+                ) : (
+                  <Camera color={COLORS.magenta} size={40} />
+                )}
+                
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  hidden 
+                  accept="image/*,video/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onloadend = () => setFormData({ 
+                      ...formData, 
+                      media_url: reader.result, 
+                      is_video: file.type.startsWith('video') 
+                    });
+                    reader.readAsDataURL(file);
+                  }} 
+                />
+              </div>
+
+              {/* Form Input Enhancements */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Enter Caption..." 
+                  style={{ ...styles.searchInput, padding: '12px 20px', borderRadius: '12px', fontSize: '14px', border: '1px solid #edf2f7' }}
+                  onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
+                  value={formData.caption}
+                />
+                <input 
+                  type="text" 
+                  placeholder="Enter Location (e.g. New Delhi, India)..." 
+                  style={{ ...styles.searchInput, padding: '12px 20px', borderRadius: '12px', fontSize: '14px', border: '1px solid #edf2f7' }}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  value={formData.location}
+                />
+                <select 
+                  style={{ ...styles.searchInput, padding: '12px 20px', borderRadius: '12px', fontSize: '14px', border: '1px solid #edf2f7', appearance: 'none' }}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  value={formData.category}
+                >
+                  {CATEGORIES.filter(c => c !== "All Causes").map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <motion.button 
+                whileHover={{ scale: 1.01, filter: "brightness(1.05)" }}
+                whileTap={{ scale: 0.99 }}
+                style={{ ...styles.submitBtn, background: `linear-gradient(to right, ${COLORS.magenta}, ${COLORS.pink})` }} 
+                onClick={handleCreatePost} 
+                disabled={isUploading}
+              >
+                {isUploading ? `Spreading Hope (${uploadProgress}%)...` : 'Post Campaign'}
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-};
+}
 
-const styles = {
-  pageWrapper: { minHeight: '100vh', overflowX: 'hidden' },
-  
-  heroBanner: {
+// ─── GLASSMORPHIC COMMENTS DRAWER STYLES ───
+const drawerStyles = {
+  container: {
+    position: 'fixed',
+    bottom: 0,
+    left: '50%',
+    transform: 'translateX(-50%)',
     width: '100%',
-    height: '400px',
+    maxWidth: '480px',
+    height: '75vh',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderTopLeftRadius: '30px',
+    borderTopRightRadius: '30px',
+    boxShadow: '0 -15px 50px rgba(0, 0, 0, 0.15)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    padding: '10px 25px 25px 25px',
+    display: 'flex',
+    flexDirection: 'column',
+    zIndex: 1001,
+    boxSizing: 'border-box'
+  },
+  dragHandle: {
+    width: '40px',
+    height: '5px',
+    backgroundColor: '#cbd5e1',
+    borderRadius: '10px',
+    margin: '0 auto 15px auto',
+    cursor: 'pointer'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '20px',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+    paddingBottom: '15px'
+  },
+  scrollArea: {
+    flex: 1,
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+    marginBottom: '15px',
+    boxSizing: 'border-box'
+  },
+  emptyState: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    textAlign: 'center',
+    fontFamily: '"Plus Jakarta Sans", sans-serif'
+  },
+  commentRow: {
+    display: 'flex',
+    gap: '12px',
+    alignItems: 'flex-start'
+  },
+  avatarStub: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    backgroundColor: '#fce4ec',
+    color: '#e61e6e',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 10%',
-    position: 'relative',
-    color: '#fff',
-    marginBottom: '20px'
+    justifyContent: 'center',
+    fontSize: '11px',
+    fontWeight: '800',
+    border: '1px solid #fce4ec'
   },
-  heroOverlayContent: { zIndex: 2, flex: 1 },
-  heroHeading: { fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: '900', margin: 0, lineHeight: '1.1', letterSpacing: '-2px' },
-  heroSubHeading: { fontSize: '20px', fontWeight: '500', marginTop: '18px', maxWidth: '500px', opacity: 0.95 },
-  heroImageContainer: { height: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', flex: 1 },
-  heroImg: { height: '90%', objectFit: 'contain', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.2))' },
-
-  headerArea: { textAlign: 'center', padding: '50px 20px 30px', backgroundColor: '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' },
-  mainTitle: { fontSize: '38px', fontWeight: '900', marginBottom: '25px', letterSpacing: '-1px' },
-  
-  searchContainer: { 
-    position: 'relative', maxWidth: '600px', margin: '0 auto 35px',
-    boxShadow: '0 15px 35px rgba(142, 35, 130, 0.1)', borderRadius: '50px'
+  commentBubble: {
+    backgroundColor: '#f8fafc',
+    padding: '12px 16px',
+    borderRadius: '0 16px 16px 16px',
+    flex: 1
   },
-  searchInput: { 
-    width: '100%', padding: '20px 35px', borderRadius: '50px', 
-    border: '1.5px solid transparent', outline: 'none', fontSize: '16px',
-    backgroundColor: '#fdfcfd'
+  inputContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    borderTop: '1px solid rgba(0, 0, 0, 0.05)',
+    paddingTop: '15px',
+    marginTop: 'auto'
   },
-  searchIcon: { position: 'absolute', right: '25px', top: '22px' },
-
-  categoryNav: { 
-    display: 'flex', gap: '15px', overflowX: 'auto', padding: '10px 0 20px', 
-    maxWidth: '1200px', margin: '0 auto', scrollBehavior: 'smooth'
+  input: {
+    flex: 1,
+    padding: '14px 20px',
+    borderRadius: '50px',
+    border: '1.5px solid #e2e8f0',
+    outline: 'none',
+    fontSize: '14px',
+    fontWeight: '600',
+    backgroundColor: '#f8fafc',
+    transition: '0.2s'
   },
-  categoryPill: { 
-    padding: '14px 32px', borderRadius: '50px', whiteSpace: 'nowrap', 
-    fontSize: '14px', fontWeight: '800', cursor: 'pointer',
-    border: '2.5px solid', transition: '0.3s'
-  },
-
-  feedContainer: { maxWidth: '1400px', margin: '40px auto', padding: '0 20px 100px' },
-  cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '40px' },
-  causeCard: { borderRadius: '32px', overflow: 'hidden', height: '480px', position: 'relative', backgroundColor: '#fff' },
-  cardImage: { height: '100%', width: '100%', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' },
-  
-  cardOverlay: { 
-    position: 'absolute', bottom: 0, left: 0, right: 0, padding: '35px', 
-    background: 'linear-gradient(transparent, rgba(142, 35, 130, 0.95))', color: '#fff' 
-  },
-  cardCatTag: { fontSize: '11px', padding: '6px 16px', borderRadius: '50px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' },
-  cardCaption: { marginTop: '18px', fontSize: '17px', fontWeight: '700', lineHeight: '1.4' },
-
-  whatsappBadge: {
-    position: 'absolute', top: '25px', right: '25px', backgroundColor: '#25D366', 
-    width: '50px', height: '50px', borderRadius: '50%', display: 'flex', 
-    alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 5,
-    boxShadow: '0 10px 20px rgba(0,0,0,0.2)'
-  },
-
-  fab: {
-    position: 'fixed', bottom: '50px', right: '50px', width: '75px', height: '75px',
-    borderRadius: '50%', color: '#fff', border: 'none',
-    boxShadow: '0 15px 35px rgba(142, 35, 130, 0.3)', cursor: 'pointer', zIndex: 100,
-    display: 'flex', alignItems: 'center', justifyContent: 'center'
-  },
-
-  modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(26, 10, 24, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(10px)' },
-  modalContent: { background: '#fff', padding: '40px', borderRadius: '35px', width: '90%', maxWidth: '500px' },
-  uploadBox: { height: '260px', border: '2.5px dashed', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', overflow: 'hidden' },
-  preview: { width: '100%', height: '100%', objectFit: 'cover' },
-  submitBtn: { width: '100%', padding: '20px', color: '#fff', border: 'none', borderRadius: '50px', marginTop: '30px', fontWeight: '900', fontSize: '16px', letterSpacing: '1px' },
-  cardSkeleton: { height: '480px', width: '100%' }
+  sendBtn: {
+    background: 'none',
+    border: 'none',
+    fontWeight: '800',
+    fontSize: '14px',
+    cursor: 'pointer',
+    padding: '0 10px'
+  }
 };
 
-export default Menu;
+// ─── SHARE SHEET DRAWER STYLES ───
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
+
+const shareStyles = {
+  container: {
+    position: 'fixed',
+    bottom: 0,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '100%',
+    maxWidth: '480px',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderTopLeftRadius: '30px',
+    borderTopRightRadius: '30px',
+    boxShadow: '0 -15px 50px rgba(0, 0, 0, 0.15)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    padding: '10px 25px 35px 25px',
+    display: 'flex',
+    flexDirection: 'column',
+    zIndex: 1001,
+    boxSizing: 'border-box'
+  },
+  body: {
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: '#f8fafc',
+    borderRadius: '20px',
+    border: '1px solid #edf2f7',
+    overflow: 'hidden'
+  },
+  actionRow: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '16px 20px',
+    cursor: 'pointer',
+    borderBottom: '1px solid #edf2f7',
+    transition: 'background-color 0.2s',
+    gap: '15px'
+  },
+  iconCircle: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    backgroundColor: '#fff0f6',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  badge: {
+    backgroundColor: '#22c55e',
+    color: '#fff',
+    fontSize: '10px',
+    padding: '4px 10px',
+    borderRadius: '50px',
+    fontWeight: '700',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '3px'
+  }
+};

@@ -5,6 +5,43 @@ import {
   Send, Bookmark, MoreHorizontal, X, Camera, Sparkles 
 } from 'lucide-react';
 
+// Optimized Video Component for Lazy Loading
+const LazyVideo = ({ src, style, controls = false, muted = true, loop = true }) => {
+  const videoRef = useRef(null);
+  const [isIntersecting, setIsIntersecting] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (videoRef.current) observer.observe(videoRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isIntersecting) videoRef.current.play().catch(() => {});
+      else videoRef.current.pause();
+    }
+  }, [isIntersecting]);
+
+  return (
+    <video
+      ref={videoRef}
+      src={isIntersecting ? src : ""}
+      style={{ ...style, backgroundColor: '#f0f0f0' }}
+      muted={muted}
+      loop={loop}
+      controls={controls}
+      playsInline
+    />
+  );
+};
+
 const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [stories, setStories] = useState([]);
@@ -25,9 +62,9 @@ const Blog = () => {
     caption: '', location: '', media_url: '', is_video: false, category: 'General' 
   });
 
+  // Tracking liked state locally for instant UI feedback
   const [likedPosts, setLikedPosts] = useState(new Set());
 
-  // --- Theme Colors ---
   const colors = {
     magenta: '#8e2382',
     pink: '#e61e6e',
@@ -44,8 +81,96 @@ const Blog = () => {
       const res = await axios.get('https://helpglow.onrender.com/api/campaigns');
       setPosts(res.data.filter(item => !item.is_video));
       setStories(res.data.filter(item => item.is_video));
-      setTimeout(() => setLoading(false), 1500);
-    } catch (err) { console.error(err); setLoading(false); }
+      setLoading(false);
+    } catch (err) { 
+      console.error(err); 
+      setLoading(false); 
+    }
+  };
+
+  const checkAuth = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("Please login to interact with posts!");
+      window.location.href = '/login';
+      return false;
+    }
+    return true;
+  };
+
+  // =========================
+  // Optimized Like Toggle Logic
+  // =========================
+  const handleLike = async (postId) => {
+    if (!checkAuth()) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const alreadyLiked = likedPosts.has(postId);
+
+      // 1. Optimistic UI Update (Instant response)
+      setLikedPosts(prev => {
+        const updated = new Set(prev);
+        alreadyLiked ? updated.delete(postId) : updated.add(postId);
+        return updated;
+      });
+
+      setPosts(prevPosts =>
+        prevPosts.map(post => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              likes_count: alreadyLiked
+                ? Math.max((post.likes_count || 1) - 1, 0)
+                : (post.likes_count || 0) + 1
+            };
+          }
+          return post;
+        })
+      );
+
+      // 2. Backend Request
+      const res = await axios.put(
+        `https://helpglow.onrender.com/api/campaigns/${postId}/like`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // 3. Sync Final State with Backend
+      const { likes_count, liked } = res.data;
+
+      setLikedPosts(prev => {
+        const updated = new Set(prev);
+        liked ? updated.add(postId) : updated.delete(postId);
+        return updated;
+      });
+
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.id === postId ? { ...post, likes_count } : post
+        )
+      );
+
+    } catch (err) {
+      console.error("Error toggling like:", err);
+      // Optional: Revert UI state here if request fails completely
+    }
+  };
+
+  const handleAddComment = async (postId) => {
+    if (!checkAuth()) return;
+    if (!currentComment.trim()) return;
+
+    try {
+      const newCommentObj = { text: currentComment, username: 'you' };
+      setComments(prev => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), newCommentObj]
+      }));
+      setCurrentComment("");
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
   };
 
   const generateAutoCaption = (isVideo) => {
@@ -105,7 +230,6 @@ const Blog = () => {
 
   return (
     <div style={{...styles.pageWrapper, background: `linear-gradient(to bottom, ${colors.lightPink} 0%, #ffffff 100%)`}}>
-      {/* SIDEBAR */}
       <aside className="sidebar-desktop" style={styles.sidebar}>
         <div style={{...styles.logo, color: colors.magenta}}>HelpGlow</div>
         <nav style={styles.navGroup}>
@@ -118,14 +242,13 @@ const Blog = () => {
         </nav>
       </aside>
 
-      {/* FEED - MIDDLE SECTION */}
       <main style={styles.middleSection} className="main-feed">
         <div style={styles.stickyStoryHeader}>
             <div className="no-scrollbar" style={styles.storyCard}>
               {loading ? [1,2,3,4,5].map(i => <StorySkeleton key={i}/>) : stories.map(story => (
                 <div key={story.id} style={styles.storyItem} onClick={() => setSelectedStory(story)}>
                   <div style={{...styles.storyRing, background: `linear-gradient(45deg, ${colors.magenta}, ${colors.gold})`}}>
-                    <video src={story.media_url} style={styles.storyImg} muted autoPlay loop playsInline />
+                    <video src={story.media_url} style={styles.storyImg} muted autoPlay loop playsInline preload="metadata" />
                   </div>
                   <span style={{...styles.storyLabel, color: colors.magenta}}>{story.category}</span>
                 </div>
@@ -142,9 +265,33 @@ const Blog = () => {
                   <div style={{flex: 1}}><span style={{...styles.username, color: colors.magenta}}>helpglow_official</span><p style={styles.location}>Agra, India</p></div>
                   <MoreHorizontal size={20} color={colors.gold} />
                 </div>
-                {post.is_video ? <video src={post.media_url} style={styles.postMedia} controls playsInline loop muted /> : <img src={post.media_url} style={styles.postMedia} alt="" />}
+                
+                <div style={{ width: '100%', minHeight: '300px', backgroundColor: '#fafafa' }}>
+                  {post.is_video ? (
+                    <LazyVideo src={post.media_url} style={styles.postMedia} controls />
+                  ) : (
+                    <img 
+                      src={post.media_url} 
+                      style={styles.postMedia} 
+                      alt="" 
+                      loading="lazy" 
+                      onLoad={(e) => e.target.style.opacity = 1}
+                    />
+                  )}
+                </div>
+
                 <div style={styles.postActions}>
-                  <Heart size={24} onClick={() => setLikedPosts(prev => { const n = new Set(prev); n.has(post.id) ? n.delete(post.id) : n.add(post.id); return n; })} fill={likedPosts.has(post.id) ? colors.pink : "none"} color={likedPosts.has(post.id) ? colors.pink : "#262626"} style={{cursor:'pointer'}} />
+                  <Heart
+                    size={24}
+                    onClick={() => handleLike(post.id)}
+                    fill={likedPosts.has(post.id) ? colors.pink : "transparent"}
+                    color={likedPosts.has(post.id) ? colors.pink : colors.magenta}
+                    strokeWidth={2.2}
+                    style={{
+                      cursor: 'pointer',
+                      transition: 'all 0.25s ease'
+                    }}
+                  />
                   <MessageCircle size={24} style={{cursor:'pointer', color: colors.magenta}} onClick={() => setActiveCommentBox(activeCommentBox === post.id ? null : post.id)} />
                   <div style={{position: 'relative'}}>
                     <Send size={24} style={{cursor:'pointer', color: colors.magenta}} onClick={() => setActiveShareMenu(activeShareMenu === post.id ? null : post.id)} />
@@ -156,16 +303,40 @@ const Blog = () => {
                   </div>
                   <Bookmark size={24} style={{marginLeft: 'auto', cursor:'pointer', color: colors.gold}} />
                 </div>
+
                 <div style={styles.postPadding}>
-                  <p style={{...styles.likes, color: colors.magenta}}>{likedPosts.has(post.id) ? 1 : 0} likes</p>
+                  <p style={{...styles.likes, color: colors.magenta}}>{post.likes_count || 0} likes</p>
                   <p style={styles.caption}><strong>helpglow_official</strong> {post.caption}</p>
+                  
+                  {comments[post.id]?.map((c, idx) => (
+                    <p key={idx} style={{ fontSize: '13px', marginTop: '5px' }}>
+                      <strong>{c.username}</strong> {c.text}
+                    </p>
+                  ))}
+
+                  {activeCommentBox === post.id && (
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Add a comment..." 
+                        style={{ flex: 1, padding: '8px 12px', border: '1px solid #eee', borderRadius: '20px', outline: 'none', fontSize: '13px' }}
+                        value={currentComment}
+                        onChange={(e) => setCurrentComment(e.target.value)}
+                      />
+                      <button 
+                        onClick={() => handleAddComment(post.id)}
+                        style={{ background: 'none', border: 'none', color: colors.pink, fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
+                      >
+                        Post
+                      </button>
+                    </div>
+                  )}
                 </div>
               </article>
             ))}
           </div>
         </div>
 
-        {/* COMPACT ACTION AREA */}
         <div style={styles.actionArea}>
             <button className="mobile-create-trigger" style={{background: colors.gradient}} onClick={() => setShowCreateModal(true)}>
                 <PlusSquare size={28} />
@@ -173,7 +344,6 @@ const Blog = () => {
         </div>
       </main>
 
-      {/* RIGHT SIDEBAR */}
       <aside className="sidebar-desktop" style={styles.rightSidebar}>
         <div style={{...styles.impactCard, borderTop: `4px solid ${colors.gold}`}}>
           <h4 style={{marginTop: 0, color: colors.magenta}}>Impact Tracker</h4>
@@ -185,7 +355,6 @@ const Blog = () => {
         </div>
       </aside>
 
-      {/* STORY OVERLAY */}
       {selectedStory && (
         <div style={styles.storyOverlay} onClick={() => setSelectedStory(null)}>
           <div style={styles.storyContent} onClick={(e) => e.stopPropagation()}>
@@ -195,7 +364,6 @@ const Blog = () => {
         </div>
       )}
 
-      {/* CREATE MODAL */}
       {showCreateModal && (
         <div style={styles.modalOverlay}>
           <div className="modal-container" style={{border: `2px solid ${colors.gold}`}}>
@@ -204,7 +372,6 @@ const Blog = () => {
                 <X onClick={() => setShowCreateModal(false)} style={{cursor:'pointer', color: colors.magenta}} />
             </div>
 
-            {/* --- PROGRESS BAR --- */}
             {isUploading && (
               <div style={styles.progressWrapper}>
                 <div style={{...styles.progressBar, width: `${uploadProgress}%`, background: colors.gradient}}></div>
@@ -275,7 +442,7 @@ const styles = {
   avatar: { width: '32px', height: '32px', borderRadius: '50%', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight:'bold' },
   username: { fontWeight: 'bold', fontSize: '14px' },
   location: { fontSize: '11px', color: '#8e8e8e', margin: 0 },
-  postMedia: { width: '100%', display: 'block', maxHeight: '500px', objectFit: 'cover' },
+  postMedia: { width: '100%', display: 'block', maxHeight: '500px', objectFit: 'cover', opacity: 0, transition: 'opacity 0.3s ease-in' },
   postActions: { padding: '12px 15px', display: 'flex', gap: '18px' },
   postPadding: { padding: '0 15px 15px 15px' },
   likes: { fontWeight: 'bold', margin: '0 0 5px 0', fontSize: '14px' },
@@ -295,7 +462,6 @@ const styles = {
   fullStoryVideo: { height: '100%', borderRadius: '15px' },
   closeStory: { position: 'absolute', top: '-40px', right: '-40px', cursor: 'pointer' },
   
-  // Progress Bar Styles
   progressWrapper: { width: '100%', height: '10px', background: '#eee', borderRadius: '5px', overflow: 'hidden', marginBottom: '15px', position: 'relative' },
   progressBar: { height: '100%', transition: 'width 0.3s ease' },
   progressLabel: { position: 'absolute', right: '0', top: '-18px', fontSize: '12px', fontWeight: 'bold' }
