@@ -13,6 +13,11 @@ import Menu from "./components/Menu/Menu.jsx";
 import Login from "./components/Login/Login.jsx";
 import Register from "./components/Login/Register.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import axios from "axios";
+
+// Configure Axios dynamic base URL based on host environment
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+axios.defaults.baseURL = isLocal ? 'http://localhost:5000' : 'https://helpglow.onrender.com';
 
 const router = createBrowserRouter([
   {

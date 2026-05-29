@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs'); // For hashing the new password
 const pool = require('../config/db'); // Ensure this points to your Neon connection file
-const { register, login } = require('../controllers/authController');
+const { register, login, sendOTP, verifyOTP } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/send-otp', sendOTP);
+router.post('/verify-otp', verifyOTP);
 
 // New Route: Update Profile Details
 router.put('/update-profile', protect, async (req, res) => {

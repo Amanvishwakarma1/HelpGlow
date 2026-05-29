@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Mail, Lock, ShieldCheck, ArrowRight, ArrowLeft, KeyRound, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { auth, isConfigured } from '../../config/firebase';
 
 const Register = () => {
   const [step, setStep] = useState(1);
@@ -18,6 +20,7 @@ const Register = () => {
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const otpInputsRef = useRef([]);
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const navigate = useNavigate();
 
@@ -44,6 +47,25 @@ const Register = () => {
     return () => clearInterval(interval);
   }, [step, timer]);
 
+  // Initialize Firebase reCAPTCHA Verifier
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+          callback: (response) => {
+            // reCAPTCHA solved, trigger SMS verification
+          },
+          'expired-callback': () => {
+            alert("reCAPTCHA session expired. Please request OTP again.");
+          }
+        });
+      } catch (err) {
+        console.error("reCAPTCHA creation error: ", err);
+      }
+    }
+  };
+
   // Handle Step 1 Submit: Validate and Trigger OTP send
   const handleRequestOTP = async (e) => {
     e.preventDefault();
@@ -54,17 +76,56 @@ const Register = () => {
     
     setLoading(true);
     try {
-      // 🚀 Dispatching OTP via your Render Backend (Brevo/Twilio engine)
-      await axios.post('https://helpglow.onrender.com/api/auth/send-otp', {
-        emailOrMobile: formData.emailOrMobile
-      });
-
-      alert(`A 6-digit OTP has been sent to ${formData.emailOrMobile}`);
-      setStep(2); // Go to OTP verification step
-      setTimer(60);
-      setIsResendDisabled(true);
+      const isEmail = formData.emailOrMobile.includes('@');
+      
+      if (isEmail) {
+        // 🚀 Email Verification Flow (Brevo SMTP Scaled Router)
+        await axios.post('/api/auth/send-otp', {
+          emailOrMobile: formData.emailOrMobile
+        });
+        alert(`A 6-digit OTP has been sent to ${formData.emailOrMobile}`);
+        setStep(2); // Go to OTP verification step
+        setTimer(60);
+        setIsResendDisabled(true);
+      } else {
+        // 📲 Mobile Phone OTP Flow
+        if (isConfigured && auth) {
+          // Firebase Real SMS Gateway Router
+          setupRecaptcha();
+          const appVerifier = window.recaptchaVerifier;
+          
+          let phoneNumber = formData.emailOrMobile.trim();
+          // Ensure E.164 phone formatting for Firebase
+          if (!phoneNumber.startsWith('+')) {
+            if (phoneNumber.length === 10) {
+              phoneNumber = '+91' + phoneNumber; // Default to India country code
+            } else {
+              alert("Please input phone number in international format starting with country code (e.g. +91XXXXXXXXXX).");
+              setLoading(false);
+              return;
+            }
+          }
+          
+          const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+          setConfirmationResult(confirmation);
+          alert(`A verification SMS has been sent to ${phoneNumber}`);
+          setStep(2);
+          setTimer(60);
+          setIsResendDisabled(true);
+        } else {
+          // ℹ️ Firebase Fallback: Local Console Logger Mode
+          await axios.post('/api/auth/send-otp', {
+            emailOrMobile: formData.emailOrMobile
+          });
+          alert(`[DEVELOPER TEST MODE] Mobile OTP has been sent to the backend terminal console for ${formData.emailOrMobile}`);
+          setStep(2);
+          setTimer(60);
+          setIsResendDisabled(true);
+        }
+      }
     } catch (err) {
-      alert(err.response?.data?.error || "Failed to send OTP. Please check your connection.");
+      console.error("OTP Request Failure: ", err);
+      alert(err.response?.data?.error || err.message || "Failed to send OTP code. Please check your network connection.");
     } finally {
       setLoading(false);
     }
@@ -107,15 +168,36 @@ const Register = () => {
   const handleResendOTP = async () => {
     setLoading(true);
     try {
-      await axios.post('https://helpglow.onrender.com/api/auth/send-otp', {
-        emailOrMobile: formData.emailOrMobile
-      });
+      const isEmail = formData.emailOrMobile.includes('@');
+      
+      if (isEmail) {
+        await axios.post('/api/auth/send-otp', {
+          emailOrMobile: formData.emailOrMobile
+        });
+      } else {
+        if (isConfigured && auth) {
+          setupRecaptcha();
+          const appVerifier = window.recaptchaVerifier;
+          let phoneNumber = formData.emailOrMobile.trim();
+          if (!phoneNumber.startsWith('+') && phoneNumber.length === 10) {
+            phoneNumber = '+91' + phoneNumber;
+          }
+          const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+          setConfirmationResult(confirmation);
+        } else {
+          // Dev Mode fallback
+          await axios.post('/api/auth/send-otp', {
+            emailOrMobile: formData.emailOrMobile
+          });
+        }
+      }
       alert("A new OTP has been sent!");
       setTimer(60);
       setIsResendDisabled(true);
       setOtp(['', '', '', '', '', '']);
       otpInputsRef.current[0].focus();
     } catch (err) {
+      console.error("Resend OTP error: ", err);
       alert("Failed to resend OTP. Try again later.");
     } finally {
       setLoading(false);
@@ -133,15 +215,27 @@ const Register = () => {
 
     setLoading(true);
     try {
-      // 🔐 Check OTP validity on backend
-      await axios.post('https://helpglow.onrender.com/api/auth/verify-otp', {
-        emailOrMobile: formData.emailOrMobile,
-        otp: enteredOtp
-      });
+      const isEmail = formData.emailOrMobile.includes('@');
+      
+      if (isEmail || !isConfigured) {
+        // Verify via backend Map OTP engine
+        await axios.post('/api/auth/verify-otp', {
+          emailOrMobile: formData.emailOrMobile,
+          otp: enteredOtp
+        });
+      } else {
+        // Verify via Firebase SDK
+        if (confirmationResult) {
+          await confirmationResult.confirm(enteredOtp);
+        } else {
+          throw new Error("Phone verification session not found. Please request a new code.");
+        }
+      }
 
       setStep(3); // Route to final confirmation
     } catch (err) {
-      alert(err.response?.data?.error || "Incorrect OTP. Please try again.");
+      console.error("OTP verification error: ", err);
+      alert(err.response?.data?.error || err.message || "Incorrect OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -152,7 +246,7 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('https://helpglow.onrender.com/api/auth/register', {
+      await axios.post('/api/auth/register', {
         username: formData.name,
         email: formData.emailOrMobile,
         password: formData.password
@@ -319,6 +413,7 @@ const Register = () => {
           </form>
         )}
       </div>
+      <div id="recaptcha-container"></div>
 
       <style>{` 
         .premium-btn { 

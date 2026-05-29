@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
+  const [emailOrMobile, setEmailOrMobile] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -27,8 +27,8 @@ const Login = () => {
     setLoading(true);
     
     try {
-      const res = await axios.post('https://helpglow.onrender.com/api/auth/login', { 
-        email, 
+      const res = await axios.post('/api/auth/login', { 
+        email: emailOrMobile, 
         password 
       });
       
@@ -59,16 +59,16 @@ const Login = () => {
 
           <form style={styles.form} onSubmit={handleSubmit}>
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Email Address</label>
+              <label style={styles.label}>Email Address / Mobile</label>
               <div style={styles.inputWrapper}>
                 <Mail size={18} style={styles.icon} />
                 <input 
-                  type="email" 
+                  type="text" 
                   required
-                  placeholder="name@example.com" 
+                  placeholder="example@mail.com or mobile" 
                   style={styles.input} 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={emailOrMobile}
+                  onChange={(e) => setEmailOrMobile(e.target.value)}
                 />
               </div>
             </div>

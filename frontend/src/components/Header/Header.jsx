@@ -100,7 +100,7 @@ function Header() {
     const tId = toast.loading("Updating profile...");
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put('http://localhost:5000/api/auth/update-profile', 
+      const res = await axios.put('/api/auth/update-profile', 
         { username: newName, password: newPassword },
         { headers: { Authorization: `Bearer ${token}` }}
       );

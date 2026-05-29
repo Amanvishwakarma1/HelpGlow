@@ -78,7 +78,7 @@ const Blog = () => {
   const loadContent = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('https://helpglow.onrender.com/api/campaigns');
+      const res = await axios.get('/api/campaigns');
       setPosts(res.data.filter(item => !item.is_video));
       setStories(res.data.filter(item => item.is_video));
       setLoading(false);
@@ -131,7 +131,7 @@ const Blog = () => {
 
       // 2. Backend Request
       const res = await axios.put(
-        `https://helpglow.onrender.com/api/campaigns/${postId}/like`,
+        `/api/campaigns/${postId}/like`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -187,7 +187,7 @@ const Blog = () => {
     setIsUploading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('https://helpglow.onrender.com/api/campaigns', formData, {
+      await axios.post('/api/campaigns', formData, {
         headers: { Authorization: `Bearer ${token}` },
         onUploadProgress: (p) => setUploadProgress(Math.round((p.loaded * 100) / p.total))
       });
