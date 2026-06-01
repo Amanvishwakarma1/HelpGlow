@@ -40,10 +40,25 @@ export default function Menu() {
     loadContent(); 
   }, []);
 
+  const getApiUrl = (path) => {
+    const hostname = window.location.hostname;
+    const isLocal = 
+      hostname === 'localhost' || 
+      hostname === '127.0.0.1' || 
+      hostname === '[::1]' || 
+      hostname.startsWith('192.168.') || 
+      hostname.startsWith('10.') || 
+      hostname.startsWith('172.') || 
+      hostname.endsWith('.local');
+      
+    const baseUrl = isLocal ? `http://${hostname}:5000` : 'https://helpglow.onrender.com';
+    return `${baseUrl}${path}`;
+  };
+
   const loadContent = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/campaigns');
+      const res = await axios.get(getApiUrl('/api/campaigns'));
       setPosts(res.data);
     } catch (err) { 
       console.error(err); 
@@ -72,7 +87,7 @@ export default function Menu() {
     setIsUploading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('/api/campaigns', formData, {
+      await axios.post(getApiUrl('/api/campaigns'), formData, {
         headers: { Authorization: `Bearer ${token}` },
         onUploadProgress: (p) => setUploadProgress(Math.round((p.loaded * 100) / p.total))
       });

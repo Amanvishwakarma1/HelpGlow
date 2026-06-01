@@ -22,12 +22,27 @@ const Login = () => {
     lightBg: '#fff5f8'
   };
 
+  const getApiUrl = (path) => {
+    const hostname = window.location.hostname;
+    const isLocal = 
+      hostname === 'localhost' || 
+      hostname === '127.0.0.1' || 
+      hostname === '[::1]' || 
+      hostname.startsWith('192.168.') || 
+      hostname.startsWith('10.') || 
+      hostname.startsWith('172.') || 
+      hostname.endsWith('.local');
+      
+    const baseUrl = isLocal ? `http://${hostname}:5000` : 'https://helpglow.onrender.com';
+    return `${baseUrl}${path}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      const res = await axios.post('/api/auth/login', { 
+      const res = await axios.post(getApiUrl('/api/auth/login'), { 
         email: emailOrMobile, 
         password 
       });

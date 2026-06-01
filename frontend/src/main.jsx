@@ -16,8 +16,17 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import axios from "axios";
 
 // Configure Axios dynamic base URL based on host environment
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-axios.defaults.baseURL = isLocal ? 'http://localhost:5000' : 'https://helpglow.onrender.com';
+const hostname = window.location.hostname;
+const isLocal = 
+  hostname === 'localhost' || 
+  hostname === '127.0.0.1' || 
+  hostname === '[::1]' || 
+  hostname.startsWith('192.168.') || 
+  hostname.startsWith('10.') || 
+  hostname.startsWith('172.') || 
+  hostname.endsWith('.local');
+
+axios.defaults.baseURL = isLocal ? `http://${hostname}:5000` : 'https://helpglow.onrender.com';
 
 const router = createBrowserRouter([
   {

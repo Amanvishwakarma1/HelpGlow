@@ -20,6 +20,16 @@ export default function AutoSlider() {
   const [isTvHovered, setIsTvHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const SLIDE_DURATION = 5500;
   const TIMER_STEP = 50;
@@ -88,7 +98,7 @@ export default function AutoSlider() {
 
   // Parallax TV hover tilt tracking routines
   const handleMouseMove = (e) => {
-    if (!isTvHovered) return;
+    if (!isTvHovered || isMobile) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -147,11 +157,116 @@ export default function AutoSlider() {
             animation: playRipple 2s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
             animation-delay: 1.2s;
           }
+
+          @media (max-width: 768px) {
+            .slider-container {
+              height: auto !important;
+              overflow: visible !important;
+            }
+            .slider-slide {
+              position: relative !important;
+              flex-direction: column !important;
+              padding: 40px 6% 60px 6% !important;
+              gap: 30px !important;
+              justify-content: center !important;
+              align-items: center !important;
+              height: auto !important;
+            }
+            .slider-left-column {
+              max-width: 100% !important;
+              padding-right: 0 !important;
+              align-items: center !important;
+              text-align: center !important;
+            }
+            .slider-pre-header {
+              justify-content: center !important;
+              font-size: 0.8rem !important;
+              margin-bottom: 10px !important;
+            }
+            .slider-heading-text {
+              font-size: 2.1rem !important;
+              text-align: center !important;
+              margin-bottom: 25px !important;
+              line-height: 1.25 !important;
+              letter-spacing: -0.8px !important;
+            }
+            .slider-donate-btn {
+              padding: 14px 35px !important;
+              font-size: 0.95rem !important;
+            }
+            .slider-right-column {
+              width: 100% !important;
+              justify-content: center !important;
+            }
+            .slider-tv-container {
+              max-width: 100% !important;
+              padding-top: 10px !important;
+            }
+            .slider-tv-stand-neck,
+            .slider-tv-stand-base,
+            .slider-tv-reflection {
+              display: none !important;
+            }
+            .slider-tv-frame {
+              border-width: 6px !important;
+              border-bottom-width: 6px !important;
+              border-radius: 12px !important;
+            }
+            .slider-stats-grid {
+              padding: 20px 3% 20px 3% !important;
+              gap: 6px !important;
+              overflow-x: hidden !important;
+              justify-content: space-between !important;
+            }
+            .slider-stat-card {
+              min-width: 0 !important;
+              flex: 1 1 0% !important;
+              padding: 10px 4px !important;
+              border-radius: 10px !important;
+              box-shadow: none !important;
+              background: rgba(255, 255, 255, 0.03) !important;
+              border-color: rgba(255, 255, 255, 0.04) !important;
+            }
+            .slider-stat-card:hover {
+              transform: none !important;
+            }
+            .slider-stat-icon-wrapper {
+              margin-bottom: 6px !important;
+              padding: 5px !important;
+              border-radius: 6px !important;
+              border: none !important;
+              background: rgba(255, 255, 255, 0.02) !important;
+            }
+            .slider-stat-icon-wrapper svg {
+              width: 14px !important;
+              height: 14px !important;
+            }
+            .slider-stat-value {
+              font-size: 0.8rem !important;
+              margin: 4px 0 !important;
+              letter-spacing: -0.3px !important;
+            }
+            .slider-stat-label {
+              font-size: 0.45rem !important;
+              letter-spacing: 0.5px !important;
+              line-height: 1.1 !important;
+              margin-top: 2px !important;
+              text-align: center !important;
+              display: block !important;
+            }
+            .slider-watch-now-strip {
+              padding: 16px 10px !important;
+            }
+            .slider-watch-text {
+              font-size: 0.95rem !important;
+              letter-spacing: 1px !important;
+            }
+          }
         `}
       </style>
 
       {/* ── TWO-COLUMN HERO SLIDER ── */}
-      <div style={styles.container}>
+      <div className="slider-container" style={styles.container}>
         <AnimatePresence mode="wait">
           {VIDEO_SLIDES.map((slide, index) => index === currentIndex && (
             <motion.div
@@ -160,15 +275,17 @@ export default function AutoSlider() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.7, ease: "easeInOut" }}
+              className="slider-slide"
               style={styles.slide}
             >
               {/* LEFT SIDE: Typography */}
-              <div style={styles.leftColumn}>
+              <div className="slider-left-column" style={styles.leftColumn}>
                 
                 <motion.div
                   initial={{ opacity: 0, x: -25 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2, duration: 0.5, type: "spring", stiffness: 120 }}
+                  className="slider-pre-header"
                   style={{ ...styles.preHeader, color: getAccentColor(slide) }}
                 >
                   <span style={{ ...styles.preHeaderDot, backgroundColor: getAccentColor(slide) }} />
@@ -179,6 +296,7 @@ export default function AutoSlider() {
                   initial={{ opacity: 0, y: 35 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35, duration: 0.6, type: "spring", stiffness: 80 }}
+                  className="slider-heading-text"
                   style={styles.text} 
                 >
                   {slide.text}
@@ -188,7 +306,7 @@ export default function AutoSlider() {
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5, type: "spring", stiffness: 150 }}
-                  className="donate-btn-glow"
+                  className="slider-donate-btn donate-btn-glow"
                   style={{ 
                     ...styles.button, 
                     backgroundColor: COLORS.gold,
@@ -208,11 +326,14 @@ export default function AutoSlider() {
               </div>
 
               {/* RIGHT SIDE: Hyper-realistic 3D TV Chassis */}
-              <div style={styles.rightColumn}>
+              <div className="slider-right-column" style={styles.rightColumn}>
                 <div 
+                  className="slider-tv-container"
                   style={{
                     ...styles.tvContainer,
-                    transform: `perspective(1000px) rotateY(${mousePosition.x * 12}deg) rotateX(${-mousePosition.y * 12}deg) scale(${isTvHovered ? 1.02 : 1})`,
+                    transform: isMobile 
+                      ? 'none' 
+                      : `perspective(1000px) rotateY(${mousePosition.x * 12}deg) rotateX(${-mousePosition.y * 12}deg) scale(${isTvHovered ? 1.02 : 1})`,
                     transition: isTvHovered ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
                   }}
                   onMouseMove={handleMouseMove}
@@ -231,7 +352,7 @@ export default function AutoSlider() {
                   />
 
                   {/* Television Bezel Frame */}
-                  <div style={styles.tvFrame}>
+                  <div className="slider-tv-frame" style={styles.tvFrame}>
                     <div style={styles.tvScreen}>
                       
                       <video
@@ -253,8 +374,11 @@ export default function AutoSlider() {
                       {/* Manual Chevrons */}
                       <motion.button 
                         style={{ ...styles.navButton, left: '15px' }}
-                        animate={{ opacity: isTvHovered ? 1 : 0, x: isTvHovered ? 0 : -10 }}
-                        whileHover={{ scale: 1.1, backgroundColor: COLORS.gold, color: COLORS.deepBg }}
+                        animate={{ 
+                          opacity: isMobile ? 0.85 : (isTvHovered ? 1 : 0), 
+                          x: isMobile ? 0 : (isTvHovered ? 0 : -10) 
+                        }}
+                        whileHover={isMobile ? {} : { scale: 1.1, backgroundColor: COLORS.gold, color: COLORS.deepBg }}
                         onClick={(e) => {
                           e.stopPropagation();
                           handlePrev();
@@ -265,8 +389,11 @@ export default function AutoSlider() {
 
                       <motion.button 
                         style={{ ...styles.navButton, right: '15px' }}
-                        animate={{ opacity: isTvHovered ? 1 : 0, x: isTvHovered ? 0 : 10 }}
-                        whileHover={{ scale: 1.1, backgroundColor: COLORS.gold, color: COLORS.deepBg }}
+                        animate={{ 
+                          opacity: isMobile ? 0.85 : (isTvHovered ? 1 : 0), 
+                          x: isMobile ? 0 : (isTvHovered ? 0 : 10) 
+                        }}
+                        whileHover={isMobile ? {} : { scale: 1.1, backgroundColor: COLORS.gold, color: COLORS.deepBg }}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleNext();
@@ -304,11 +431,12 @@ export default function AutoSlider() {
                   </div>
 
                   {/* 3D Metal TV Stand structures */}
-                  <div style={styles.tvStandNeck} />
-                  <div style={styles.tvStandBase} />
+                  <div className="slider-tv-stand-neck" style={styles.tvStandNeck} />
+                  <div className="slider-tv-stand-base" style={styles.tvStandBase} />
                   
                   {/* Stand mirror desk reflection underlay */}
                   <div 
+                    className="slider-tv-reflection"
                     style={{
                       ...styles.tvStandReflection,
                       background: `radial-gradient(ellipse at center, ${getAccentColor(slide)}30 0%, ${COLORS.deepBg}00 70%)`
@@ -336,17 +464,18 @@ export default function AutoSlider() {
 
       {/* ── LIVE INTERACTION IMPACT STATS SECTION ── */}
       <div 
+        className="slider-stats-section"
         style={{ 
           ...styles.statsSection, 
           background: `linear-gradient(180deg, ${COLORS.deepBg} 0%, rgba(142, 35, 130, 0.15) 100%)`, 
           borderTop: `1px solid rgba(212, 175, 55, 0.15)` 
         }}
       >
-        <div style={styles.statsScrollWrapper}>
+        <div className="slider-stats-scroll-wrapper" style={styles.statsScrollWrapper}>
           <div style={styles.statsScrollFadeLeft} />
           <div style={styles.statsScrollFadeRight} />
           
-          <div className="stats-scroll-container" style={styles.statsGrid}>
+          <div className="stats-scroll-container slider-stats-grid" style={styles.statsGrid}>
             {STATS_DATA.map((item, idx) => (
               <StatCard 
                 key={idx}
@@ -359,6 +488,7 @@ export default function AutoSlider() {
         
         {/* Watch Now Video Strip */}
         <motion.div 
+          className="slider-watch-now-strip"
           style={{ 
             ...styles.watchNowStrip, 
             background: `linear-gradient(90deg, ${COLORS.pink} 0%, ${COLORS.orange} 100%)` 
@@ -378,7 +508,7 @@ export default function AutoSlider() {
               <Play size={15} fill="white" stroke="white" />
             </motion.div>
           </div>
-          <span style={styles.watchText}>How to Donate? Watch Now!</span>
+          <span className="slider-watch-text" style={styles.watchText}>How to Donate? Watch Now!</span>
         </motion.div>
       </div>
     </div>

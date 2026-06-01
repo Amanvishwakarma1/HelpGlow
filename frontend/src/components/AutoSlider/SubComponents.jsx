@@ -80,6 +80,7 @@ export function StatCard({ item, icon }) {
   return (
     <motion.div 
       ref={cardRef}
+      className="slider-stat-card"
       style={styles.statCard}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -96,6 +97,7 @@ export function StatCard({ item, icon }) {
       <div style={{ ...styles.cardGlowOverlay, opacity: isHovered ? 1 : 0 }} />
 
       <motion.div 
+        className="slider-stat-icon-wrapper"
         style={{ 
           ...styles.iconWrapper, 
           color: isHovered ? COLORS.gold : COLORS.pink,
@@ -107,13 +109,13 @@ export function StatCard({ item, icon }) {
         {icon}
       </motion.div>
 
-      <h2 style={styles.statValue}>
+      <h2 className="slider-stat-value" style={styles.statValue}>
         {isMoney ? '₹' : ''}
         {liveCount}
         {item.suffix}
       </h2>
 
-      <p style={styles.statLabel}>{item.label}</p>
+      <p className="slider-stat-label" style={styles.statLabel}>{item.label}</p>
     </motion.div>
   );
 }
