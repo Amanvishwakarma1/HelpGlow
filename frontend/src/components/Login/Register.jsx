@@ -107,7 +107,9 @@ const Register = () => {
       setExpiryTimer(300); // 5 minutes
       
       setMessage({
-        text: res.data.message || 'Verification code sent successfully to your email!',
+        text: res.data.otp 
+          ? `[Dev Mode] Verification code is: ${res.data.otp}` 
+          : (res.data.message || 'Verification code sent successfully to your email!'),
         type: 'success',
         link: res.data.devMode ? res.data.devPreviewUrl : ''
       });

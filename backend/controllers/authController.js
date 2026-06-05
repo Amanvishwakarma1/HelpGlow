@@ -95,6 +95,18 @@ const sendEmail = async (email, otp) => {
     }
 
     // 3. Fallback: Ethereal Mail
+    // Note: Render blocks all outbound SMTP traffic on port 587. If we are running in the Render environment 
+    // without SMTP configuration, we must bypass nodemailer sendMail to prevent the request from hanging/timing out.
+    if (process.env.RENDER) {
+        console.log(`⚠️ [SMTP Ethereal] Detected Render environment. Bypassing SMTP mail send to prevent hanging. OTP is: ${otp}`);
+        return { 
+            provider: 'ethereal', 
+            previewUrl: "https://ethereal.email (SMTP is blocked on Render. OTP printed below for dev convenience)", 
+            success: true,
+            otp
+        };
+    }
+
     console.log(`✉️ [SMTP Ethereal] Acquiring test account...`);
     const transporter = await getEtherealTransporter();
 
@@ -107,7 +119,7 @@ const sendEmail = async (email, otp) => {
     
     const previewUrl = nodemailer.getTestMessageUrl(info);
     console.log(`✉️ [SMTP Ethereal] Preview at: ${previewUrl}`);
-    return { provider: 'ethereal', previewUrl, success: true };
+    return { provider: 'ethereal', previewUrl, success: true, otp };
 };
 
 const sendOTP = async (req, res) => {
@@ -152,6 +164,7 @@ const sendOTP = async (req, res) => {
         if (emailResult.provider === 'ethereal') {
             responseObj.devPreviewUrl = emailResult.previewUrl;
             responseObj.devMode = true;
+            responseObj.otp = otp; // Expose OTP in JSON response for dev mode
         }
         return res.json(responseObj);
 
