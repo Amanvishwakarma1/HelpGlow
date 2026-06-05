@@ -14,10 +14,15 @@ const initDb = async () => {
                 otp VARCHAR(10) NOT NULL,
                 expires_at TIMESTAMP NOT NULL,
                 attempts INT DEFAULT 0,
-                is_verified BOOLEAN DEFAULT FALSE,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
+        
+        // Dynamic migration: Ensure is_verified column exists if table was created in an older version
+        await pool.query(`
+            ALTER TABLE otp_verifications ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
+        `);
+        
         console.log('✅ otp_verifications table is ready');
     } catch (err) {
         console.error('❌ Failed to initialize database tables:', err);
