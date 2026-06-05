@@ -4,6 +4,23 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 // Database-driven OTP configuration and email helper
+let cachedEtherealTransporter = null;
+const getEtherealTransporter = async () => {
+    if (cachedEtherealTransporter) return cachedEtherealTransporter;
+    console.log(`✉️ [SMTP Ethereal] Generating new test account...`);
+    const testAccount = await nodemailer.createTestAccount();
+    cachedEtherealTransporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false,
+        auth: {
+            user: testAccount.user,
+            pass: testAccount.pass
+        }
+    });
+    return cachedEtherealTransporter;
+};
+
 const sendEmail = async (email, otp) => {
     const subject = "Verify Your Email Address";
     const html = `
@@ -78,17 +95,8 @@ const sendEmail = async (email, otp) => {
     }
 
     // 3. Fallback: Ethereal Mail
-    console.log(`✉️ [SMTP Ethereal] Creating test account...`);
-    const testAccount = await nodemailer.createTestAccount();
-    const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
-        auth: {
-            user: testAccount.user,
-            pass: testAccount.pass
-        }
-    });
+    console.log(`✉️ [SMTP Ethereal] Acquiring test account...`);
+    const transporter = await getEtherealTransporter();
 
     const info = await transporter.sendMail({
         from: '"HelpGlow Dev" <no-reply@helpglow.org>',
