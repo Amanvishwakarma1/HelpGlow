@@ -55,7 +55,7 @@ app.get("/test-email", async (req, res) => {
     }
     const { Resend } = require("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const toEmail = req.query.to || "aman.vishwakarma2022@glbajajgroup.org";
+    const toEmail = req.query.to || "Helpglowfoundation@gmail.com";
     const data = await resend.emails.send({
       from: "noreply@helpglow.in",
       to: toEmail,
