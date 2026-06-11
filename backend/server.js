@@ -48,30 +48,5 @@ app.use('/api/team',teamRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 
-app.get("/test-email", async (req, res) => {
-  try {
-    if (!process.env.RESEND_API_KEY) {
-      return res.status(400).json({ error: "Missing RESEND_API_KEY environment variable." });
-    }
-    const { Resend } = require("resend");
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const toEmail = req.query.to || "aman.vishwakarma2022@glbajaj.org";
-    const data = await resend.emails.send({
-      from: "noreply@helpglow.in",
-      to: toEmail,
-      subject: "HelpGlow Test Email",
-      html: `
-        <h2>Congratulations 🎉</h2>
-        <p>Your Resend integration is working.</p>
-      `,
-    });
-
-    res.json(data);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error);
-  }
-});
-
 const PORT = 5000
 app.listen(PORT,()=>console.log("backend is running"));

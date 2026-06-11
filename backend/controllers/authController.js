@@ -42,26 +42,22 @@ const sendEmail = async (email, otp) => {
     if (process.env.RESEND_API_KEY) {
         try {
             console.log(`✉️ [Resend API] Sending OTP to ${email}...`);
-            const axios = require('axios');
-            const resendFrom = process.env.RESEND_FROM || 'onboarding@resend.dev';
+            const { Resend } = require("resend");
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            const resendFrom = process.env.RESEND_FROM || 'noreply@helpglow.in';
             
-            await axios.post('https://api.resend.com/emails', {
+            await resend.emails.send({
                 from: `HelpGlow <${resendFrom}>`,
                 to: email,
                 subject: subject,
                 html: html
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-                    'Content-Type': 'application/json'
-                }
             });
             console.log(`✅ [Resend API] Email sent to ${email}`);
             return { provider: 'resend', success: true };
         } catch (err) {
-            console.error(`❌ [Resend API] Failed:`, err.response?.data || err.message);
+            console.error(`❌ [Resend API] Failed:`, err.message);
             if (!process.env.SMTP_USER) {
-                throw new Error(`Resend API failed: ${err.response?.data?.message || err.message}`);
+                throw new Error(`Resend API failed: ${err.message}`);
             }
         }
     }
