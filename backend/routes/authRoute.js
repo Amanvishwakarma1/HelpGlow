@@ -23,9 +23,9 @@ router.put('/update-profile', protect, async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            // 2. Update both username and password in the database
+            // 2. Update both username and password_hash in the database
             result = await pool.query(
-                'UPDATE users SET username = $1, password = $2 WHERE id = $3 RETURNING id, username, email',
+                'UPDATE users SET username = $1, password_hash = $2 WHERE id = $3 RETURNING id, username, email',
                 [username, hashedPassword, userId]
             );
         } else {

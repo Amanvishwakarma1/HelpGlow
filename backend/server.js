@@ -4,6 +4,7 @@ require('dotenv').config();
 const teamRoutes = require('./routes/teamRoute')
 const authRoutes = require('./routes/authRoute')
 const campaignRoutes = require('./routes/campaignRoutes');
+const uploadRoute = require('./routes/uploadRoute');
 
 const app = express();
 // const cors = require('cors');
@@ -47,6 +48,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/team',teamRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/campaigns', campaignRoutes);
+app.use('/api/upload', uploadRoute);
 
 const PORT = 5000
 app.listen(PORT,()=>console.log("backend is running"));

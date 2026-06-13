@@ -27,6 +27,7 @@ export default function Menu() {
   const [searchQuery, setSearchQuery] = useState('');
   
   const fileInputRef = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({ 
     caption: '', location: '', media_url: '', is_video: false, category: 'General' 
   });
@@ -84,21 +85,48 @@ export default function Menu() {
   };
 
   const handleCreatePost = async () => {
+    if (!selectedFile) {
+      alert("Please select an image or video file first.");
+      return;
+    }
     setIsUploading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(getApiUrl('/api/campaigns'), formData, {
-        headers: { Authorization: `Bearer ${token}` },
+      
+      // 1. Upload file to Cloudinary via backend /api/upload
+      const uploadData = new FormData();
+      uploadData.append('file', selectedFile);
+      
+      const uploadRes = await axios.post(getApiUrl('/api/upload'), uploadData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        },
         onUploadProgress: (p) => setUploadProgress(Math.round((p.loaded * 100) / p.total))
       });
+      
+      const cloudinaryUrl = uploadRes.data.url;
+      const isVideo = uploadRes.data.is_video;
+      
+      // 2. Post campaign to backend with Cloudinary URL
+      await axios.post(getApiUrl('/api/campaigns'), {
+        ...formData,
+        media_url: cloudinaryUrl,
+        is_video: isVideo
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
       loadContent();
       setIsUploading(false);
       setShowCreateModal(false);
       setUploadProgress(0);
+      setSelectedFile(null);
       setFormData({ caption: '', location: '', media_url: '', is_video: false, category: 'General' });
     } catch (err) { 
       setIsUploading(false); 
-      alert("Upload Failed"); 
+      setUploadProgress(0);
+      alert("Upload Failed: " + (err.response?.data?.error || err.message)); 
     }
   };
 
@@ -438,6 +466,7 @@ export default function Menu() {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (!file) return;
+                    setSelectedFile(file);
                     const reader = new FileReader();
                     reader.onloadend = () => setFormData({ 
                       ...formData, 
