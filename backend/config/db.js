@@ -64,6 +64,17 @@ const initDb = async () => {
             );
         `);
 
+        // Create campaign_comments table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS campaign_comments (
+                id SERIAL PRIMARY KEY,
+                user_id INT REFERENCES users(id) ON DELETE CASCADE,
+                campaign_id INT REFERENCES campaigns(id) ON DELETE CASCADE,
+                comment_text TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
         // 5. Create team_members table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS team_members (

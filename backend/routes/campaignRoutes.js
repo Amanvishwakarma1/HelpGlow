@@ -2,23 +2,47 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
 const { protect } = require('../middleware/authMiddleware');
+const jwt = require('jsonwebtoken');
 
 
 // 1. Get all campaigns
 router.get('/', async (req, res) => {
+    let userId = null;
+    const authHeader = req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            userId = decoded.id;
+        } catch (err) {
+            // Token is invalid/expired, ignore
+        }
+    }
+
     try {
-        const result = await pool.query(`
+        const queryText = `
             SELECT 
-                id,
-                caption,
-                media_url,
-                category,
-                is_video,
-                likes_count,
-                created_at
-            FROM campaigns
-            ORDER BY created_at DESC
-        `);
+                c.id,
+                c.caption,
+                c.media_url,
+                c.category,
+                c.is_video,
+                c.likes_count,
+                c.created_at,
+                COALESCE(
+                    (SELECT json_agg(json_build_object('id', cc.id, 'username', u.username, 'text', cc.comment_text, 'created_at', cc.created_at) ORDER BY cc.created_at ASC)
+                     FROM campaign_comments cc
+                     JOIN users u ON cc.user_id = u.id
+                     WHERE cc.campaign_id = c.id),
+                    '[]'::json
+                ) AS comments
+                ${userId ? `, EXISTS (SELECT 1 FROM campaign_likes cl WHERE cl.campaign_id = c.id AND cl.user_id = $1) AS liked` : `, false AS liked`}
+            FROM campaigns c
+            ORDER BY c.created_at DESC
+        `;
+
+        const queryParams = userId ? [userId] : [];
+        const result = await pool.query(queryText, queryParams);
 
         res.json(result.rows);
 
@@ -173,6 +197,47 @@ router.post('/', protect, async (req, res) => {
 
         res.status(500).json({
             error: "Database error while posting"
+        });
+    }
+});
+
+// 4. Add comment route
+router.post('/:id/comments', protect, async (req, res) => {
+    const campaignId = req.params.id;
+    const userId = req.user.id;
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+        return res.status(400).json({ error: "Comment text is required" });
+    }
+
+    try {
+        // 1. Insert the comment
+        const commentResult = await pool.query(
+            `
+            INSERT INTO campaign_comments (user_id, campaign_id, comment_text)
+            VALUES ($1, $2, $3)
+            RETURNING id, comment_text AS text, created_at
+            `,
+            [userId, campaignId, text.trim()]
+        );
+
+        const newComment = commentResult.rows[0];
+
+        // 2. Fetch commenter's username
+        const userResult = await pool.query(
+            `SELECT username FROM users WHERE id = $1`,
+            [userId]
+        );
+        
+        newComment.username = userResult.rows[0].username;
+
+        res.status(201).json(newComment);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: "Database error while posting comment"
         });
     }
 });

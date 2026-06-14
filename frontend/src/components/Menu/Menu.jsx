@@ -100,7 +100,7 @@ const Menu = () => {
       price: 1500, 
       icon: '🎉', 
       desc: 'Includes meals, small gifts, and a fun evening for a group of orphans.',
-      img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600' 
+      img: 'https://i.postimg.cc/DfjNKjhW/Whats-App-Image-2026-06-13-at-9-19-15-PM.jpg' 
     },
     { 
       id: 8, 
@@ -109,7 +109,7 @@ const Menu = () => {
       price: 2000, 
       icon: '✨', 
       desc: 'A full grand meal with toys and interactive games for our foundation kids.',
-      img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=600' 
+      img: 'https://i.postimg.cc/4NDLwyn8/IMG-20260415-WA0130-jpg.jpg' 
     },
     { 
       id: 9, 
@@ -118,7 +118,7 @@ const Menu = () => {
       price: 3000, 
       icon: '🥇', 
       desc: 'Our most popular choice for anniversaries. Includes premium meal kits.',
-      img: 'https://i.postimg.cc/VNfF6vQF/20260411-175139-jpg.jpg' 
+      img: 'https://i.postimg.cc/X7PSWnqJ/20260205-170424-jpg.jpg' 
     },
     { 
       id: 10, 

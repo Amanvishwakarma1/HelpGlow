@@ -79,9 +79,30 @@ const Blog = () => {
   const loadContent = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/campaigns');
-      setPosts(res.data.filter(item => !item.is_video));
-      setStories(res.data.filter(item => item.is_video));
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.get('/api/campaigns', { headers });
+      
+      const campaigns = res.data;
+      
+      // Sync liked posts set from database
+      const initialLiked = new Set();
+      campaigns.forEach(post => {
+        if (post.liked) {
+          initialLiked.add(post.id);
+        }
+      });
+      setLikedPosts(initialLiked);
+
+      // Sync comments map from database
+      const initialComments = {};
+      campaigns.forEach(post => {
+        initialComments[post.id] = post.comments || [];
+      });
+      setComments(initialComments);
+
+      setPosts(campaigns.filter(item => !item.is_video));
+      setStories(campaigns.filter(item => item.is_video));
       setLoading(false);
     } catch (err) { 
       console.error(err); 
@@ -163,7 +184,15 @@ const Blog = () => {
     if (!currentComment.trim()) return;
 
     try {
-      const newCommentObj = { text: currentComment, username: 'you' };
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        `/api/campaigns/${postId}/comments`,
+        { text: currentComment },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const newCommentObj = res.data;
+
       setComments(prev => ({
         ...prev,
         [postId]: [...(prev[postId] || []), newCommentObj]
@@ -319,7 +348,7 @@ const Blog = () => {
                       transition: 'all 0.25s ease'
                     }}
                   />
-                  <MessageCircle size={24} style={{cursor:'pointer', color: colors.magenta}} onClick={() => setActiveCommentBox(activeCommentBox === post.id ? null : post.id)} />
+                  <MessageCircle size={24} style={{cursor:'pointer', color: colors.magenta}} onClick={() => { setActiveCommentBox(activeCommentBox === post.id ? null : post.id); setCurrentComment(""); }} />
                   <div style={{position: 'relative'}}>
                     <Send size={24} style={{cursor:'pointer', color: colors.magenta}} onClick={() => setActiveShareMenu(activeShareMenu === post.id ? null : post.id)} />
                     {activeShareMenu === post.id && (
