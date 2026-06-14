@@ -46,7 +46,7 @@ const Menu = () => {
       price: 30, 
       icon: '🍲', 
       desc: 'Provide a warm, nutritious meal to an elderly or homeless person today.',
-      img: 'https://i.postimg.cc/GpbC6sH2/Whats-App-Image-2026-02-23-at-12-27-10-PM.jpg' 
+      img: 'https://i.postimg.cc/RVtyFXPy/Whats-App-Image-2026-06-10-at-10-12-40-PM.jpg' 
     },
     { 
       id: 2, 

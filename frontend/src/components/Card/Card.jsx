@@ -52,7 +52,7 @@ function Card(props) {
     founderTitle: {
       margin: 0,
       fontSize: "0.9rem",
-      color: colors.pink, // Vibrant Pink for the Title
+      color: "#000000", // Vibrant Pink for the Title
       fontWeight: "700",
       textTransform: "uppercase",
       letterSpacing: "1.5px",
