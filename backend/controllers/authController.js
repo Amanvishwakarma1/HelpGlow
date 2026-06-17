@@ -240,13 +240,21 @@ const register = async (req, res) => {
 
         // 1. Verify email has been validated in the database
         const verification = await poll.query(
-            'SELECT * FROM otp_verifications WHERE email = $1 AND is_verified = TRUE AND expires_at > CURRENT_TIMESTAMP',
+            'SELECT * FROM otp_verifications WHERE email = $1 AND is_verified = TRUE',
             [email]
         );
 
         if (verification.rows.length === 0) {
             return res.status(400).json({ 
                 error: "Email verification is required. Please verify your email via OTP before registering." 
+            });
+        }
+
+        const record = verification.rows[0];
+        const expiresAt = new Date(record.expires_at).getTime();
+        if (Date.now() > expiresAt) {
+            return res.status(400).json({ 
+                error: "Email verification has expired. Please verify your email via OTP again." 
             });
         }
 

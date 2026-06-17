@@ -26,15 +26,22 @@ const initDb = async () => {
             CREATE TABLE IF NOT EXISTS otp_verifications (
                 email VARCHAR(255) PRIMARY KEY,
                 otp VARCHAR(10) NOT NULL,
-                expires_at TIMESTAMP NOT NULL,
+                expires_at TIMESTAMPTZ NOT NULL,
                 attempts INT DEFAULT 0,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
             );
         `);
         
         // Dynamic migration: Ensure is_verified column exists if table was created in an older version
         await pool.query(`
             ALTER TABLE otp_verifications ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
+        `);
+
+        // Timezone safety migration: Migrate TIMESTAMP columns to TIMESTAMPTZ if they aren't already
+        await pool.query(`
+            ALTER TABLE otp_verifications 
+            ALTER COLUMN expires_at TYPE TIMESTAMPTZ USING expires_at AT TIME ZONE 'UTC',
+            ALTER COLUMN updated_at TYPE TIMESTAMPTZ USING updated_at AT TIME ZONE 'UTC';
         `);
 
         // 3. Create campaigns table
