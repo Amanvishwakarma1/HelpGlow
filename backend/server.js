@@ -11,7 +11,9 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  "https://helpglow-1.onrender.com"
+  "https://helpglow-1.onrender.com",
+  "https://helpglow.in",
+  "https://www.helpglow.in"
 ]; 
 
 app.use(cors({
