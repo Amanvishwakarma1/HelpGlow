@@ -266,7 +266,7 @@ function Header() {
 
       <header className="glass-header">
         <div className="logo-wrapper">
-          <img src="/logo.png" className="logo-img" alt="logo" />
+          <img src="/logo.png?v=2" className="logo-img" alt="logo" />
           <Link to="/" className="logo-text">HelpGlow</Link>
         </div>
 
