@@ -3,7 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
 import Layout from "./Layout.jsx";
 import Home from "./components/Home/Home.jsx";
 import Compaingns from "./components/Campaigns/Campaigns.jsx";
@@ -28,7 +28,7 @@ const isLocal =
 
 axios.defaults.baseURL = isLocal ? `http://${hostname}:5000` : 'https://helpglow.onrender.com';
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: <Layout/>,
