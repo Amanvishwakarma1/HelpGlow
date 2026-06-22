@@ -1,0 +1,11 @@
+{
+  "name": "HelpGlow Foundation",
+  "short_name": "HelpGlow",
+  "icons": [
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
