@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom"; // Added for seamless login redirects
-import { ShoppingCart, Search, X, Plus, Minus, Send, Download, Copy, Check, Upload, Image as ImageIcon, ChevronLeft } from 'lucide-react';
-
-// Import your local QR image correctly for Vite
-import upiQRCode from '../../assets/donation-qr.jpeg';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useLocation } from "react-router-dom"; 
+import { ShoppingCart, Search } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { products } from '../../config/products';
+import { CartContext } from '../../context/CartContext';
 
 const Menu = () => {
-  const navigate = useNavigate(); // Hook for standard react router routing
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { addToCart, setIsCartOpen } = useContext(CartContext);
+
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const [showForm, setShowForm] = useState(false);
-  const [showQR, setShowQR] = useState(false);
-  const [copiedAcc, setCopiedAcc] = useState(false);
-  const [copiedIfsc, setCopiedIfsc] = useState(false);
 
   // Brand Colors
   const colors = {
@@ -25,123 +22,25 @@ const Menu = () => {
     lightBg: '#fffdf9'
   };
 
-  // Form State
-  const [formData, setFormData] = useState({
-    userName: '',
-    whatsapp: '',
-    email: '',
-    printName: '',
-    kidsWishing: '',
-    videoDate: '',
-    photoNeeded: 'No',
-    selectedImage: null,
-    paymentScreenshot: null
-  });
-
-  const products = [
-    { 
-      id: 1, 
-      category: 'Single Product', 
-      name: 'Food Packet', 
-      price: 30, 
-      icon: '🍲', 
-      desc: 'Provide a warm, nutritious meal to an elderly or homeless person today.',
-      img: 'https://i.postimg.cc/RVtyFXPy/Whats-App-Image-2026-06-10-at-10-12-40-PM.jpg' 
-    },
-    { 
-      id: 2, 
-      category: 'Single Product', 
-      name: 'Dog Foods', 
-      price: 40, 
-      icon: '🐶', 
-      desc: 'Help us feed the stray dogs in our community who are wandering hungry.',
-      img: 'https://i.postimg.cc/MZ18ZDRP/Whats-App-Image-2026-01-20-at-9-24-31-PM.jpg' 
-    },
-    { 
-      id: 3, 
-      category: 'Single Product', 
-      name: 'Basic Education Kit', 
-      price: 50, 
-      icon: '📚', 
-      desc: 'Sponsor essential stationery like notebooks and pens for a slum child.',
-      img: 'https://i.postimg.cc/8kXL5RSY/Whats-App-Image-2026-01-20-at-9-15-45-PM.jpg' 
-    },
-    { 
-      id: 4, 
-      category: 'Single Product', 
-      name: 'Grocery Kit', 
-      price: 650, 
-      icon: '🧺', 
-      desc: 'A complete monthly ration kit including rice, dal, and oil for a poor family.',
-      img: 'https://i.postimg.cc/NM4STN4y/Whats-App-Image-2026-01-20-at-9-21-49-PM.jpg' 
-    },
-    { 
-      id: 5, 
-      category: 'Single Product', 
-      name: 'Celebration Cake', 
-      price: 600, 
-      icon: '🎂', 
-      desc: 'Bring a smile to a child’s face by sponsoring their very first birthday cake.',
-      img: 'https://i.postimg.cc/TP24xjGd/Whats-App-Image-2026-02-23-at-3-36-28-PM.jpg' 
-    },
-    { 
-      id: 6, 
-      category: 'Combo Product', 
-      name: 'Food & Cake Combo', 
-      price: 850, 
-      icon: '🎁', 
-      desc: 'Celebrate your special day by sharing a cake and meals with 20+ children.',
-      img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg' 
-    },
-    { 
-      id: 7, 
-      category: 'Combo Product', 
-      name: 'Mini Party', 
-      price: 1500, 
-      icon: '🎉', 
-      desc: 'Includes meals, small gifts, and a fun evening for a group of orphans.',
-      img: 'https://i.postimg.cc/DfjNKjhW/Whats-App-Image-2026-06-13-at-9-19-15-PM.jpg' 
-    },
-    { 
-      id: 8, 
-      category: 'Combo Product', 
-      name: 'Special Party', 
-      price: 2000, 
-      icon: '✨', 
-      desc: 'A full grand meal with toys and interactive games for our foundation kids.',
-      img: 'https://i.postimg.cc/4NDLwyn8/IMG-20260415-WA0130-jpg.jpg' 
-    },
-    { 
-      id: 9, 
-      category: 'Combo Product', 
-      name: 'Golden Celebration', 
-      price: 3000, 
-      icon: '🥇', 
-      desc: 'Our most popular choice for anniversaries. Includes premium meal kits.',
-      img: 'https://i.postimg.cc/X7PSWnqJ/20260205-170424-jpg.jpg' 
-    },
-    { 
-      id: 10, 
-      category: 'Combo Product', 
-      name: 'Grand Party', 
-      price: 4500, 
-      icon: '👑', 
-      desc: 'The ultimate sponsorship covering food, clothes, and sweets for 50+ kids.',
-      img: 'https://i.postimg.cc/zX44YHPZ/Whats-App-Image-2026-02-23-at-3-36-29-PM-(1).jpg' 
+  useEffect(() => {
+    if (location.state?.addProductId) {
+      const productId = location.state.addProductId;
+      const product = products.find(p => p.id === productId);
+      if (product) {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || !!localStorage.getItem('user');
+        if (!isLoggedIn) {
+          toast.error("Please login to donate.");
+          navigate('/login');
+          return;
+        }
+        addToCart(product);
+        setIsCartOpen(true);
+        toast.success(`${product.name} added to cart!`);
+        // Clear navigation state
+        navigate('/menu', { replace: true, state: null });
+      }
     }
-  ];
-
-  // Helper function to check if the product is a single-entity package
-  // Covers: Mini Party (7), Special Party (8), Golden Celebration (9), Grand Party (10)
-  const isSingleEntity = (product) => {
-    if (!product) return false;
-    return [7, 8, 9, 10].includes(product.id);
-  };
-
-  const getMinQty = (price) => Math.ceil(600 / price);
-  const isPhoneValid = /^\d{10}$/.test(formData.whatsapp);
-  const isEmailValid = formData.email === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-  const isFormValid = formData.userName && isPhoneValid && isEmailValid;
+  }, [location.state, navigate, addToCart, setIsCartOpen]);
 
   const filteredProducts = products.filter(p => {
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
@@ -154,81 +53,14 @@ const Menu = () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || !!localStorage.getItem('user');
     
     if (!isLoggedIn) {
-      alert("Authentication required. Redirecting you to the login page...");
+      toast.error("Authentication required. Redirecting you to the login page...");
       navigate('/login');
       return;
     }
 
-    // 2. Load product configurations
-    setSelectedProduct(product);
-    
-    if (isSingleEntity(product)) {
-      // Bypass quantity screen completely for party entities
-      setQuantity(1);
-      setShowForm(true); 
-    } else {
-      // Standard flow (requires quantity adjustments first)
-      setQuantity(getMinQty(product.price));
-      setShowForm(false);
-    }
-    setShowQR(false);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'whatsapp' && value.length > 10) return;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e, field) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, [field]: e.target.files[0] }));
-    }
-  };
-
-  const handleCopyText = (text, type) => {
-    navigator.clipboard.writeText(text);
-    if (type === 'acc') {
-      setCopiedAcc(true);
-      setTimeout(() => setCopiedAcc(false), 2000);
-    } else {
-      setCopiedIfsc(true);
-      setTimeout(() => setCopiedIfsc(false), 2000);
-    }
-  };
-
-  const handleDownloadQR = () => {
-    const link = document.createElement('a');
-    link.href = upiQRCode;
-    link.download = 'HelpGlow_Donation_QR.jpg';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleWhatsAppNotify = () => {
-    const total = selectedProduct.price * quantity;
-    const message = `*NEW DONATION VERIFICATION*%0A%0A` +
-      `*Donor:* ${formData.userName}%0A` +
-      `*WhatsApp:* ${formData.whatsapp}%0A` +
-      `*Email:* ${formData.email || 'N/A'}%0A` +
-      `*Print Name:* ${formData.printName}%0A` +
-      `*Wishing:* ${formData.kidsWishing}%0A%0A` +
-      `*Product:* ${selectedProduct.name}%0A` +
-      `*Quantity:* ${quantity}%0A` +
-      `*Total Amount:* ₹${total}%0A` +
-      `*Video Date:* ${formData.videoDate}%0A%0A` +
-      `I have uploaded the payment screenshot. Please verify.`;
-    
-    const whatsappUrl = `https://wa.me/message/ZMTBXKUYV7MWB1?text=${message}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  const closeModal = () => {
-    setSelectedProduct(null);
-    setShowQR(false);
-    setShowForm(false);
-    setFormData({ ...formData, selectedImage: null, paymentScreenshot: null });
+    addToCart(product);
+    setIsCartOpen(true);
+    toast.success(`${product.name} added to cart!`);
   };
 
   return (
@@ -313,135 +145,6 @@ const Menu = () => {
           ))}
         </div>
       </main>
-
-      {/* Dynamic Modal Section */}
-      {selectedProduct && (
-        <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, border: `2px solid ${colors.gold}`}}>
-            <div style={styles.modalHeader}>
-              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                {(showForm || showQR) && (
-                   <ChevronLeft 
-                    cursor="pointer" 
-                    size={20} 
-                    onClick={() => {
-                      if (showQR) {
-                        setShowQR(false);
-                      } else {
-                        // Dynamic back trigger: Single entity package has no quantity screen to fallback to
-                        if (isSingleEntity(selectedProduct)) {
-                          closeModal();
-                        } else {
-                          setShowForm(false);
-                        }
-                      }
-                    }} 
-                    style={{color: colors.magenta}}
-                   />
-                )}
-                <h3 style={{fontSize: '18px', margin: 0, fontWeight: '800', color: colors.magenta}}>
-                  {showQR ? "Secure Payment" : showForm ? "Details" : "Quantity"}
-                </h3>
-              </div>
-              <X cursor="pointer" onClick={closeModal} color="#94a3b8" />
-            </div>
-
-            {!showForm && !showQR ? (
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>How many units would you like to sponsor?</p>
-                <div style={styles.counterRow}>
-                  <button style={{...styles.countBtn, color: colors.magenta}} onClick={() => setQuantity(q => Math.max(getMinQty(selectedProduct.price), q - 1))}><Minus size={20} /></button>
-                  <div style={{display:'flex', flexDirection:'column'}}>
-                    <span style={{...styles.quantityDisplay, color: colors.magenta}}>{quantity}</span>
-                    <span style={{fontSize:'10px', color:'#94a3b8', fontWeight: '800'}}>UNITS</span>
-                  </div>
-                  <button style={{...styles.countBtn, color: colors.magenta}} onClick={() => setQuantity(q => q + 1)}><Plus size={20} /></button>
-                </div>
-                <div style={{...styles.totalBox, border: `1px solid ${colors.gold}40`}}>
-                  <span style={{fontWeight: '700'}}>Total Donation:</span>
-                  <span style={{ fontWeight: '800', color: colors.pink }}>₹{selectedProduct.price * quantity}</span>
-                </div>
-                <button style={{...styles.confirmBtn, background: `linear-gradient(to right, ${colors.magenta}, ${colors.pink})`}} onClick={() => setShowForm(true)}>Continue</button>
-              </div>
-            ) : showForm && !showQR ? (
-              <div style={{ textAlign: 'left' }}>
-                <div style={styles.inputGroup}><label style={styles.label}>FULL NAME</label><input style={styles.input} type="text" name="userName" value={formData.userName} onChange={handleInputChange} /></div>
-                <div style={styles.inputGroup}><label style={styles.label}>WHATSAPP NUMBER</label><input style={styles.input} type="number" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} /></div>
-                <div style={styles.inputGroup}><label style={styles.label}>PRINT NAME (ON VIDEO)</label><input style={styles.input} type="text" name="printName" value={formData.printName} onChange={handleInputChange} /></div>
-                <div style={styles.inputGroup}><label style={styles.label}>VIDEO DATE</label><input style={styles.input} type="date" name="videoDate" value={formData.videoDate} onChange={handleInputChange} /></div>
-                
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>WANT TO UPLOAD PHOTO?</label>
-                  <select style={styles.input} name="photoNeeded" value={formData.photoNeeded} onChange={handleInputChange}>
-                    <option value="No">No, thanks</option>
-                    <option value="Yes">Yes, upload photo</option>
-                  </select>
-                </div>
-
-                {formData.photoNeeded === 'Yes' && (
-                  <div style={{...styles.uploadBox, background: '#fff5f8', borderColor: colors.pink, marginBottom: '15px'}}>
-                    <label style={{cursor: 'pointer', color: colors.pink, fontSize: '13px', fontWeight: 'bold'}}>
-                      <Upload size={14}/> {formData.selectedImage ? "Photo Ready" : "Select Photo"}
-                      <input type="file" hidden onChange={(e) => handleFileChange(e, 'selectedImage')} accept="image/*" />
-                    </label>
-                  </div>
-                )}
-
-                <button 
-                  style={{...styles.confirmBtn, background: `linear-gradient(to right, ${colors.magenta}, ${colors.pink})`, opacity: isFormValid ? 1 : 0.5}} 
-                  disabled={!isFormValid} 
-                  onClick={() => setShowQR(true)}
-                >
-                  Pay ₹{selectedProduct.price * quantity}
-                </button>
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{...styles.accountBox, background: '#fffdf5', borderColor: colors.gold}}>
-                    <p style={{...styles.accountTitle, color: colors.magenta}}>Bank Transfer Details</p>
-                    <div onClick={() => handleCopyText("22040210005699", "acc")} style={styles.accountDetailRow}>
-                      <span style={{fontSize: '12px'}}>A/C: <strong>22040210005699</strong></span>
-                      {copiedAcc ? <span style={styles.copiedBadge}><Check size={12}/> Copied</span> : <Copy size={14} color={colors.gold} />}
-                    </div>
-                    <div onClick={() => handleCopyText("UCBA0002204", "ifsc")} style={{...styles.accountDetailRow, border: 0}}>
-                      <span style={{fontSize: '12px'}}>IFSC: <strong>UCBA0002204</strong></span>
-                      {copiedIfsc ? <span style={styles.copiedBadge}><Check size={12}/> Copied</span> : <Copy size={14} color={colors.gold} />}
-                    </div>
-                </div>
-                
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', margin: '20px 0 10px'}}>
-                  <p style={{fontSize: '13px', fontWeight: '800', color: colors.magenta}}>Scan to Donate</p>
-                  <button onClick={handleDownloadQR} style={{...styles.downloadLink, color: colors.pink}}>
-                    <Download size={14}/> Save QR
-                  </button>
-                </div>
-
-                <div style={{...styles.qrContainer, borderColor: colors.gold}}>
-                  <img src={upiQRCode} alt="QR" style={{ width: '160px', borderRadius: '12px' }} />
-                </div>
-
-                <div style={{...styles.uploadBox, marginTop: '20px', borderColor: formData.paymentScreenshot ? '#22c55e' : colors.magenta}}>
-                   <label style={{cursor: 'pointer', color: formData.paymentScreenshot ? '#22c55e' : colors.magenta, fontSize: '13px', fontWeight: 'bold'}}>
-                      <ImageIcon size={14}/> {formData.paymentScreenshot ? "Ready to Verify" : "Upload Payment Screenshot *"}
-                      <input type="file" hidden onChange={(e) => handleFileChange(e, 'paymentScreenshot')} accept="image/*" />
-                   </label>
-                </div>
-
-                <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
-                    <button 
-                      style={{...styles.confirmBtn, backgroundColor: '#25D366', flex: 1, opacity: formData.paymentScreenshot ? 1 : 0.5}} 
-                      onClick={handleWhatsAppNotify}
-                      disabled={!formData.paymentScreenshot}
-                    >
-                        <Send size={18}/> Verify on WhatsApp
-                    </button>
-                    <button style={{...styles.confirmBtn, backgroundColor: '#475569', flex: 1}} onClick={closeModal}>Done</button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');

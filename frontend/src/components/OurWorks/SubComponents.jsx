@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { COLORS, WORKS } from './config';
 import { styles } from './styles';
 
@@ -81,6 +82,7 @@ export function MagneticButton({ children, style, onClick, onMouseEnter, onMouse
 
 // ─── PERSPECTIVE CAROUSEL CARD BLOCK ───
 export function WorkCard({ work, idx, activeIndex, onSelectCard, onOpenVideo }) {
+  const navigate = useNavigate();
   const isCurrent = idx === activeIndex;
   const isPrevious = idx === (activeIndex - 1 + WORKS.length) % WORKS.length;
   const isNext = idx === (activeIndex + 1) % WORKS.length;
@@ -133,6 +135,11 @@ export function WorkCard({ work, idx, activeIndex, onSelectCard, onOpenVideo }) 
             style={{ ...styles.btnDonate, background: `linear-gradient(135deg, ${COLORS.magenta} 0%, ${COLORS.pink} 100%)` }}
             onMouseEnter={(e) => e.target.style.filter = 'brightness(1.1)'}
             onMouseLeave={(e) => e.target.style.filter = 'none'}
+            onClick={() => {
+              const cardToProductMap = { 1: 4, 2: 3, 3: 2, 4: 1 };
+              const productId = cardToProductMap[work.id] || 1;
+              navigate('/menu', { state: { addProductId: productId } });
+            }}
           >
             Donate {work.price}
           </MagneticButton>

@@ -1,7 +1,8 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { User, LogOut, Settings, X, Menu, ChevronDown } from "lucide-react";
+import { CartContext } from "../../context/CartContext";
+import { User, LogOut, Settings, X, Menu, ChevronDown, ShoppingCart } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -9,6 +10,9 @@ function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, login } = useContext(AuthContext); 
+  const { cartItems, setIsCartOpen } = useContext(CartContext);
+
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0); 
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -170,7 +174,7 @@ function Header() {
             cursor: pointer;
           }
           
-          .nav-links a:hover, .user-trigger:hover { 
+          .nav-links a:hover, .user-trigger:hover, .nav-cart-btn:hover { 
             color: ${colors.pink};
             background: rgba(230, 30, 110, 0.05);
           }
@@ -281,6 +285,50 @@ function Header() {
             <li><Link to="/blog">Blog</Link></li>
             <li><Link to="/about">About</Link></li>
             <li><Link to="/menu">Menu</Link></li>
+            <li>
+              <button 
+                onClick={() => {
+                  setIsCartOpen(true);
+                  setIsMenuOpen(false); // Close mobile menu if open
+                }}
+                className="nav-cart-btn"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  color: '#4a5568',
+                  padding: '8px 16px',
+                  borderRadius: '50px',
+                  transition: 'all 0.3s ease',
+                  outline: 'none'
+                }}
+              >
+                <ShoppingCart size={18} />
+                <span>Cart</span>
+                {totalItems > 0 && (
+                  <span style={{
+                    backgroundColor: colors.pink,
+                    color: '#fff',
+                    borderRadius: '50%',
+                    fontSize: '10px',
+                    fontWeight: '800',
+                    width: '18px',
+                    height: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: '2px'
+                  }}>
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </li>
 
             {user ? (
               <li className="user-menu-container" ref={dropdownRef}>

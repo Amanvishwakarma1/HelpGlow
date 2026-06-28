@@ -13,6 +13,7 @@ import Menu from "./components/Menu/Menu.jsx";
 import Login from "./components/Login/Login.jsx";
 import Register from "./components/Login/Register.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { CartProvider } from "./context/CartContext.jsx";
 import axios from "axios";
 
 // Configure Axios dynamic base URL based on host environment
@@ -68,7 +69,9 @@ const router = createHashRouter([
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      <RouterProvider router = {router}/>
+      <CartProvider>
+        <RouterProvider router = {router}/>
+      </CartProvider>
     </AuthProvider>
   </React.StrictMode>,
 )
