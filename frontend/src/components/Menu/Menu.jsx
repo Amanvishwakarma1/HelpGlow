@@ -34,7 +34,6 @@ const Menu = () => {
           return;
         }
         addToCart(product);
-        setIsCartOpen(true);
         toast.success(`${product.name} added to cart!`);
         // Clear navigation state
         navigate('/menu', { replace: true, state: null });
@@ -59,7 +58,6 @@ const Menu = () => {
     }
 
     addToCart(product);
-    setIsCartOpen(true);
     toast.success(`${product.name} added to cart!`);
   };
 

@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ShoppingCart, X, Plus, Minus, Trash2, ChevronLeft, 
   Copy, Check, Download, Image as ImageIcon, Send, Upload 
@@ -13,11 +13,43 @@ import toast from 'react-hot-toast';
 
 export default function CartDrawer() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { 
     cartItems, isCartOpen, setIsCartOpen, removeFromCart, 
     updateQuantity, clearCart, checkoutDetails, setCheckoutDetails 
   } = useContext(CartContext);
   const { user } = useContext(AuthContext);
+
+  // Close cart drawer on route changes (e.g. clicking headers)
+  useEffect(() => {
+    setIsCartOpen(false);
+  }, [location.pathname, setIsCartOpen]);
+
+  // Handle mobile back button to close the drawer
+  useEffect(() => {
+    if (isCartOpen) {
+      if (!window.history.state?.cartOpen) {
+        window.history.pushState({ cartOpen: true }, "");
+      }
+    }
+  }, [isCartOpen]);
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      if (isCartOpen) {
+        setIsCartOpen(false);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isCartOpen, setIsCartOpen]);
+
+  const closeCart = () => {
+    setIsCartOpen(false);
+    if (window.history.state?.cartOpen) {
+      window.history.back();
+    }
+  };
 
   const [step, setStep] = useState('cart'); // 'cart' | 'details' | 'payment'
   const [copiedAcc, setCopiedAcc] = useState(false);
@@ -80,7 +112,7 @@ export default function CartDrawer() {
     if (!isLoggedIn) {
       toast.error("Authentication required. Please login to proceed.");
       navigate('/login');
-      setIsCartOpen(false);
+      closeCart();
       return;
     }
     setStep('details');
@@ -109,14 +141,14 @@ export default function CartDrawer() {
     // Clear and close
     clearCart();
     setStep('cart');
-    setIsCartOpen(false);
+    closeCart();
     toast.success("Thank you for your donation!");
   };
 
   const handleDone = () => {
     clearCart();
     setStep('cart');
-    setIsCartOpen(false);
+    closeCart();
     toast.success("Thank you for your support!");
   };
 
@@ -129,7 +161,7 @@ export default function CartDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsCartOpen(false)}
+            onClick={closeCart}
             style={{
               position: 'fixed',
               inset: 0,
@@ -189,7 +221,7 @@ export default function CartDrawer() {
                 </h3>
               </div>
               <button 
-                onClick={() => setIsCartOpen(false)}
+                onClick={closeCart}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -243,7 +275,7 @@ export default function CartDrawer() {
                       </p>
                       <button 
                         onClick={() => {
-                          setIsCartOpen(false);
+                          closeCart();
                           navigate('/menu');
                         }}
                         style={{
