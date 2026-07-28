@@ -105,7 +105,7 @@ button.primary-button {
 
 /* Glassmorphism Header */
 .navbar {
-  background: rgba(15, 23, 42, 0.75) !important;
+  background: rgba(15, 23, 42, 0.85) !important;
   backdrop-filter: blur(18px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -151,4 +151,80 @@ button.primary-button {
 
 .modern-story-card:hover .arrow-icon {
   transform: translate(4px, -4px) !important;
+}
+
+/* ==================================================== */
+/* COMPREHENSIVE MOBILE RESPONSIVE MEDIA QUERIES */
+/* ==================================================== */
+
+@media screen and (max-width: 991px) {
+  /* Show Mobile Hamburger Button and Hide Desktop Nav */
+  .desktop-nav-menu, 
+  .desktop-auth-section {
+    display: none !important;
+  }
+  
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  /* Header Padding on Mobile */
+  .navbar-wrapper {
+    padding: 10px 16px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  /* General Typography Scaling for Mobile Displays */
+  h1 {
+    font-size: clamp(30px, 8vw, 42px) !important;
+  }
+  
+  h2 {
+    font-size: clamp(24px, 6.5vw, 34px) !important;
+  }
+
+  /* Causes Master Cards Stack Vertically on Mobile */
+  .causes-master-card {
+    flex-direction: column !important;
+  }
+
+  /* Menu Category Tabs Horizontal Scroll on Touch */
+  .category-tabs-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    justify-content: flex-start !important;
+    padding: 6px 12px !important;
+  }
+
+  .category-tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Cart Layout Stacked on Mobile */
+  .cart-item-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Footer Stacked Layout */
+  .footer-flex {
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Full Width Buttons on Small Mobile Devices */
+  .mobile-full-width-btn {
+    width: 100% !important;
+  }
+
+  /* Floating WhatsApp Button Spacing */
+  .whatsapp-float-btn {
+    bottom: 16px !important;
+    right: 16px !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+  }
 }

@@ -175,17 +175,21 @@ const Menu = () => {
       {/* 2. Category Navigation Tabs */}
       <section style={{ padding: '40px 24px 20px 24px', backgroundColor: '#F8F9FA', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: '1400px', width: '95%', margin: '0 auto', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '12px', 
-            backgroundColor: '#FFFFFF', 
-            padding: '8px', 
-            borderRadius: '50px', 
-            border: '1px solid #E5E7EB',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-            flexWrap: 'wrap',
-            justifyContent: 'center'
-          }}>
+          <div 
+            className="category-tabs-container"
+            style={{ 
+              display: 'flex', 
+              gap: '12px', 
+              backgroundColor: '#FFFFFF', 
+              padding: '8px', 
+              borderRadius: '50px', 
+              border: '1px solid #E5E7EB',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              maxWidth: '100%'
+            }}
+          >
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -193,7 +197,7 @@ const Menu = () => {
                 onClick={() => setSelectedCategory(cat)}
                 style={{
                   position: 'relative',
-                  backgroundColor: selectedCategory === cat ? '#0A90B5' : 'transparent',
+                  background: selectedCategory === cat ? 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)' : 'transparent',
                   color: selectedCategory === cat ? '#FFFFFF' : '#4B5563',
                   border: 'none',
                   padding: '12px 28px',
@@ -201,6 +205,7 @@ const Menu = () => {
                   fontSize: '15px',
                   fontWeight: 800,
                   cursor: 'pointer',
+                  whiteSpace: 'nowrap',
                   transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: selectedCategory === cat ? '0 6px 18px rgba(10, 144, 181, 0.35)' : 'none'
                 }}
