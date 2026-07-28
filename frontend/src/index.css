@@ -185,20 +185,41 @@ button.primary-button {
     height: 340px !important;
   }
 
-  /* Leadership Team Slider Mobile Layout */
+  /* Leadership Team Slider Mobile Compact Layout */
   .testimonial-wrapper {
     flex-direction: column !important;
     height: auto !important;
+    max-height: none !important;
   }
 
   .testimonial-wrapper > div:first-child {
-    height: 260px !important;
-    flex: 1 1 100% !important;
+    height: 200px !important;
+    flex: 0 0 200px !important;
+    padding: 10px !important;
   }
 
   .testimonial-wrapper > div:last-child {
-    padding: 28px 24px 70px 24px !important;
-    flex: 1 1 100% !important;
+    padding: 20px 18px 60px 18px !important;
+    flex: 1 1 auto !important;
+  }
+
+  .team-position-badge {
+    white-space: nowrap !important;
+    font-size: 11.5px !important;
+    padding: 5px 12px !important;
+    letter-spacing: 0.8px !important;
+    display: inline-block !important;
+    max-width: 100% !important;
+  }
+
+  .team-member-name {
+    font-size: 26px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .team-member-bio {
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
   }
 }
 

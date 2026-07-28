@@ -168,23 +168,32 @@ const TeamSlider = () => {
           }}>
             <motion.div initial="hidden" animate="visible" transition={{ staggerChildren: 0.12 }}>
               <motion.div variants={contentChildVariants} style={{ marginBottom: '14px' }}>
-                <span style={{ 
-                  color: '#0A90B5', 
-                  fontSize: '14px', 
-                  textTransform: 'uppercase', 
-                  letterSpacing: '2px', 
-                  fontWeight: 800,
-                  backgroundColor: 'rgba(10, 144, 181, 0.15)',
-                  padding: '7px 20px',
-                  borderRadius: '50px',
-                  border: '1px solid rgba(10, 144, 181, 0.4)'
-                }}>
+                <span 
+                  className="team-position-badge"
+                  style={{ 
+                    color: '#0A90B5', 
+                    fontSize: '14px', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '1.5px', 
+                    fontWeight: 800,
+                    backgroundColor: 'rgba(10, 144, 181, 0.15)',
+                    padding: '7px 20px',
+                    borderRadius: '50px',
+                    border: '1px solid rgba(10, 144, 181, 0.4)',
+                    whiteSpace: 'nowrap',
+                    display: 'inline-block',
+                    maxWidth: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
                   {currentMember.position}
                 </span>
               </motion.div>
 
               <motion.h3 
                 variants={contentChildVariants}
+                className="team-member-name"
                 style={{ 
                   color: '#FFFFFF', 
                   fontSize: '48px', 
@@ -197,10 +206,11 @@ const TeamSlider = () => {
                 {currentMember.name}
               </motion.h3>
 
-              <motion.div variants={contentChildVariants} style={{ width: '70px', height: '4px', background: 'linear-gradient(90deg, #0A90B5, #E61C72)', marginBottom: '22px', borderRadius: '2px' }}></motion.div>
+              <motion.div variants={contentChildVariants} style={{ width: '70px', height: '4px', background: 'linear-gradient(90deg, #0A90B5, #E61C72)', marginBottom: '18px', borderRadius: '2px' }}></motion.div>
 
               <motion.p 
                 variants={contentChildVariants}
+                className="team-member-bio"
                 style={{ 
                   color: 'rgba(255, 255, 255, 0.88)', 
                   fontSize: '20px', 
