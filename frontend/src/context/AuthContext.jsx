@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+import { API_ENDPOINTS } from '../config/api';
+
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
-const API_BASE_URL = 'http://localhost:5000/api/auth';
+const API_BASE_URL = API_ENDPOINTS.AUTH;
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('helpglow_token') || null);

@@ -7,10 +7,10 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import PaymentQRCard from '../components/PaymentQRCard';
+import { API_ENDPOINTS } from '../config/api';
 
-const API_UPLOAD_URL = 'http://localhost:5000/api/upload';
-const API_DONATION_URL = 'http://localhost:5000/api/donations';
+const API_UPLOAD_URL = API_ENDPOINTS.UPLOAD;
+const API_DONATION_URL = API_ENDPOINTS.DONATIONS;
 const ADMIN_WHATSAPP_NUMBER = '8528220733';
 
 const Cart = () => {

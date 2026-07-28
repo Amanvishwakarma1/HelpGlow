@@ -6,8 +6,9 @@ import {
   RefreshCw, Filter, UserCheck, DollarSign
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 
-const API_BASE_URL = 'http://localhost:5000/api/donations';
+const API_BASE_URL = API_ENDPOINTS.DONATIONS;
 
 const AdminDashboard = () => {
   const { user, token, isLoggedIn } = useAuth();
