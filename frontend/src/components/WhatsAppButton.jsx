@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const WhatsAppButton = () => {
   return (
     <motion.a
-      href="https://wa.me/message/ZMTBXKUYV7MWB1"
+      href="https://wa.me/918528220733?text=Hello%20HelpGlow%20Foundation%2C%20I%20want%20to%20know%20more%20about%20sponsoring%20a%20cause!"
       target="_blank"
       rel="noreferrer"
       aria-label="Chat on WhatsApp"
