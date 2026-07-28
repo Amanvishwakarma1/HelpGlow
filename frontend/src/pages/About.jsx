@@ -325,14 +325,17 @@ const About = () => {
 
       {/* 3. Our Story Section */}
       <section style={{ padding: '100px 24px', backgroundColor: '#FFFFFF' }}>
-        <div style={{ 
-          ...sectionContainerStyle, 
-          display: 'flex', 
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: '64px', 
-          alignItems: 'center' 
-        }}>
+        <div 
+          className="about-founder-container"
+          style={{ 
+            ...sectionContainerStyle, 
+            display: 'flex', 
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: '64px', 
+            alignItems: 'center' 
+          }}
+        >
           {/* Founder Photo Card */}
           <div style={{ flex: '1 1 420px', maxWidth: '540px', width: '100%', margin: '0 auto' }}>
             <motion.div 
@@ -351,7 +354,7 @@ const About = () => {
                 backgroundClip: 'padding-box, border-box'
               }}
             >
-              <div style={{ position: 'relative', height: '460px', overflow: 'hidden' }}>
+              <div className="about-founder-card-img" style={{ position: 'relative', height: '460px', overflow: 'hidden' }}>
                 <img 
                   src="https://i.postimg.cc/J0n8wP38/Whats-App-Image-2026-01-19-at-4-59-48-PM.jpg" 
                   alt="Ankit Singh" 

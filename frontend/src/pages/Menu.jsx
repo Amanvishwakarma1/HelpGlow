@@ -46,25 +46,12 @@ const Menu = () => {
   };
 
   const dealCardVariants = {
-    hidden: (index) => ({
-      opacity: 0,
-      y: 180,
-      x: (index % 3 - 1) * -70,
-      scale: 0.38,
-      rotate: index % 2 === 0 ? -15 : 15,
-    }),
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
     visible: { 
       opacity: 1, 
       y: 0, 
-      x: 0,
       scale: 1,
-      rotate: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 95, 
-        damping: 15, 
-        mass: 0.85 
-      } 
+      transition: { duration: 0.4, ease: "easeOut" } 
     }
   };
 
@@ -225,8 +212,7 @@ const Menu = () => {
               key={selectedCategory}
               variants={containerVariants}
               initial="hidden"
-              whileInView="visible"
-              viewport={{ once: false, amount: 0.15 }}
+              animate="visible"
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
