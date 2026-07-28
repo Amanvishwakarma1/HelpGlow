@@ -185,36 +185,53 @@ button.primary-button {
     height: 340px !important;
   }
 
-  /* Leadership Team Slider Mobile Compact Layout */
+  /* Leadership Team Slider Mobile Balanced Layout */
+  .testimonial-container {
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
   .testimonial-wrapper {
     flex-direction: column !important;
     height: auto !important;
     max-height: none !important;
+    border-radius: 20px !important;
+    width: 100% !important;
   }
 
   .testimonial-wrapper > div:first-child {
-    height: 200px !important;
-    flex: 0 0 200px !important;
-    padding: 10px !important;
+    height: 230px !important;
+    flex: 0 0 230px !important;
+    padding: 12px !important;
+    background-color: #0B1220 !important;
+  }
+
+  .testimonial-wrapper > div:first-child img {
+    object-fit: cover !important;
+    border-radius: 14px !important;
   }
 
   .testimonial-wrapper > div:last-child {
-    padding: 20px 18px 60px 18px !important;
+    padding: 24px 20px 65px 20px !important;
     flex: 1 1 auto !important;
   }
 
   .team-position-badge {
     white-space: nowrap !important;
-    font-size: 11.5px !important;
+    font-size: 10.5px !important;
     padding: 5px 12px !important;
     letter-spacing: 0.8px !important;
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: fit-content !important;
     max-width: 100% !important;
   }
 
   .team-member-name {
     font-size: 26px !important;
     margin-bottom: 8px !important;
+    line-height: 1.2 !important;
   }
 
   .team-member-bio {

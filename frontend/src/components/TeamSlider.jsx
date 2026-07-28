@@ -172,19 +172,20 @@ const TeamSlider = () => {
                   className="team-position-badge"
                   style={{ 
                     color: '#0A90B5', 
-                    fontSize: '14px', 
+                    fontSize: '13px', 
                     textTransform: 'uppercase', 
-                    letterSpacing: '1.5px', 
+                    letterSpacing: '1.2px', 
                     fontWeight: 800,
                     backgroundColor: 'rgba(10, 144, 181, 0.15)',
-                    padding: '7px 20px',
+                    padding: '6px 16px',
                     borderRadius: '50px',
                     border: '1px solid rgba(10, 144, 181, 0.4)',
                     whiteSpace: 'nowrap',
-                    display: 'inline-block',
-                    maxWidth: '100%',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 'fit-content',
+                    maxWidth: '100%'
                   }}
                 >
                   {currentMember.position}
