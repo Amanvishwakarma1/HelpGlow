@@ -1,0 +1,154 @@
+:root {
+  /* Teal-to-Orange Image Gradient Token */
+  --btn-gradient: linear-gradient(90deg, #0A90B5 0%, #D95B28 100%);
+  --btn-gradient-hover: linear-gradient(90deg, #0BA3CC 0%, #E86532 100%);
+  
+  --primary: #0A90B5;
+  --primary-dark: #06678E;
+  --primary-orange: #D95B28;
+  --secondary: #E61C72;
+  --accent: #F4A326;
+
+  --bg-main: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-dark: #0F172A;
+  --bg-dark-card: #161E2E;
+  --bg-footer: #0B1220;
+
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --text-disabled: #D1D5DB;
+  --text-inverse: #FFFFFF;
+
+  --border-main: #E5EDF5;
+  --border-soft: #F1F5F9;
+
+  --shadow-sm: 0 4px 12px rgba(6, 103, 142, 0.08);
+  --shadow-md: 0 10px 24px rgba(6, 103, 142, 0.12);
+  --shadow-lg: 0 20px 50px rgba(6, 103, 142, 0.18);
+  --shadow-gradient: 0 6px 20px rgba(10, 144, 181, 0.25), 0 2px 8px rgba(217, 91, 40, 0.2);
+
+  --radius-sm: 4px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 50px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6, .h2-heading-48px, .h2-heading-white {
+  font-family: 'Clash Display', 'Outfit', system-ui, -apple-system, sans-serif !important;
+  color: var(--text-primary);
+}
+.h2-heading-white { color: var(--text-inverse) !important; }
+
+/* Global Button Override for ALL Buttons (Teal to Orange Image Gradient) */
+.primary-button, 
+.primary-button-large, 
+.primary-button-with-icon, 
+.w-button, 
+.submit-button,
+button.primary-button {
+  background: var(--btn-gradient) !important;
+  color: #FFFFFF !important;
+  border-radius: 50px !important;
+  border: none !important;
+  box-shadow: var(--shadow-gradient) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-weight: 700 !important;
+}
+
+.primary-button:hover, 
+.primary-button-large:hover, 
+.primary-button-with-icon:hover, 
+.w-button:hover, 
+.submit-button:hover {
+  background: var(--btn-gradient-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px rgba(10, 144, 181, 0.35), 0 4px 12px rgba(217, 91, 40, 0.3) !important;
+}
+
+.primary-button:active, 
+.primary-button-large:active, 
+.w-button:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+/* Text Gradient Utility */
+.text-gradient {
+  background: var(--btn-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Card Overrides */
+.donate-wrapper, .stories-wrapper {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-main) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.donate-wrapper:hover, .stories-wrapper:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-6px) !important;
+}
+
+/* Glassmorphism Header */
+.navbar {
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(18px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Override Webflow Testimonial Constraints */
+.testimonial-container, .testimonial-wrapper {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.donate-section {
+  margin-top: 50px !important;
+  padding-top: 0 !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.donate-flex, .donate-container, .donate-collection-list-wrapper {
+  margin-top: 0 !important;
+  transform: none !important;
+  top: 0 !important;
+}
+
+/* Typewriter Cursor Animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Modern Story Card Enhancements */
+.modern-story-card:hover {
+  box-shadow: 0 20px 40px -12px rgba(10, 144, 181, 0.22), 0 0 0 1px rgba(10, 144, 181, 0.3) !important;
+}
+
+.modern-story-card:hover .story-card-img {
+  transform: scale(1.08) !important;
+}
+
+.modern-story-card:hover .story-title {
+  color: #0A90B5 !important;
+}
+
+.modern-story-card:hover .arrow-icon {
+  transform: translate(4px, -4px) !important;
+}
