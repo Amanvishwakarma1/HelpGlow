@@ -6,6 +6,7 @@ import {
   Camera, FileText, Calendar, User, Phone, Mail, MessageSquare, AlertCircle, ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import PaymentQRCard from '../components/PaymentQRCard';
 import { API_ENDPOINTS } from '../config/api';
 
