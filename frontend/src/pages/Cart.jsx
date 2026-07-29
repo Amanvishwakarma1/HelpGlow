@@ -370,7 +370,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                         }}
                       >
                         <img 
-                          src={item.image} 
+                          src={item.img || item.image} 
                           alt={item.name} 
                           style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '14px', flexShrink: 0 }}
                         />
