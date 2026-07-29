@@ -49,9 +49,16 @@ export const products = [
     category: 'Combo Product', 
     name: 'Food & Cake Combo', 
     price: 850, 
+    unit: '10 children',
     icon: '🎁', 
-    desc: 'Celebrate your special day by sharing a cake and meals with 20+ children.',
-    img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg' 
+    desc: 'Celebrate your special day by sharing a fresh cake and hot meals with underprivileged children.',
+    img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg',
+    tiers: [
+      { children: 10, price: 850, label: '10 Kids (₹850)' },
+      { children: 25, price: 1500, label: '25 Kids (₹1,500)' },
+      { children: 30, price: 2000, label: '30 Kids (₹2,000)' },
+      { children: 40, price: 3000, label: '40 Kids (₹3,000)' }
+    ]
   },
   { 
     id: 7, 

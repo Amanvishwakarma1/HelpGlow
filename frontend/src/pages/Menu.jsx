@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ArrowRight, Sparkles, ShoppingBag, Check } from 'lucide-react';
+import { Heart, ArrowRight, Sparkles, ShoppingBag, Check, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { products, getMinQty, isSingleEntity } from '../config/product';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Products');
+  const [selectedTiers, setSelectedTiers] = useState({});
   const [toastMessage, setToastMessage] = useState('');
   const { addToCart } = useCart();
   const { isLoggedIn } = useAuth();
@@ -19,28 +20,51 @@ const Menu = () => {
     ? products
     : products.filter(p => p.category === selectedCategory);
 
+  const handleSelectTier = (productId, tier) => {
+    setSelectedTiers(prev => ({
+      ...prev,
+      [productId]: tier
+    }));
+  };
+
+  const getProductUnit = (product, activeTier) => {
+    if (activeTier) return `${activeTier.children} children`;
+    if (product.unit) return product.unit;
+    if (isSingleEntity(product)) return 'party package';
+    if (product.name.toLowerCase().includes('kit')) return 'kit';
+    if (product.name.toLowerCase().includes('cake')) return 'cake';
+    return 'packet';
+  };
+
   const handleAddProduct = (product) => {
     if (!isLoggedIn) {
       navigate('/login?redirect=/menu&message=Please sign in to sponsor packages and add to cart!');
       return;
     }
 
-    addToCart(product);
-    const minQty = isSingleEntity(product) ? 1 : getMinQty(product.price);
-    setToastMessage(`Added ${minQty}x ${product.name} to your sponsorship cart!`);
+    const currentTier = product.tiers ? (selectedTiers[product.id] || product.tiers[0]) : null;
+    const finalProduct = currentTier ? {
+      ...product,
+      price: currentTier.price,
+      name: `${product.name} (${currentTier.children} Children)`,
+      unit: `${currentTier.children} children`
+    } : product;
+
+    addToCart(finalProduct);
+    setToastMessage(`Added ${finalProduct.name} to your sponsorship cart!`);
     setTimeout(() => {
       setToastMessage('');
     }, 3500);
   };
 
-  // --- Card Dealing ("Rummy Deal") Staggered Motion Variants ---
+  // --- Card Motion Variants ---
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.18,
-        delayChildren: 0.35
+        staggerChildren: 0.12,
+        delayChildren: 0.1
       }
     }
   };
@@ -58,7 +82,7 @@ const Menu = () => {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", color: '#111827', backgroundColor: '#FFFFFF', overflowX: 'hidden' }}>
       
-      {/* 1. Hero Header Unit (Classic Aesthetic Black #16203A Theme) */}
+      {/* 1. Hero Header Unit */}
       <section style={{ 
         position: 'relative', 
         backgroundColor: '#16203A', 
@@ -204,7 +228,7 @@ const Menu = () => {
         </div>
       </section>
 
-      {/* 3. Products Catalog Grid with "Rummy Card Deal" Animation */}
+      {/* 3. Products Catalog Grid */}
       <section style={{ padding: '80px 24px 100px 24px', backgroundColor: '#F8F9FA' }}>
         <div style={{ maxWidth: '1400px', width: '95%', margin: '0 auto' }}>
           <AnimatePresence mode="wait">
@@ -224,13 +248,17 @@ const Menu = () => {
                 const minQty = getMinQty(product.price);
                 const isSingle = isSingleEntity(product);
 
+                const currentTier = product.tiers ? (selectedTiers[product.id] || product.tiers[0]) : null;
+                const currentPrice = currentTier ? currentTier.price : product.price;
+                const unitText = getProductUnit(product, currentTier);
+
                 return (
                   <motion.div
                     key={product.id}
                     custom={index}
                     variants={dealCardVariants}
-                    whileHover={{ y: -10, scale: 1.03, rotate: index % 2 === 0 ? -1.5 : 1.5 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    whileHover={{ y: -10, scale: 1.02 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
                     style={{
                       backgroundColor: '#FFFFFF',
                       borderRadius: '24px',
@@ -242,7 +270,7 @@ const Menu = () => {
                       position: 'relative'
                     }}
                   >
-                    {/* Image Header with Full Fit & Icon Badge */}
+                    {/* Image Header with Price Tag Pill */}
                     <div style={{ width: '100%', height: '230px', overflow: 'hidden', position: 'relative', backgroundColor: '#10182E' }}>
                       <motion.img
                         whileHover={{ scale: 1.08 }}
@@ -252,7 +280,7 @@ const Menu = () => {
                         style={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'fill',
+                          objectFit: 'cover',
                           objectPosition: 'center',
                           display: 'block'
                         }}
@@ -262,17 +290,17 @@ const Menu = () => {
                         position: 'absolute',
                         top: '16px',
                         right: '16px',
-                        backgroundColor: 'rgba(30, 18, 59, 0.88)',
+                        backgroundColor: 'rgba(30, 18, 59, 0.92)',
                         backdropFilter: 'blur(10px)',
                         color: '#FFFFFF',
                         padding: '6px 18px',
                         borderRadius: '50px',
-                        fontSize: '17px',
+                        fontSize: '15px',
                         fontWeight: 800,
                         border: '1px solid rgba(10, 144, 181, 0.5)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
                       }}>
-                        ₹{product.price} / packet
+                        ₹{currentPrice.toLocaleString()} / {unitText}
                       </div>
 
                       {/* Category Pill Tag */}
@@ -313,30 +341,72 @@ const Menu = () => {
                         </div>
 
                         <p style={{
-                          fontSize: '15.5px',
-                          lineHeight: '1.7',
+                          fontSize: '15px',
+                          lineHeight: '1.65',
                           color: '#4B5563',
-                          margin: '0 0 20px 0'
+                          margin: '0 0 16px 0'
                         }}>
                           {product.desc}
                         </p>
 
-                        {/* Minimum Quantity / Package Info */}
-                        <div style={{ 
-                          marginBottom: '24px', 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          backgroundColor: 'rgba(10, 144, 181, 0.1)', 
-                          color: '#0A90B5',
-                          padding: '6px 14px', 
-                          borderRadius: '8px',
-                          fontSize: '12.5px',
-                          fontWeight: 700
-                        }}>
-                          <Check size={14} color="#0A90B5" />
-                          {isSingle ? 'Grand Party Package' : `Min Required: ${minQty} Packets (Total ₹${minQty * product.price})`}
-                        </div>
+                        {/* Interactive Children Tier Selector (for Food & Cake Combo) */}
+                        {product.tiers ? (
+                          <div style={{ margin: '12px 0 18px 0', backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                              <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#0A90B5', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <Users size={14} color="#0A90B5" />
+                                CHOOSE NUMBER OF KIDS:
+                              </span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                              {product.tiers.map((t) => {
+                                const isSelected = (selectedTiers[product.id]?.children || product.tiers[0].children) === t.children;
+                                return (
+                                  <button
+                                    key={t.children}
+                                    type="button"
+                                    onClick={() => handleSelectTier(product.id, t)}
+                                    style={{
+                                      background: isSelected ? 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)' : '#FFFFFF',
+                                      color: isSelected ? '#FFFFFF' : '#334155',
+                                      border: isSelected ? 'none' : '1px solid #CBD5E1',
+                                      borderRadius: '50px',
+                                      padding: '8px 10px',
+                                      fontSize: '12px',
+                                      fontWeight: 800,
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '4px',
+                                      boxShadow: isSelected ? '0 4px 12px rgba(10, 144, 181, 0.25)' : 'none',
+                                      transition: 'all 0.2s ease'
+                                    }}
+                                  >
+                                    👦 {t.children} Kids — ₹{t.price.toLocaleString()}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : (
+                          /* Minimum Quantity / Package Info */
+                          <div style={{ 
+                            marginBottom: '24px', 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '6px',
+                            backgroundColor: 'rgba(10, 144, 181, 0.1)', 
+                            color: '#0A90B5',
+                            padding: '6px 14px', 
+                            borderRadius: '8px',
+                            fontSize: '12.5px',
+                            fontWeight: 700
+                          }}>
+                            <Check size={14} color="#0A90B5" />
+                            {isSingle ? 'Grand Party Package' : `Min Required: ${minQty} Packets (Total ₹${(minQty * product.price).toLocaleString()})`}
+                          </div>
+                        )}
                       </div>
 
                       {/* Action Button Adding to Cart */}
@@ -362,7 +432,7 @@ const Menu = () => {
                         }}
                       >
                         <ShoppingBag size={20} />
-                        Add to Cart
+                        Add to Cart ({currentTier ? `${currentTier.children} Kids — ₹${currentPrice.toLocaleString()}` : `₹${currentPrice.toLocaleString()}`})
                       </button>
                     </div>
                   </motion.div>
