@@ -68,6 +68,7 @@ export const products = [
     name: 'Mini Party', 
     price: 1500, 
     icon: '🎉', 
+    badgeText: 'Mini party for 25 Children',
     desc: 'Includes meals, small gifts, and a fun evening for a group of orphans.',
     img: 'https://i.postimg.cc/DfjNKjhW/Whats-App-Image-2026-06-13-at-9-19-15-PM.jpg' 
   },
@@ -77,6 +78,7 @@ export const products = [
     name: 'Special Party', 
     price: 2000, 
     icon: '✨', 
+    badgeText: 'Special Party for 30 Children',
     desc: 'A full grand meal with toys and interactive games for our foundation kids.',
     img: 'https://i.postimg.cc/4NDLwyn8/IMG-20260415-WA0130-jpg.jpg' 
   },
@@ -86,6 +88,7 @@ export const products = [
     name: 'Golden Celebration', 
     price: 3000, 
     icon: '🥇', 
+    badgeText: 'Golden Celebration Package for 40 Children',
     desc: 'Our most popular choice for anniversaries. Includes premium meal kits.',
     img: 'https://i.postimg.cc/X7PSWnqJ/20260205-170424-jpg.jpg' 
   },
@@ -95,14 +98,29 @@ export const products = [
     name: 'Grand Party', 
     price: 4500, 
     icon: '👑', 
+    badgeText: 'Grand Party Package for 50+ Children',
     desc: 'The ultimate sponsorship covering food, clothes, and sweets for 50+ kids.',
     img: 'https://i.postimg.cc/zX44YHPZ/Whats-App-Image-2026-02-23-at-3-36-29-PM-(1).jpg' 
+  },
+  { 
+    id: 11, 
+    category: 'Single Product', 
+    name: 'Test Payment Pack', 
+    price: 2, 
+    unit: 'test',
+    icon: '🧪', 
+    badgeText: 'Test Payment (₹2)',
+    desc: 'Quick ₹2 verification card to test checkout, payment receipt upload, and order processing flow.',
+    img: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=800&auto=format&fit=crop'
   }
 ];
 
-export const getMinQty = (price) => Math.ceil(600 / price);
+export const getMinQty = (price) => {
+  if (price <= 10) return 1;
+  return Math.ceil(600 / price);
+};
 
 export const isSingleEntity = (product) => {
   if (!product) return false;
-  return [7, 8, 9, 10].includes(product.id);
+  return [7, 8, 9, 10, 11].includes(product.id);
 };

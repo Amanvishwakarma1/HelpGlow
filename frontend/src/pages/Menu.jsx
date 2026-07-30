@@ -10,6 +10,7 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [selectedTiers, setSelectedTiers] = useState({});
   const [toastMessage, setToastMessage] = useState('');
+  const [addedProductId, setAddedProductId] = useState(null);
   
   // Special Combo Modal State
   const [specialComboModalProduct, setSpecialComboModalProduct] = useState(null);
@@ -43,11 +44,6 @@ const Menu = () => {
   };
 
   const handleAddProduct = (product) => {
-    if (!isLoggedIn) {
-      navigate('/login?redirect=/menu&message=Please sign in to sponsor packages and add to cart!');
-      return;
-    }
-
     const currentTier = product.tiers ? (selectedTiers[product.id] || product.tiers[0]) : null;
     const finalProduct = currentTier ? {
       ...product,
@@ -57,17 +53,20 @@ const Menu = () => {
     } : product;
 
     addToCart(finalProduct);
-    setToastMessage(`Added ${finalProduct.name} to your sponsorship cart!`);
+
+    // Immediate button visual feedback
+    setAddedProductId(product.id);
+    setTimeout(() => {
+      setAddedProductId(null);
+    }, 2500);
+
+    setToastMessage(`🎉 Added ${finalProduct.name} to your sponsorship cart!`);
     setTimeout(() => {
       setToastMessage('');
-    }, 3500);
+    }, 4000);
   };
 
   const handleAddSpecialComboFromModal = () => {
-    if (!isLoggedIn) {
-      navigate('/login?redirect=/menu&message=Please sign in to sponsor packages and add to cart!');
-      return;
-    }
     if (!specialComboModalProduct || !selectedModalTier) return;
 
     const finalProduct = {
@@ -79,13 +78,19 @@ const Menu = () => {
     };
 
     addToCart(finalProduct);
-    setToastMessage(`Added ${finalProduct.name} (₹${selectedModalTier.price.toLocaleString()}) to your sponsorship cart!`);
+
+    setAddedProductId(specialComboModalProduct.id);
+    setTimeout(() => {
+      setAddedProductId(null);
+    }, 2500);
+
+    setToastMessage(`🎉 Added ${finalProduct.name} (₹${selectedModalTier.price.toLocaleString()}) to your sponsorship cart!`);
     setSpecialComboModalProduct(null);
     setSelectedModalTier(null);
 
     setTimeout(() => {
       setToastMessage('');
-    }, 3500);
+    }, 4000);
   };
 
   // --- Card Motion Variants ---
@@ -371,7 +376,7 @@ const Menu = () => {
                           textOverflow: 'ellipsis',
                           maxWidth: '58%'
                         }}>
-                          {isSpecialCombo ? 'From ₹850 / combo' : `₹${currentPrice.toLocaleString()} / ${unitText}`}
+                          {isSpecialCombo ? `From ₹${product.price.toLocaleString()} for ${product.unit}` : `₹${currentPrice.toLocaleString()} / ${unitText}`}
                         </div>
                       </div>
                     </div>
@@ -473,7 +478,7 @@ const Menu = () => {
                             fontWeight: 700
                           }}>
                             <Check size={14} color="#0A90B5" />
-                            {isSingle ? 'Grand Party Package' : `Min Required: ${minQty} Packets (Total ₹${(minQty * product.price).toLocaleString()})`}
+                            {isSingle ? (product.badgeText || 'Grand Party Package') : `Min Required: ${minQty} Packets (Total ₹${(minQty * product.price).toLocaleString()})`}
                           </div>
                         )}
                       </div>
@@ -513,7 +518,9 @@ const Menu = () => {
                           type="button"
                           onClick={() => handleAddProduct(product)}
                           style={{
-                            background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
+                            background: addedProductId === product.id 
+                              ? 'linear-gradient(90deg, #10B981 0%, #059669 100%)' 
+                              : 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
                             color: '#FFFFFF',
                             border: 'none',
                             padding: '16px 28px',
@@ -526,12 +533,23 @@ const Menu = () => {
                             justifyContent: 'center',
                             gap: '10px',
                             width: '100%',
-                            boxShadow: '0 6px 20px rgba(10, 144, 181, 0.25), 0 2px 8px rgba(217, 91, 40, 0.2)',
+                            boxShadow: addedProductId === product.id 
+                              ? '0 6px 20px rgba(16, 185, 129, 0.4)' 
+                              : '0 6px 20px rgba(10, 144, 181, 0.25), 0 2px 8px rgba(217, 91, 40, 0.2)',
                             transition: 'all 0.25s ease'
                           }}
                         >
-                          <ShoppingBag size={20} />
-                          Add to Cart ({currentTier ? `${currentTier.children} Kids — ₹${currentPrice.toLocaleString()}` : `₹${currentPrice.toLocaleString()}`})
+                          {addedProductId === product.id ? (
+                            <>
+                              <Check size={20} color="#FFFFFF" />
+                              Added to Cart!
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag size={20} />
+                              Add to Cart ({currentTier ? `${currentTier.children} Kids — ₹${currentPrice.toLocaleString()}` : `₹${currentPrice.toLocaleString()}`})
+                            </>
+                          )}
                         </button>
                       )}
                     </div>

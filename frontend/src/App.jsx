@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import MainLayout from "./components/MainLayout"; 
 import Home from "./pages/Home";
 import Campaigns from "./pages/Campaigns";
@@ -12,31 +14,45 @@ import AdminDashboard from "./pages/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
+// Helper component that automatically scrolls window to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Parent route renders the Header and Footer layout */}
-            <Route element={<MainLayout />}>
-              {/* All child routes will render inside the <Outlet /> of MainLayout */}
-              <Route path="/" element={<Home />} />
-              <Route path="/causes" element={<Campaigns />} />
-              <Route path="/campaign" element={<Campaigns />} />
-              <Route path="/campaigns" element={<Campaigns />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/menu" element={<Menu />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </CartProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
+              {/* Parent route renders the Header and Footer layout */}
+              <Route element={<MainLayout />}>
+                {/* All child routes will render inside the <Outlet /> of MainLayout */}
+                <Route path="/" element={<Home />} />
+                <Route path="/causes" element={<Campaigns />} />
+                <Route path="/campaign" element={<Campaigns />} />
+                <Route path="/campaigns" element={<Campaigns />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -35,12 +35,33 @@
   --radius-xl: 50px;
 }
 
+html {
+  scroll-behavior: smooth;
+  background-color: #0F172A;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   background-color: var(--bg-main);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Hardware Acceleration & Smooth Rendering Overrides */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.page-wrapper {
+  transform: translateZ(0);
 }
 
 /* Typography Overrides */
