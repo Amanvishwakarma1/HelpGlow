@@ -362,7 +362,7 @@ const resetPassword = async (req, res) => {
 const getMe = async (req, res) => {
     try {
         const userResult = await pool.query(
-            `SELECT id, username, email, role, created_at FROM users WHERE id = $1`,
+            `SELECT id, username, email, role, provider, provider_id, profile_picture, email_verified, created_at FROM users WHERE id = $1`,
             [req.user.id]
         );
 
@@ -370,11 +370,159 @@ const getMe = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.status(200).json({ user: userResult.rows[0] });
+        const u = userResult.rows[0];
+        res.status(200).json({
+            success: true,
+            user: {
+                id: u.id,
+                name: u.username,
+                username: u.username,
+                email: u.email,
+                role: u.role,
+                provider: u.provider,
+                provider_id: u.provider_id,
+                profile_picture: u.profile_picture,
+                email_verified: u.email_verified,
+                created_at: u.created_at
+            }
+        });
     } catch (err) {
         console.error('❌ Error in getMe:', err);
         res.status(500).json({ error: 'Failed to fetch user data: ' + err.message });
     }
+};
+
+const OAuthProviderService = require('../services/oauthProviderService');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken, getRefreshTokenCookieOptions } = require('../utils/jwt');
+
+// 7. Google OAuth Login / User Creation / Linking Controller
+const googleAuth = async (req, res) => {
+    const { credential } = req.body;
+
+    if (!credential) {
+        return res.status(400).json({ error: 'Google credential ID token is required' });
+    }
+
+    try {
+        // Step 1: Verify token with Google Auth Service
+        const googleProfile = await OAuthProviderService.verifyToken('google', credential);
+        const { provider, providerId, email, name, profilePicture, emailVerified } = googleProfile;
+
+        const cleanEmail = email.toLowerCase().trim();
+
+        // Step 2: Check if user exists by provider_id OR email
+        const existingUser = await pool.query(
+            `SELECT * FROM users WHERE provider_id = $1 OR LOWER(email) = $2`,
+            [providerId, cleanEmail]
+        );
+
+        let user;
+
+        if (existingUser.rows.length > 0) {
+            user = existingUser.rows[0];
+
+            // Safely link Google provider details if account existed via email/password
+            await pool.query(
+                `UPDATE users 
+                 SET provider = COALESCE(provider, $1), 
+                     provider_id = COALESCE(provider_id, $2),
+                     profile_picture = COALESCE(profile_picture, $3),
+                     email_verified = $4
+                 WHERE id = $5`,
+                ['google', providerId, profilePicture, true, user.id]
+            );
+            user.provider = 'google';
+            user.provider_id = providerId;
+            user.profile_picture = profilePicture || user.profile_picture;
+        } else {
+            // Step 3: Automatically create new Google user account
+            const newUserResult = await pool.query(
+                `INSERT INTO users (username, email, password_hash, role, provider, provider_id, profile_picture, email_verified)
+                 VALUES ($1, $2, NULL, 'user', 'google', $3, $4, $5)
+                 RETURNING id, username, email, role, provider, provider_id, profile_picture, email_verified, created_at`,
+                [name, cleanEmail, providerId, profilePicture, true]
+            );
+            user = newUserResult.rows[0];
+        }
+
+        // Step 4: Generate Access Token (short) & Refresh Token (long)
+        const accessToken = generateAccessToken(user);
+        const refreshTokenVal = generateRefreshToken(user);
+
+        // Step 5: Set Refresh Token in Secure HttpOnly Cookie
+        res.cookie('helpglow_refresh_token', refreshTokenVal, getRefreshTokenCookieOptions());
+
+        return res.status(200).json({
+            success: true,
+            user: {
+                id: user.id,
+                name: user.username || user.name,
+                username: user.username || user.name,
+                email: user.email,
+                role: user.role || 'user',
+                provider: user.provider || 'google',
+                provider_id: user.provider_id,
+                profile_picture: user.profile_picture
+            },
+            accessToken,
+            token: accessToken
+        });
+
+    } catch (err) {
+        console.error('❌ Error in googleAuth controller:', err);
+        return res.status(401).json({ error: 'Google authentication failed: ' + err.message });
+    }
+};
+
+// 8. Refresh Access Token Controller
+const refreshToken = async (req, res) => {
+    try {
+        const token = req.cookies?.helpglow_refresh_token;
+
+        if (!token) {
+            return res.status(401).json({ error: 'Refresh token missing' });
+        }
+
+        const decoded = verifyRefreshToken(token);
+
+        const userResult = await pool.query(
+            `SELECT id, username, email, role, provider, provider_id, profile_picture FROM users WHERE id = $1`,
+            [decoded.id]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(401).json({ error: 'User not found' });
+        }
+
+        const user = userResult.rows[0];
+        const newAccessToken = generateAccessToken(user);
+
+        return res.status(200).json({
+            success: true,
+            accessToken: newAccessToken,
+            user: {
+                id: user.id,
+                name: user.username,
+                email: user.email,
+                role: user.role,
+                profile_picture: user.profile_picture
+            }
+        });
+    } catch (err) {
+        console.error('❌ Error in refreshToken controller:', err.message);
+        return res.status(401).json({ error: 'Invalid or expired refresh token' });
+    }
+};
+
+// 9. Logout Controller
+const logoutUser = async (req, res) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie('helpglow_refresh_token', {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'None' : 'Lax'
+    });
+    return res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
 
 module.exports = {
@@ -384,5 +532,8 @@ module.exports = {
     register,
     login,
     resetPassword,
-    getMe
+    getMe,
+    googleAuth,
+    refreshToken,
+    logoutUser
 };

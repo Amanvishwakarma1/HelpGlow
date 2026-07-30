@@ -163,7 +163,7 @@ const Home = () => {
                 className="donate-collection-list w-dyn-items"
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: false, amount: 0.2 }}
+                viewport={{ once: true, amount: 0.2 }}
                 variants={{
                   hidden: { opacity: 0 },
                   visible: {

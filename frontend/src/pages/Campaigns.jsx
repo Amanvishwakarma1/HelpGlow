@@ -191,7 +191,7 @@ const Campaigns = () => {
                     key={cause.id}
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: false, amount: 0.2 }}
+                    viewport={{ once: true, amount: 0.2 }}
                     whileHover={{ y: -6 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="causes-master-card"
