@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, Sparkles, CheckCircle2, ShieldCheck, KeyRound, ArrowLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import AnimatedMascot from '../components/AnimatedMascot';
-import GoogleLoginButton from '../components/GoogleLoginButton';
 import { useAuth } from '../context/AuthContext';
-import { triggerGoogleSignIn } from '../utils/googleAuth';
 
 const Login = () => {
   // Mode: 'sign_in' | 'register' | 'forgot_password'
