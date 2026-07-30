@@ -47,17 +47,19 @@ export const products = [
   { 
     id: 6, 
     category: 'Combo Product', 
-    name: 'Food & Cake Combo', 
+    name: 'Birthday Celebration Combo', 
     price: 850, 
     unit: '10 children',
-    icon: '🎁', 
-    desc: 'Celebrate your special day by sharing a fresh cake and hot meals with underprivileged children.',
+    icon: '🎂', 
+    desc: 'Description: ₹30 per food packet + ₹550 for cake',
     img: 'https://i.postimg.cc/3RYJYcNp/Whats-App-Image-2026-01-20-at-9-24-33-PM.jpg',
+    isSpecialCombo: true,
     tiers: [
-      { children: 10, price: 850, label: '10 Kids (₹850)' },
-      { children: 25, price: 1500, label: '25 Kids (₹1,500)' },
-      { children: 30, price: 2000, label: '30 Kids (₹2,000)' },
-      { children: 40, price: 3000, label: '40 Kids (₹3,000)' }
+      { children: 10, price: 850, label: 'For 10 Kids (Food + Cake) = ₹850' },
+      { children: 20, price: 1150, label: 'For 20 Kids (Food + Cake) = ₹1,150' },
+      { children: 30, price: 1450, label: 'For 30 Kids (Food + Cake) = ₹1,450' },
+      { children: 50, price: 2050, label: 'For 50 Kids (Food + Cake) = ₹2,050' },
+      { children: 100, price: 3550, label: 'For 100 Kids (Food + Cake) = ₹3,550' }
     ]
   },
   { 

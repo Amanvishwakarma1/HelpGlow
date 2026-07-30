@@ -9,6 +9,8 @@ import About from "./pages/About";
 import Menu from "./pages/Menu";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
             </Route>
           </Routes>
         </BrowserRouter>

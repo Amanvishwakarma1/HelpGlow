@@ -23,28 +23,32 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart]);
 
+  const getItemKey = (item) => item.cartItemId || (item.unit ? `${item.id}_${item.unit}` : item.id);
+
   const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      const itemKey = getItemKey(product);
+      const existingItem = prevCart.find((item) => getItemKey(item) === itemKey);
       const isSingle = isSingleEntity(product);
       const minQty = isSingle ? 1 : getMinQty(product.price);
 
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === product.id
+          getItemKey(item) === itemKey
             ? { ...item, qty: item.qty + 1 }
             : item
         );
       } else {
-        return [...prevCart, { ...product, qty: minQty, minQty }];
+        return [...prevCart, { ...product, cartItemId: itemKey, qty: minQty, minQty }];
       }
     });
   };
 
-  const updateQty = (productId, newQty) => {
+  const updateQty = (productIdOrKey, newQty) => {
     setCart((prevCart) =>
       prevCart.map((item) => {
-        if (item.id === productId) {
+        const itemKey = getItemKey(item);
+        if (itemKey === productIdOrKey || item.id === productIdOrKey) {
           const isSingle = isSingleEntity(item);
           const minQty = isSingle ? 1 : getMinQty(item.price);
           const validQty = Math.max(minQty, newQty);
@@ -55,8 +59,8 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  const removeFromCart = (productId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+  const removeFromCart = (productIdOrKey) => {
+    setCart((prevCart) => prevCart.filter((item) => getItemKey(item) !== productIdOrKey && item.id !== productIdOrKey));
   };
 
   const clearCart = () => {

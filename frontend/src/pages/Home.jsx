@@ -123,7 +123,7 @@ const Home = () => {
       tag: 'EDUCATION',
       readTime: '3 min read',
       excerpt: 'Brightening futures through education. We distributed essential school bags, books, and study kits to young girls in need, promoting female literacy, empowerment, and equal opportunities for every child.',
-      image: 'https://i.postimg.cc/Zq9rc9h4/Whats-App-Image-2026-01-20-at-9-21-50-PM.jpg',
+      image: 'https://i.postimg.cc/QdHTjswP/Whats-App-Image-2026-07-27-at-10-48-24-PM.jpg',
       link: '/about'
     },
     {
@@ -133,7 +133,7 @@ const Home = () => {
       tag: 'CELEBRATIONS',
       readTime: '4 min read',
       excerpt: 'Turning personal celebrations into meaningful impact. Generous donors celebrated their special birthday by sponsoring meal kits and gifts, bringing pure joy and nutritious food to underprivileged children.',
-      image: 'https://i.postimg.cc/3rGvW53X/Whats-App-Image-2026-02-23-at-3-36-29-PM.jpg',
+      image: 'https://i.postimg.cc/vHMvx3DW/Whats-App-Image-2026-07-29-at-11-51-05-PM.jpg',
       link: '/menu'
     },
     {
@@ -143,7 +143,7 @@ const Home = () => {
       tag: 'ANIMAL WELFARE',
       readTime: '3 min read',
       excerpt: 'Promoting coexistence and animal care. HelpGlow volunteers conducted street dog feeding drives across Varanasi, providing wholesome meals, fresh water, and loving care to stray animals.',
-      image: 'https://i.postimg.cc/CLDXv1S8/20260219-150733.jpg',
+      image: 'https://i.postimg.cc/MZ18ZDRP/Whats-App-Image-2026-01-20-at-9-24-31-PM.jpg',
       link: '/causes'
     }
   ];

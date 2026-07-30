@@ -119,7 +119,7 @@ const About = () => {
     { icon: <ShieldCheck size={26} color="#0A90B5" />, label: "CIN Number", val: "U88100UP2025NPL229317" },
     { icon: <Globe size={26} color="#0A90B5" />, label: "NGO Darpan ID", val: "UP/2022/0314589" },
     { icon: <FileCheck size={26} color="#0A90B5" />, label: "PAN Card", val: "AAICH0991A" },
-    { icon: <MapPin size={26} color="#0A90B5" />, label: "Registered Address", val: "Kundariya Benipur Varanasi 221307" },
+    { icon: <MapPin size={26} color="#0A90B5" />, label: "Registered Address", val: "Kundaria Benipur, Varanasi 221307" },
   ];
 
   const sectionContainerStyle = {
@@ -643,7 +643,7 @@ const About = () => {
                     <span style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
                       {item.label}
                     </span>
-                    <p style={{ fontSize: '17px', fontWeight: 700, color: '#16203A', margin: '4px 0 0 0', wordBreak: 'break-all' }}>
+                    <p style={{ fontSize: '15.5px', fontWeight: 700, color: '#16203A', margin: '4px 0 0 0', wordBreak: 'break-word', lineHeight: 1.35 }}>
                       {item.val}
                     </p>
                   </div>
@@ -671,8 +671,11 @@ const About = () => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <motion.button 
-                type="button"
+              <motion.a 
+                href="/HelpGlow_Certificate_of_Incorporation.pdf"
+                download="HelpGlow_Certificate_of_Incorporation.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.98 }}
                 style={{ 
@@ -683,16 +686,17 @@ const About = () => {
                   padding: '20px 48px', 
                   fontSize: '18px', 
                   fontWeight: 800, 
-                  display: 'flex', 
+                  display: 'inline-flex', 
                   alignItems: 'center', 
                   gap: '12px',
                   cursor: 'pointer',
+                  textDecoration: 'none',
                   boxShadow: '0 8px 24px rgba(10, 144, 181, 0.35)'
                 }}
               >
                 <Download size={24} />
                 Download Official Certificates
-              </motion.button>
+              </motion.a>
             </div>
           </motion.div>
         </div>

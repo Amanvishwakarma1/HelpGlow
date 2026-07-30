@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ArrowRight, Sparkles, ShoppingBag, Check, Users } from 'lucide-react';
+import { Heart, ArrowRight, Sparkles, ShoppingBag, Check, Users, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { products, getMinQty, isSingleEntity } from '../config/product';
 import { useCart } from '../context/CartContext';
@@ -10,6 +10,11 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [selectedTiers, setSelectedTiers] = useState({});
   const [toastMessage, setToastMessage] = useState('');
+  
+  // Special Combo Modal State
+  const [specialComboModalProduct, setSpecialComboModalProduct] = useState(null);
+  const [selectedModalTier, setSelectedModalTier] = useState(null);
+
   const { addToCart } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
@@ -28,9 +33,10 @@ const Menu = () => {
   };
 
   const getProductUnit = (product, activeTier) => {
-    if (activeTier) return `${activeTier.children} children`;
+    if (product.isSpecialCombo) return 'combo';
+    if (activeTier) return `${activeTier.children} kids`;
     if (product.unit) return product.unit;
-    if (isSingleEntity(product)) return 'party package';
+    if (isSingleEntity(product)) return 'party';
     if (product.name.toLowerCase().includes('kit')) return 'kit';
     if (product.name.toLowerCase().includes('cake')) return 'cake';
     return 'packet';
@@ -52,6 +58,31 @@ const Menu = () => {
 
     addToCart(finalProduct);
     setToastMessage(`Added ${finalProduct.name} to your sponsorship cart!`);
+    setTimeout(() => {
+      setToastMessage('');
+    }, 3500);
+  };
+
+  const handleAddSpecialComboFromModal = () => {
+    if (!isLoggedIn) {
+      navigate('/login?redirect=/menu&message=Please sign in to sponsor packages and add to cart!');
+      return;
+    }
+    if (!specialComboModalProduct || !selectedModalTier) return;
+
+    const finalProduct = {
+      ...specialComboModalProduct,
+      price: selectedModalTier.price,
+      name: `${specialComboModalProduct.name} (${selectedModalTier.children} Children)`,
+      unit: `${selectedModalTier.children} children`,
+      selectedChildren: selectedModalTier.children
+    };
+
+    addToCart(finalProduct);
+    setToastMessage(`Added ${finalProduct.name} (₹${selectedModalTier.price.toLocaleString()}) to your sponsorship cart!`);
+    setSpecialComboModalProduct(null);
+    setSelectedModalTier(null);
+
     setTimeout(() => {
       setToastMessage('');
     }, 3500);
@@ -251,6 +282,7 @@ const Menu = () => {
                 const currentTier = product.tiers ? (selectedTiers[product.id] || product.tiers[0]) : null;
                 const currentPrice = currentTier ? currentTier.price : product.price;
                 const unitText = getProductUnit(product, currentTier);
+                const isSpecialCombo = product.isSpecialCombo;
 
                 return (
                   <motion.div
@@ -259,6 +291,12 @@ const Menu = () => {
                     variants={dealCardVariants}
                     whileHover={{ y: -10, scale: 1.02 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
+                    onClick={() => {
+                      if (isSpecialCombo) {
+                        setSpecialComboModalProduct(product);
+                        setSelectedModalTier(product.tiers[0]);
+                      }
+                    }}
                     style={{
                       backgroundColor: '#FFFFFF',
                       borderRadius: '24px',
@@ -267,10 +305,11 @@ const Menu = () => {
                       boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
                       display: 'flex',
                       flexDirection: 'column',
-                      position: 'relative'
+                      position: 'relative',
+                      cursor: isSpecialCombo ? 'pointer' : 'default'
                     }}
                   >
-                    {/* Image Header with Price Tag Pill */}
+                    {/* Image Header with Responsive Non-overlapping Pill Tags */}
                     <div style={{ width: '100%', height: '230px', overflow: 'hidden', position: 'relative', backgroundColor: '#10182E' }}>
                       <motion.img
                         whileHover={{ scale: 1.08 }}
@@ -285,41 +324,55 @@ const Menu = () => {
                           display: 'block'
                         }}
                       />
-                      {/* Price Tag Pill */}
-                      <div style={{
-                        position: 'absolute',
-                        top: '16px',
-                        right: '16px',
-                        backgroundColor: 'rgba(30, 18, 59, 0.92)',
-                        backdropFilter: 'blur(10px)',
-                        color: '#FFFFFF',
-                        padding: '6px 18px',
-                        borderRadius: '50px',
-                        fontSize: '15px',
-                        fontWeight: 800,
-                        border: '1px solid rgba(10, 144, 181, 0.5)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-                      }}>
-                        ₹{currentPrice.toLocaleString()} / {unitText}
-                      </div>
 
-                      {/* Category Pill Tag */}
+                      {/* Flex Container for Top Pill Tags (Prevents Overlap) */}
                       <div style={{
                         position: 'absolute',
-                        top: '16px',
-                        left: '16px',
-                        backgroundColor: 'rgba(11, 11, 14, 0.85)',
-                        backdropFilter: 'blur(10px)',
-                        color: '#0A90B5',
-                        padding: '6px 16px',
-                        borderRadius: '50px',
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        letterSpacing: '1.2px',
-                        border: '1px solid rgba(10, 144, 181, 0.3)',
-                        textTransform: 'uppercase'
+                        top: '12px',
+                        left: '12px',
+                        right: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '6px',
+                        zIndex: 3
                       }}>
-                        {product.icon} {product.category}
+                        {/* Category Pill Tag */}
+                        <div style={{
+                          backgroundColor: 'rgba(11, 11, 14, 0.85)',
+                          backdropFilter: 'blur(10px)',
+                          color: '#0A90B5',
+                          padding: '5px 12px',
+                          borderRadius: '50px',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          letterSpacing: '1px',
+                          border: '1px solid rgba(10, 144, 181, 0.3)',
+                          textTransform: 'uppercase',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0
+                        }}>
+                          {product.icon} {product.category}
+                        </div>
+
+                        {/* Price / Unit Tag */}
+                        <div style={{
+                          backgroundColor: 'rgba(30, 18, 59, 0.92)',
+                          backdropFilter: 'blur(10px)',
+                          color: '#FFFFFF',
+                          padding: '5px 12px',
+                          borderRadius: '50px',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          border: '1px solid rgba(10, 144, 181, 0.5)',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          maxWidth: '58%'
+                        }}>
+                          {isSpecialCombo ? 'From ₹850 / combo' : `₹${currentPrice.toLocaleString()} / ${unitText}`}
+                        </div>
                       </div>
                     </div>
 
@@ -349,8 +402,24 @@ const Menu = () => {
                           {product.desc}
                         </p>
 
-                        {/* Interactive Children Tier Selector (for Food & Cake Combo) */}
-                        {product.tiers ? (
+                        {/* Minimum Quantity / Package Info */}
+                        {isSpecialCombo ? (
+                          <div style={{ 
+                            marginBottom: '24px', 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '6px',
+                            backgroundColor: 'rgba(10, 144, 181, 0.1)', 
+                            color: '#0A90B5',
+                            padding: '6px 14px', 
+                            borderRadius: '8px',
+                            fontSize: '12.5px',
+                            fontWeight: 700
+                          }}>
+                            <Check size={14} color="#0A90B5" />
+                            Choose 10 to 100 Kids (Food + Cake)
+                          </div>
+                        ) : product.tiers ? (
                           <div style={{ margin: '12px 0 18px 0', backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                               <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#0A90B5', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -409,31 +478,62 @@ const Menu = () => {
                         )}
                       </div>
 
-                      {/* Action Button Adding to Cart */}
-                      <button
-                        type="button"
-                        onClick={() => handleAddProduct(product)}
-                        style={{
-                          background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
-                          color: '#FFFFFF',
-                          border: 'none',
-                          padding: '16px 28px',
-                          borderRadius: '50px',
-                          fontSize: '16px',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '10px',
-                          width: '100%',
-                          boxShadow: '0 6px 20px rgba(10, 144, 181, 0.25), 0 2px 8px rgba(217, 91, 40, 0.2)',
-                          transition: 'all 0.25s ease'
-                        }}
-                      >
-                        <ShoppingBag size={20} />
-                        Add to Cart ({currentTier ? `${currentTier.children} Kids — ₹${currentPrice.toLocaleString()}` : `₹${currentPrice.toLocaleString()}`})
-                      </button>
+                      {/* Action Button */}
+                      {isSpecialCombo ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSpecialComboModalProduct(product);
+                            setSelectedModalTier(product.tiers[0]);
+                          }}
+                          style={{
+                            background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            padding: '16px 28px',
+                            borderRadius: '50px',
+                            fontSize: '16px',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            width: '100%',
+                            boxShadow: '0 6px 20px rgba(10, 144, 181, 0.25), 0 2px 8px rgba(217, 91, 40, 0.2)',
+                            transition: 'all 0.25s ease'
+                          }}
+                        >
+                          <ShoppingBag size={20} />
+                          Add to Cart (Choose Kids)
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleAddProduct(product)}
+                          style={{
+                            background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            padding: '16px 28px',
+                            borderRadius: '50px',
+                            fontSize: '16px',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            width: '100%',
+                            boxShadow: '0 6px 20px rgba(10, 144, 181, 0.25), 0 2px 8px rgba(217, 91, 40, 0.2)',
+                            transition: 'all 0.25s ease'
+                          }}
+                        >
+                          <ShoppingBag size={20} />
+                          Add to Cart ({currentTier ? `${currentTier.children} Kids — ₹${currentPrice.toLocaleString()}` : `₹${currentPrice.toLocaleString()}`})
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 );
@@ -442,6 +542,193 @@ const Menu = () => {
           </AnimatePresence>
         </div>
       </section>
+
+      {/* 4. Special Combo Children Selector Modal Overlay */}
+      <AnimatePresence>
+        {specialComboModalProduct && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(8px)'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '28px',
+                width: '100%',
+                maxWidth: '560px',
+                overflow: 'hidden',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                border: '1px solid #E2E8F0'
+              }}
+            >
+              {/* Modal Top Header */}
+              <div style={{
+                backgroundColor: '#16203A',
+                color: '#FFFFFF',
+                padding: '24px 28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'relative'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '32px' }}>{specialComboModalProduct.icon}</span>
+                  <div>
+                    <h3 style={{ fontFamily: "'Clash Display', 'Outfit', sans-serif", fontSize: '22px', fontWeight: 800, margin: 0 }}>
+                      {specialComboModalProduct.name}
+                    </h3>
+                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
+                      Choose children count for celebration
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSpecialComboModalProduct(null)}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '36px',
+                    height: '36px',
+                    color: '#FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Modal Content Body */}
+              <div style={{ padding: '28px' }}>
+                {/* Description & Pricing Formula Card */}
+                <div style={{
+                  backgroundColor: '#F8FAFC',
+                  borderRadius: '16px',
+                  padding: '16px',
+                  border: '1px solid #E2E8F0',
+                  marginBottom: '24px'
+                }}>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#0A90B5', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                    Package Description & Pricing Logic
+                  </span>
+                  <p style={{ margin: '6px 0 0 0', fontSize: '15px', color: '#334155', fontWeight: 700 }}>
+                    {specialComboModalProduct.desc}
+                  </p>
+                </div>
+
+                {/* Option Selector Title */}
+                <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Users size={18} color="#E61C72" />
+                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                    Select Number of Children:
+                  </span>
+                </div>
+
+                {/* Children Tiers Option Cards List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+                  {specialComboModalProduct.tiers.map((t) => {
+                    const isSelected = selectedModalTier?.children === t.children;
+                    return (
+                      <div
+                        key={t.children}
+                        onClick={() => setSelectedModalTier(t)}
+                        style={{
+                          backgroundColor: isSelected ? 'rgba(230, 28, 114, 0.04)' : '#FFFFFF',
+                          border: isSelected ? '2px solid #E61C72' : '1px solid #E2E8F0',
+                          borderRadius: '16px',
+                          padding: '14px 20px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          transition: 'all 0.2s ease',
+                          boxShadow: isSelected ? '0 4px 14px rgba(230, 28, 114, 0.15)' : 'none'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '50%',
+                            border: isSelected ? '6px solid #E61C72' : '2px solid #94A3B8',
+                            backgroundColor: '#FFFFFF',
+                            transition: 'all 0.2s ease'
+                          }} />
+                          <span style={{ fontSize: '16px', fontWeight: isSelected ? 800 : 700, color: isSelected ? '#1E1B4B' : '#334155' }}>
+                            For {t.children} Kids <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 500 }}>(Food + Cake)</span>
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '18px', fontWeight: 800, color: isSelected ? '#E61C72' : '#0A90B5' }}>
+                          ₹{t.price.toLocaleString()}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Modal Action Buttons */}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setSpecialComboModalProduct(null)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#F1F5F9',
+                      color: '#475569',
+                      border: 'none',
+                      padding: '14px',
+                      borderRadius: '50px',
+                      fontSize: '15px',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddSpecialComboFromModal}
+                    style={{
+                      flex: 2,
+                      background: 'linear-gradient(90deg, #E61C72 0%, #D95B28 100%)',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      padding: '14px 24px',
+                      borderRadius: '50px',
+                      fontSize: '16px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 6px 20px rgba(230, 28, 114, 0.3)'
+                    }}
+                  >
+                    <ShoppingBag size={18} />
+                    Add to Cart ({selectedModalTier ? `₹${selectedModalTier.price.toLocaleString()}` : ''})
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Floating Animated Toast Notification */}
       <AnimatePresence>

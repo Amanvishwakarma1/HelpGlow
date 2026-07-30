@@ -350,9 +350,11 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <AnimatePresence>
-                    {cart.map((item) => (
+                    {cart.map((item) => {
+                      const itemKey = item.cartItemId || item.id;
+                      return (
                       <motion.div
-                        key={item.id}
+                        key={itemKey}
                         layout
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -382,7 +384,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                             {item.name}
                           </h3>
                           <div style={{ fontSize: '18px', fontWeight: 800, color: '#0A90B5' }}>
-                            ₹{item.price.toLocaleString()} <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500 }}>/ packet</span>
+                            ₹{item.price.toLocaleString()} <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500 }}>/ {item.unit || 'packet'}</span>
                           </div>
                         </div>
 
@@ -391,7 +393,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                           <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#F3F4F6', borderRadius: '12px', padding: '4px' }}>
                             <button
                               type="button"
-                              onClick={() => updateQty(item.id, item.qty - 1)}
+                              onClick={() => updateQty(itemKey, item.qty - 1)}
                               style={{ backgroundColor: '#FFFFFF', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                               <Minus size={14} color="#111827" />
@@ -401,7 +403,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                             </span>
                             <button
                               type="button"
-                              onClick={() => updateQty(item.id, item.qty + 1)}
+                              onClick={() => updateQty(itemKey, item.qty + 1)}
                               style={{ backgroundColor: '#FFFFFF', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                               <Plus size={14} color="#111827" />
@@ -414,7 +416,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
 
                           <button
                             type="button"
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(itemKey)}
                             style={{
                               backgroundColor: 'rgba(239, 68, 68, 0.1)',
                               color: '#EF4444',
@@ -428,7 +430,8 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                           </button>
                         </div>
                       </motion.div>
-                    ))}
+                    );
+                    })}
                   </AnimatePresence>
                 </div>
               </div>

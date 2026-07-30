@@ -47,8 +47,8 @@ const Footer = () => {
             <div className="footer-sub-container">
               <div className="footer-main-text">Legal & Privacy</div>
               <div className="w-layout-grid footer-sub-grid">
-                <Link to="/privacy-policy" className="footer-text-link">Privacy Policy</Link>
-                <Link to="/terms-of-service" className="footer-text-link">Terms of Service</Link>
+                <Link to="/privacy-policy" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="footer-text-link">Privacy Policy</Link>
+                <Link to="/terms-of-service" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="footer-text-link">Terms of Service</Link>
               </div>
             </div>
           </div>
