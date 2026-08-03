@@ -73,15 +73,15 @@ const Header = () => {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav role="navigation" className="desktop-nav-menu" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Link to="/" className="nav-link w-nav-link">Home</Link>
-          <Link to="/about" className="nav-link w-nav-link">About us</Link>
-          <Link to="/causes" className="nav-link w-nav-link">Causes</Link>
-          <Link to="/menu" className="nav-link w-nav-link">Menu</Link>
+        <nav role="navigation" className="desktop-nav-menu" style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
+          <Link to="/" className="nav-link w-nav-link" style={{ whiteSpace: 'nowrap' }}>Home</Link>
+          <Link to="/about" className="nav-link w-nav-link" style={{ whiteSpace: 'nowrap' }}>About us</Link>
+          <Link to="/causes" className="nav-link w-nav-link" style={{ whiteSpace: 'nowrap' }}>Causes</Link>
+          <Link to="/menu" className="nav-link w-nav-link" style={{ whiteSpace: 'nowrap' }}>Menu</Link>
           {(isLoggedIn && (user?.role === 'admin' || user?.email === 'admin@helpglow.org')) && (
-            <Link to="/admin" className="nav-link w-nav-link" style={{ color: '#D95B28', fontWeight: 800 }}>Admin Panel</Link>
+            <Link to="/admin" className="nav-link w-nav-link" style={{ color: '#D95B28', fontWeight: 800, whiteSpace: 'nowrap' }}>Admin Panel</Link>
           )}
-          <Link to="/cart" className="nav-link w-nav-link" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <Link to="/cart" className="nav-link w-nav-link" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
             <ShoppingBag size={18} color="#0A90B5" />
             Cart
             {cartItemCount > 0 && (

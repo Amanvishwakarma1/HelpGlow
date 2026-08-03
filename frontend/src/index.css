@@ -124,12 +124,22 @@ button.primary-button {
   transform: translateY(-6px) !important;
 }
 
-/* Glassmorphism Header */
+/* Glassmorphism Header & Single-Row Navigation Override */
 .navbar {
   background: rgba(15, 23, 42, 0.85) !important;
   backdrop-filter: blur(18px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.desktop-nav-menu .nav-link,
+.desktop-nav-menu .w-nav-link,
+.w-nav-link {
+  white-space: nowrap !important;
+  max-width: none !important;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
 }
 
 /* Override Webflow Testimonial Constraints */
