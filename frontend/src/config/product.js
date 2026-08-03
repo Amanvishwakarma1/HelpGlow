@@ -45,6 +45,17 @@ export const products = [
     img: 'https://i.postimg.cc/TP24xjGd/Whats-App-Image-2026-02-23-at-3-36-28-PM.jpg' 
   },
   { 
+    id: 13, 
+    category: 'Single Product', 
+    name: 'School Bag Giveaway', 
+    price: 499, 
+    unit: 'children',
+    icon: '🎒', 
+    badgeText: '₹499 per Child (Min 2 Children)',
+    desc: 'Sponsor durable, high-quality school bags for underprivileged children to support their daily education.',
+    img: 'https://i.postimg.cc/8kXL5RSY/Whats-App-Image-2026-01-20-at-9-15-45-PM.jpg' 
+  },
+  { 
     id: 6, 
     category: 'Combo Product', 
     name: 'Birthday Celebration Combo', 
@@ -103,6 +114,16 @@ export const products = [
     img: 'https://i.postimg.cc/zX44YHPZ/Whats-App-Image-2026-02-23-at-3-36-29-PM-(1).jpg' 
   },
   { 
+    id: 12, 
+    category: 'Combo Product', 
+    name: 'Big Grand Celebration', 
+    price: 9000, 
+    icon: '🎆', 
+    badgeText: 'Big Grand Celebration Package',
+    desc: 'The most grand, high-impact celebration package covering full festive meals, gifts, and special activities for 100+ children.',
+    img: 'https://i.postimg.cc/K4X4kKTv/Whats-App-Image-2026-06-24-at-10-39-45-AM.jpg' 
+  },
+  { 
     id: 11, 
     category: 'Single Product', 
     name: 'Test Payment Pack', 
@@ -122,5 +143,5 @@ export const getMinQty = (price) => {
 
 export const isSingleEntity = (product) => {
   if (!product) return false;
-  return [7, 8, 9, 10, 11].includes(product.id);
+  return [7, 8, 9, 10, 11, 12].includes(product.id);
 };
