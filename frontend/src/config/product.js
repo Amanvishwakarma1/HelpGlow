@@ -53,7 +53,7 @@ export const products = [
     icon: '🎒', 
     badgeText: '₹499 per Child (Min 2 Children)',
     desc: 'Sponsor durable, high-quality school bags for underprivileged children to support their daily education.',
-    img: 'https://i.postimg.cc/8kXL5RSY/Whats-App-Image-2026-01-20-at-9-15-45-PM.jpg' 
+    img: 'https://i.postimg.cc/BnTPFCMq/Whats-App-Image-2026-06-24-at-10-39-22-AM-(1).jpg' 
   },
   { 
     id: 6, 
