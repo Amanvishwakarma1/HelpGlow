@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Exclude private admin pages from search indexing
+Disallow: /admin
+
+Sitemap: https://helpglow.in/sitemap.xml
