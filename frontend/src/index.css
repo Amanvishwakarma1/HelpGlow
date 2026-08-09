@@ -124,13 +124,18 @@ button.primary-button {
   transform: translateY(-6px) !important;
 }
 
-/* Glassmorphism Header Override */
+/* Glassmorphism Fixed Header Override */
 .navbar {
-  background: rgba(15, 23, 42, 0.72) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  background: rgba(15, 23, 42, 0.85) !important;
   backdrop-filter: blur(20px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
 .desktop-nav-menu .nav-link,
