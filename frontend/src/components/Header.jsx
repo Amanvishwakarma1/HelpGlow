@@ -40,12 +40,13 @@ const Header = () => {
         left: 0, 
         right: 0, 
         width: '100%',
-        zIndex: 99999, 
-        backgroundColor: 'rgba(15, 23, 42, 0.88)', 
+        zIndex: 999999, 
+        backgroundColor: 'rgba(15, 23, 42, 0.92)', 
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35)' 
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+        transform: 'none'
       }}
       className="navbar w-nav"
     >
