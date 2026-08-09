@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ArrowRight, Sparkles, ShoppingBag, Check, Users, X } from 'lucide-react';
+import { Heart, ArrowRight, Sparkles, ShoppingBag, Check, Users, X, CheckCircle2, ShoppingBasket } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { products, getMinQty, isSingleEntity } from '../config/product';
 import { useCart } from '../context/CartContext';
@@ -10,14 +10,14 @@ import LazyImage from '../components/LazyImage';
 const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [selectedTiers, setSelectedTiers] = useState({});
-  const [toastMessage, setToastMessage] = useState('');
+  const [addedToast, setAddedToast] = useState(null); // { id, name, price, img, unit, key }
   const [addedProductId, setAddedProductId] = useState(null);
   
   // Special Combo Modal State
   const [specialComboModalProduct, setSpecialComboModalProduct] = useState(null);
   const [selectedModalTier, setSelectedModalTier] = useState(null);
 
-  const { addToCart } = useCart();
+  const { addToCart, totalItemsCount } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
@@ -61,10 +61,19 @@ const Menu = () => {
       setAddedProductId(null);
     }, 2500);
 
-    setToastMessage(`🎉 Added ${finalProduct.name} to your sponsorship cart!`);
+    // Top Popup Toast Feedback
+    setAddedToast({
+      id: product.id,
+      name: finalProduct.name,
+      price: finalProduct.price,
+      img: finalProduct.img || product.img,
+      unit: finalProduct.unit || (currentTier ? `${currentTier.children} children` : 'sponsorship'),
+      key: Date.now()
+    });
+
     setTimeout(() => {
-      setToastMessage('');
-    }, 4000);
+      setAddedToast(null);
+    }, 4500);
   };
 
   const handleAddSpecialComboFromModal = () => {
@@ -85,40 +94,194 @@ const Menu = () => {
       setAddedProductId(null);
     }, 2500);
 
-    setToastMessage(`🎉 Added ${finalProduct.name} (₹${selectedModalTier.price.toLocaleString()}) to your sponsorship cart!`);
+    setAddedToast({
+      id: specialComboModalProduct.id,
+      name: finalProduct.name,
+      price: selectedModalTier.price,
+      img: specialComboModalProduct.img,
+      unit: `${selectedModalTier.children} children`,
+      key: Date.now()
+    });
+
     setSpecialComboModalProduct(null);
     setSelectedModalTier(null);
 
     setTimeout(() => {
-      setToastMessage('');
-    }, 4000);
+      setAddedToast(null);
+    }, 4500);
   };
 
-  // --- Card Motion Variants ---
+  // --- Advanced Framer Motion Grid Variants ---
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.1
+        staggerChildren: 0.08,
+        delayChildren: 0.05
       }
     }
   };
 
   const dealCardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    hidden: { opacity: 0, y: 35, scale: 0.95 },
     visible: { 
       opacity: 1, 
       y: 0, 
       scale: 1,
-      transition: { duration: 0.4, ease: "easeOut" } 
+      transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } 
     }
   };
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", color: '#111827', backgroundColor: '#FFFFFF', overflowX: 'hidden' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", color: '#111827', backgroundColor: '#FFFFFF', overflowX: 'hidden', position: 'relative' }}>
       
+      {/* 🌟 TOP POPUP TOAST NOTIFICATION ON ADD TO CART 🌟 */}
+      <AnimatePresence>
+        {addedToast && (
+          <motion.div
+            key={addedToast.key}
+            initial={{ opacity: 0, y: -90, scale: 0.85, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+            exit={{ opacity: 0, y: -60, scale: 0.9, x: '-50%' }}
+            transition={{ type: "spring", stiffness: 450, damping: 30 }}
+            style={{
+              position: 'fixed',
+              top: '24px',
+              left: '50%',
+              zIndex: 10000,
+              width: '92%',
+              maxWidth: '540px',
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderRadius: '24px',
+              border: '1.5px solid rgba(10, 144, 181, 0.55)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(10, 144, 181, 0.3)',
+              overflow: 'hidden',
+              padding: '16px 20px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              {/* Product Thumbnail Preview */}
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                flexShrink: 0,
+                border: '1.5px solid rgba(10, 144, 181, 0.4)',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+              }}>
+                <LazyImage src={addedToast.img} alt={addedToast.name} objectFit="cover" />
+              </div>
+
+              {/* Toast Text Details */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.3, 1] }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      backgroundColor: '#10B981',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}
+                  >
+                    <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                  </motion.div>
+                  <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Added to Cart Successfully!
+                  </span>
+                </div>
+
+                <h4 style={{
+                  fontSize: '15.5px',
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {addedToast.name}
+                </h4>
+                
+                <div style={{ fontSize: '13px', color: '#0A90B5', fontWeight: 700, marginTop: '2px' }}>
+                  ₹{addedToast.price.toLocaleString()} • {addedToast.unit}
+                </div>
+              </div>
+
+              {/* View Cart Button */}
+              <Link
+                to="/cart"
+                style={{
+                  background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
+                  color: '#FFFFFF',
+                  padding: '10px 18px',
+                  borderRadius: '50px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 14px rgba(10, 144, 181, 0.4), 0 2px 6px rgba(217, 91, 40, 0.3)',
+                  flexShrink: 0
+                }}
+              >
+                <ShoppingBag size={15} />
+                Cart
+                <ArrowRight size={14} />
+              </Link>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setAddedToast(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#94A3B8',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  flexShrink: 0
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* 4.5-Second Animated Auto-Dismiss Countdown Bar */}
+            <motion.div
+              initial={{ scaleX: 1 }}
+              animate={{ scaleX: 0 }}
+              transition={{ duration: 4.5, ease: 'linear' }}
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '3.5px',
+                background: 'linear-gradient(90deg, #0A90B5 0%, #10B981 50%, #D95B28 100%)',
+                transformOrigin: 'left center'
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 1. Hero Header Unit */}
       <section style={{ 
         position: 'relative', 
@@ -220,52 +383,72 @@ const Menu = () => {
         </div>
       </section>
 
-      {/* 2. Category Navigation Tabs */}
+      {/* 2. Category Navigation Tabs with Smooth LayoutId Pill */}
       <section style={{ padding: '40px 24px 20px 24px', backgroundColor: '#F8F9FA', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: '1400px', width: '95%', margin: '0 auto', display: 'flex', justifyContent: 'center' }}>
           <div 
             className="category-tabs-container"
             style={{ 
               display: 'flex', 
-              gap: '12px', 
+              gap: '8px', 
               backgroundColor: '#FFFFFF', 
               padding: '8px', 
               borderRadius: '50px', 
               border: '1px solid #E5E7EB',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
               flexWrap: 'wrap',
               justifyContent: 'center',
-              maxWidth: '100%'
+              maxWidth: '100%',
+              position: 'relative'
             }}
           >
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  position: 'relative',
-                  background: selectedCategory === cat ? 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)' : 'transparent',
-                  color: selectedCategory === cat ? '#FFFFFF' : '#4B5563',
-                  border: 'none',
-                  padding: '12px 28px',
-                  borderRadius: '50px',
-                  fontSize: '15px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: selectedCategory === cat ? '0 6px 18px rgba(10, 144, 181, 0.35)' : 'none'
-                }}
-              >
-                {cat}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <motion.button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  style={{
+                    position: 'relative',
+                    padding: '12px 28px',
+                    borderRadius: '50px',
+                    fontSize: '14.5px',
+                    fontWeight: 800,
+                    border: 'none',
+                    background: 'transparent',
+                    color: isActive ? '#FFFFFF' : '#4B5563',
+                    cursor: 'pointer',
+                    zIndex: 1,
+                    transition: 'color 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeMenuCategory"
+                      transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
+                        borderRadius: '50px',
+                        zIndex: -1,
+                        boxShadow: '0 6px 22px rgba(10, 144, 181, 0.35)'
+                      }}
+                    />
+                  )}
+                  {cat}
+                </motion.button>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 3. Products Catalog Grid */}
+      {/* 3. Products Catalog Grid with Framer Motion Cards */}
       <section style={{ padding: '80px 24px 100px 24px', backgroundColor: '#F8F9FA' }}>
         <div style={{ maxWidth: '1400px', width: '95%', margin: '0 auto' }}>
           <AnimatePresence mode="wait">
@@ -295,8 +478,8 @@ const Menu = () => {
                     key={product.id}
                     custom={index}
                     variants={dealCardVariants}
-                    whileHover={{ y: -10, scale: 1.02 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    whileHover={{ y: -12, scale: 1.025 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                     onClick={() => {
                       if (isSpecialCombo) {
                         setSpecialComboModalProduct(product);
@@ -308,7 +491,7 @@ const Menu = () => {
                       borderRadius: '24px',
                       overflow: 'hidden',
                       border: '1px solid #E5E7EB',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                      boxShadow: '0 10px 30px rgba(6, 103, 142, 0.08)',
                       display: 'flex',
                       flexDirection: 'column',
                       position: 'relative',
@@ -324,7 +507,7 @@ const Menu = () => {
                         containerStyle={{ width: '100%', height: '100%' }}
                       />
 
-                      {/* Flex Container for Top Pill Tags (Prevents Overlap) */}
+                      {/* Flex Container for Top Pill Tags */}
                       <div style={{
                         position: 'absolute',
                         top: '12px',
@@ -430,9 +613,11 @@ const Menu = () => {
                               {product.tiers.map((t) => {
                                 const isSelected = (selectedTiers[product.id]?.children || product.tiers[0].children) === t.children;
                                 return (
-                                  <button
+                                  <motion.button
                                     key={t.children}
                                     type="button"
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
                                     onClick={() => handleSelectTier(product.id, t)}
                                     style={{
                                       background: isSelected ? 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)' : '#FFFFFF',
@@ -452,13 +637,12 @@ const Menu = () => {
                                     }}
                                   >
                                     👦 {t.children} Kids — ₹{t.price.toLocaleString()}
-                                  </button>
+                                  </motion.button>
                                 );
                               })}
                             </div>
                           </div>
                         ) : (
-                          /* Minimum Quantity / Package Info */
                           <div style={{ 
                             marginBottom: '24px', 
                             display: 'inline-flex', 
@@ -479,8 +663,10 @@ const Menu = () => {
 
                       {/* Action Button */}
                       {isSpecialCombo ? (
-                        <button
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.025 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
                             e.stopPropagation();
                             setSpecialComboModalProduct(product);
@@ -504,12 +690,14 @@ const Menu = () => {
                             transition: 'all 0.25s ease'
                           }}
                         >
-                          <ShoppingBag size={20} />
-                          Add to Cart (Choose Kids)
-                        </button>
+                          <Sparkles size={20} />
+                          Customize & Sponsor Combo
+                        </motion.button>
                       ) : (
-                        <button
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.025 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => handleAddProduct(product)}
                           style={{
                             background: addedProductId === product.id 
@@ -535,7 +723,7 @@ const Menu = () => {
                         >
                           {addedProductId === product.id ? (
                             <>
-                              <Check size={20} color="#FFFFFF" />
+                              <Check size={20} color="#FFFFFF" strokeWidth={3} />
                               Added to Cart!
                             </>
                           ) : (
@@ -544,7 +732,7 @@ const Menu = () => {
                               Add to Cart ({currentTier ? `${currentTier.children} Kids — ₹${currentPrice.toLocaleString()}` : `₹${currentPrice.toLocaleString()}`})
                             </>
                           )}
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   </motion.div>
@@ -656,8 +844,10 @@ const Menu = () => {
                   {specialComboModalProduct.tiers.map((t) => {
                     const isSelected = selectedModalTier?.children === t.children;
                     return (
-                      <div
+                      <motion.div
                         key={t.children}
+                        whileHover={{ scale: 1.015 }}
+                        whileTap={{ scale: 0.985 }}
                         onClick={() => setSelectedModalTier(t)}
                         style={{
                           backgroundColor: isSelected ? 'rgba(230, 28, 114, 0.04)' : '#FFFFFF',
@@ -688,7 +878,7 @@ const Menu = () => {
                         <span style={{ fontSize: '18px', fontWeight: 800, color: isSelected ? '#E61C72' : '#0A90B5' }}>
                           ₹{t.price.toLocaleString()}
                         </span>
-                      </div>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -712,8 +902,10 @@ const Menu = () => {
                   >
                     Cancel
                   </button>
-                  <button
+                  <motion.button
                     type="button"
+                    whileHover={{ scale: 1.025 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleAddSpecialComboFromModal}
                     style={{
                       flex: 2,
@@ -734,7 +926,7 @@ const Menu = () => {
                   >
                     <ShoppingBag size={18} />
                     Add to Cart ({selectedModalTier ? `₹${selectedModalTier.price.toLocaleString()}` : ''})
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
@@ -742,47 +934,57 @@ const Menu = () => {
         )}
       </AnimatePresence>
 
-      {/* Floating Animated Toast Notification */}
+      {/* 🌟 FLOATING QUICK CART BUTTON INDICATOR WITH BADGE 🌟 */}
       <AnimatePresence>
-        {toastMessage && (
+        {totalItemsCount > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            initial={{ scale: 0, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0, opacity: 0, y: 20 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
             style={{
               position: 'fixed',
               bottom: '30px',
-              right: '30px',
-              backgroundColor: '#10182E',
-              color: '#FFFFFF',
-              padding: '16px 24px',
-              borderRadius: '16px',
-              boxShadow: '0 12px 36px rgba(0,0,0,0.3)',
-              border: '1px solid rgba(10, 144, 181, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-              zIndex: 1000
+              left: '30px',
+              zIndex: 999
             }}
           >
-            <div style={{ backgroundColor: '#0A90B5', padding: '8px', borderRadius: '50%' }}>
-              <Check size={18} color="#FFFFFF" />
-            </div>
-            <span style={{ fontSize: '15px', fontWeight: 700 }}>{toastMessage}</span>
             <Link
               to="/cart"
               style={{
-                backgroundColor: 'rgba(10, 144, 181, 0.2)',
-                color: '#0A90B5',
-                padding: '6px 14px',
-                borderRadius: '8px',
-                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
+                color: '#FFFFFF',
+                padding: '14px 24px',
+                borderRadius: '50px',
                 fontWeight: 800,
+                fontSize: '15px',
                 textDecoration: 'none',
-                marginLeft: '8px'
+                boxShadow: '0 10px 30px rgba(10, 144, 181, 0.4), 0 4px 12px rgba(217, 91, 40, 0.3)',
+                border: '1px solid rgba(255,255,255,0.2)'
               }}
             >
-              View Cart →
+              <ShoppingBasket size={22} />
+              View Cart
+              <motion.span
+                key={totalItemsCount}
+                initial={{ scale: 0.5 }}
+                animate={{ scale: [0.5, 1.4, 1] }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  color: '#D95B28',
+                  borderRadius: '50px',
+                  padding: '3px 10px',
+                  fontSize: '13px',
+                  fontWeight: 900
+                }}
+              >
+                {totalItemsCount}
+              </motion.span>
             </Link>
           </motion.div>
         )}
