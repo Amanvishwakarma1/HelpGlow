@@ -141,51 +141,51 @@ const Menu = () => {
         {addedToast && (
           <motion.div
             key={addedToast.key}
-            initial={{ opacity: 0, y: -30, scale: 0.95, x: '-50%' }}
+            initial={{ opacity: 0, y: -20, scale: 0.95, x: '-50%' }}
             animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
-            exit={{ opacity: 0, y: -30, scale: 0.95, x: '-50%' }}
+            exit={{ opacity: 0, y: -20, scale: 0.95, x: '-50%' }}
             transition={{ type: "spring", stiffness: 450, damping: 30 }}
             style={{
               position: 'fixed',
-              top: '96px',
+              top: '88px',
               left: '50%',
               zIndex: 1000000,
-              width: '92%',
-              maxWidth: '520px',
+              width: '90%',
+              maxWidth: '380px',
               backgroundColor: 'rgba(15, 23, 42, 0.96)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              borderRadius: '20px',
+              borderRadius: '16px',
               border: '1.5px solid rgba(10, 144, 181, 0.55)',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(10, 144, 181, 0.3)',
+              boxShadow: '0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(10, 144, 181, 0.25)',
               overflow: 'hidden',
-              padding: '14px 18px'
+              padding: '10px 12px'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {/* Product Thumbnail Preview */}
               <div style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '16px',
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid rgba(10, 144, 181, 0.4)',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+                border: '1px solid rgba(10, 144, 181, 0.4)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}>
                 <LazyImage src={addedToast.img} alt={addedToast.name} objectFit="cover" />
               </div>
 
               {/* Toast Text Details */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '1px' }}>
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: [0, 1.3, 1] }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     style={{
-                      width: '20px',
-                      height: '20px',
+                      width: '15px',
+                      height: '15px',
                       borderRadius: '50%',
                       backgroundColor: '#10B981',
                       display: 'flex',
@@ -194,15 +194,15 @@ const Menu = () => {
                       flexShrink: 0
                     }}
                   >
-                    <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                    <Check size={10} color="#FFFFFF" strokeWidth={3} />
                   </motion.div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    Added to Cart Successfully!
+                  <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Added to Cart!
                   </span>
                 </div>
 
                 <h4 style={{
-                  fontSize: '15.5px',
+                  fontSize: '13.5px',
                   fontWeight: 800,
                   color: '#FFFFFF',
                   margin: 0,
@@ -213,7 +213,7 @@ const Menu = () => {
                   {addedToast.name}
                 </h4>
                 
-                <div style={{ fontSize: '13px', color: '#0A90B5', fontWeight: 700, marginTop: '2px' }}>
+                <div style={{ fontSize: '11.5px', color: '#0A90B5', fontWeight: 700, marginTop: '1px' }}>
                   ₹{addedToast.price.toLocaleString()} • {addedToast.unit}
                 </div>
               </div>
@@ -224,22 +224,21 @@ const Menu = () => {
                 style={{
                   background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
                   color: '#FFFFFF',
-                  padding: '10px 18px',
+                  padding: '7px 14px',
                   borderRadius: '50px',
-                  fontSize: '13px',
+                  fontSize: '12px',
                   fontWeight: 800,
                   textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '4px',
                   whiteSpace: 'nowrap',
-                  boxShadow: '0 4px 14px rgba(10, 144, 181, 0.4), 0 2px 6px rgba(217, 91, 40, 0.3)',
+                  boxShadow: '0 4px 12px rgba(10, 144, 181, 0.4)',
                   flexShrink: 0
                 }}
               >
-                <ShoppingBag size={15} />
+                <ShoppingBag size={13} />
                 Cart
-                <ArrowRight size={14} />
               </Link>
 
               {/* Close Button */}
@@ -247,35 +246,33 @@ const Menu = () => {
                 type="button"
                 onClick={() => setAddedToast(null)}
                 style={{
-                  background: 'transparent',
+                  backgroundColor: 'transparent',
                   border: 'none',
-                  color: '#94A3B8',
+                  color: '#9CA3AF',
+                  fontSize: '14px',
                   cursor: 'pointer',
-                  padding: '4px',
+                  padding: '2px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderRadius: '50%',
                   flexShrink: 0
                 }}
               >
-                <X size={18} />
+                ✕
               </button>
             </div>
 
-            {/* 4.5-Second Animated Auto-Dismiss Countdown Bar */}
+            {/* Countdown Progress Bar */}
             <motion.div
-              initial={{ scaleX: 1 }}
-              animate={{ scaleX: 0 }}
+              initial={{ width: '100%' }}
+              animate={{ width: '0%' }}
               transition={{ duration: 4.5, ease: 'linear' }}
               style={{
+                height: '3px',
+                background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
                 position: 'absolute',
                 bottom: 0,
-                left: 0,
-                right: 0,
-                height: '3.5px',
-                background: 'linear-gradient(90deg, #0A90B5 0%, #10B981 50%, #D95B28 100%)',
-                transformOrigin: 'left center'
+                left: 0
               }}
             />
           </motion.div>
