@@ -124,12 +124,13 @@ button.primary-button {
   transform: translateY(-6px) !important;
 }
 
-/* Glassmorphism Header & Single-Row Navigation Override */
+/* Transparent Clean Header Override */
 .navbar {
-  background: rgba(15, 23, 42, 0.85) !important;
-  backdrop-filter: blur(18px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
 .desktop-nav-menu .nav-link,

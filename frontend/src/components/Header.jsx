@@ -16,7 +16,7 @@ const Header = () => {
 
   return (
     <header 
-      style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}
+      style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100, background: 'transparent', boxShadow: 'none', border: 'none' }}
       className="navbar w-nav"
     >
       <div className="wrapper-1200px navbar-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px' }}>
