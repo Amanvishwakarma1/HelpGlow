@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ArrowRight, Sparkles, Quote, ShieldCheck } from 'lucide-react';
 import { causesData } from '../config/causes';
 import { Link } from 'react-router-dom';
+import LazyImage from '../components/LazyImage';
 
 const Campaigns = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Causes');
@@ -224,16 +225,11 @@ const Campaigns = () => {
                       <div>
                         {/* Image Header with Fixed Height & Cover Fit */}
                         <div style={{ width: '100%', height: '210px', overflow: 'hidden', borderRadius: '16px', position: 'relative', marginBottom: '24px', backgroundColor: '#10182E' }}>
-                          <img
+                          <LazyImage
                             src={cause.img}
                             alt={cause.title}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              objectPosition: 'center',
-                              display: 'block'
-                            }}
+                            objectFit="cover"
+                            containerStyle={{ width: '100%', height: '100%', borderRadius: '16px' }}
                           />
 
                           {/* Category Badge */}

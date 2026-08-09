@@ -8,6 +8,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PaymentQRCard from '../components/PaymentQRCard';
+import LazyImage from '../components/LazyImage';
 import { API_ENDPOINTS } from '../config/api';
 
 const API_UPLOAD_URL = API_ENDPOINTS.UPLOAD;
@@ -371,11 +372,14 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                           flexWrap: 'wrap'
                         }}
                       >
-                        <img 
-                          src={item.img || item.image} 
-                          alt={item.name} 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '14px', flexShrink: 0 }}
-                        />
+                        <div style={{ width: '100px', height: '100px', borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                          <LazyImage 
+                            src={item.img || item.image} 
+                            alt={item.name} 
+                            objectFit="cover"
+                            containerStyle={{ width: '100%', height: '100%', borderRadius: '14px' }}
+                          />
+                        </div>
                         <div style={{ flex: 1, minWidth: '200px' }}>
                           <span style={{ fontSize: '12px', fontWeight: 800, color: '#0A90B5', textTransform: 'uppercase', letterSpacing: '1px' }}>
                             {item.category || 'Direct Giving'}

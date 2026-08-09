@@ -318,10 +318,36 @@ button.primary-button {
   }
 
   /* Floating WhatsApp Button Spacing */
-  .whatsapp-float-btn {
-    bottom: 16px !important;
-    right: 16px !important;
-    padding: 10px 16px !important;
-    font-size: 13px !important;
+
+/* Shimmer Skeleton Animation for Lazy Loading */
+@keyframes lazy-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
+
+.lazy-shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 0%,
+    #f1f5f9 50%,
+    #e2e8f0 100%
+  );
+  background-size: 200% 100%;
+  animation: lazy-shimmer 1.6s infinite ease-in-out;
+}
+
+.lazy-shimmer-bg-dark {
+  background: linear-gradient(
+    90deg,
+    #1e293b 0%,
+    #334155 50%,
+    #1e293b 100%
+  );
+  background-size: 200% 100%;
+  animation: lazy-shimmer 1.6s infinite ease-in-out;
+}
+

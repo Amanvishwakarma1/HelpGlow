@@ -7,6 +7,7 @@ import StoryCard from '../components/StoryCard';
 import ImageSlider from '../components/ImageSlider';
 import TeamSlider from '../components/TeamSlider';
 import TypewriterHeading from '../components/TypewriterHeading';
+import LazyImage from '../components/LazyImage';
 
 const EmailForm = () => {
   const [email, setEmail] = useState("");
@@ -207,8 +208,8 @@ const Home = () => {
           <div className="children-upper-wrapper">
             <div className="image-container children-image-container">
               <img src="https://cdn.prod.website-files.com/61f3c8415b08f243cf83a932/61f3f24936544255b42fe2ef_Rectangle%2016%20(1).png" loading="lazy" alt="" width="200.5" className="linear-gradient-image-absolute" />
-              <div className="hero-image-animation-wrapper" style={{ width: '100%', position: 'relative', zIndex: 2 }}>
-                <img src="https://i.postimg.cc/VkGt2tJq/Whats-App-Image-2026-07-02-at-11-53-45-PM.jpg" loading="lazy" alt="" className="image-relative" style={{ width: '100%', height: 'auto', borderRadius: '16px', objectFit: 'cover' }} />
+              <div className="hero-image-animation-wrapper" style={{ width: '100%', minHeight: '300px', position: 'relative', zIndex: 2, borderRadius: '16px', overflow: 'hidden' }}>
+                <LazyImage src="https://i.postimg.cc/VkGt2tJq/Whats-App-Image-2026-07-02-at-11-53-45-PM.jpg" alt="HelpGlow Foundation" className="image-relative" containerStyle={{ width: '100%', height: '100%', borderRadius: '16px' }} />
               </div>
             </div>
             <div className="text-container children-text-container">

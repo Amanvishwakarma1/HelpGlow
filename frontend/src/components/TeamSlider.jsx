@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LazyImage from './LazyImage';
 
 const teamData = [
   {
@@ -140,19 +141,12 @@ const TeamSlider = () => {
             padding: '16px',
             position: 'relative'
           }}>
-            <motion.img 
-              initial={{ scale: 1.08 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+            <LazyImage 
               src={currentMember.imgsrc} 
               alt={currentMember.name} 
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                objectFit: 'contain', 
-                objectPosition: 'center',
-                borderRadius: '20px'
-              }} 
+              objectFit="contain"
+              isDark={true}
+              containerStyle={{ width: '100%', height: '100%', borderRadius: '20px' }}
             />
           </div>
 

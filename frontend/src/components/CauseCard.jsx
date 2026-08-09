@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import LazyImage from './LazyImage';
 
 const CauseCard = ({ label, title, description, para, image, img, raised, target, link, variants }) => {
   const displayImage = img || image;
@@ -44,19 +45,11 @@ const CauseCard = ({ label, title, description, para, image, img, raised, target
       >
         {/* Uniform Edge-to-Edge Image Header */}
         <div style={{ width: '100%', height: '240px', overflow: 'hidden', position: 'relative', backgroundColor: '#F3F4F6' }}>
-          <motion.img 
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+          <LazyImage 
             src={displayImage} 
-            loading="lazy" 
             alt={title} 
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'fill', 
-              objectPosition: 'center',
-              display: 'block'
-            }} 
+            objectFit="cover"
+            containerStyle={{ width: '100%', height: '100%' }}
           />
           {/* Floating Category Pill Tag */}
           <div style={{

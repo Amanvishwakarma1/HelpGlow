@@ -5,6 +5,7 @@ import {
   BarChart3, Users2, ShieldCheck, FileCheck, Globe, MapPin, Download, Check, Copy, Sparkles
 } from 'lucide-react';
 import TeamSlider from '../components/TeamSlider';
+import LazyImage from '../components/LazyImage';
 
 const About = () => {
   const [copiedField, setCopiedField] = useState("");
@@ -355,10 +356,11 @@ const About = () => {
               }}
             >
               <div className="about-founder-card-img" style={{ position: 'relative', height: '460px', overflow: 'hidden' }}>
-                <img 
+                <LazyImage 
                   src="https://i.postimg.cc/J0n8wP38/Whats-App-Image-2026-01-19-at-4-59-48-PM.jpg" 
                   alt="Ankit Singh" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  objectFit="cover"
+                  containerStyle={{ width: '100%', height: '100%' }}
                 />
                 <div style={{
                   position: 'absolute',

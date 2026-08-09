@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import LazyImage from './LazyImage';
 
 const StoryCard = ({ title, author, date, excerpt, image, link, index = 0 }) => {
   return (
@@ -40,7 +41,7 @@ const StoryCard = ({ title, author, date, excerpt, image, link, index = 0 }) => 
           transition={{ duration: 0.95, delay: 0.2 + (index * 0.12), ease: [0.22, 1, 0.36, 1] }}
           className="stories-image-container"
         >
-          <img src={image} loading="lazy" referrerPolicy="no-referrer" alt={title} className="stories-thumbnail-image" />
+          <LazyImage src={image} alt={title} className="stories-thumbnail-image" containerStyle={{ width: '100%', height: '100%' }} />
         </motion.div>
 
       </a>

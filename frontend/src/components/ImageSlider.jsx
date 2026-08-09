@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LazyImage from './LazyImage';
 
 const images = [
   "https://i.postimg.cc/x8h7s8Kv/Whats-App-Image-2026-06-24-at-10-39-22-AM.jpg",
@@ -20,16 +21,21 @@ const ImageSlider = () => {
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 'var(--radius-xl)', minHeight: '400px', boxShadow: 'var(--shadow-floating)' }}>
       <AnimatePresence mode="popLayout">
-        <motion.img
+        <motion.div
           key={currentIndex}
-          src={images[currentIndex]}
           initial={{ opacity: 0, x: 50, scale: 1.05 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-          alt={`Slider image ${currentIndex + 1}`}
-        />
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+        >
+          <LazyImage
+            src={images[currentIndex]}
+            alt={`Slider image ${currentIndex + 1}`}
+            objectFit="cover"
+            containerStyle={{ width: '100%', height: '100%' }}
+          />
+        </motion.div>
       </AnimatePresence>
       
       {/* Optional: Add little navigation dots at the bottom */}

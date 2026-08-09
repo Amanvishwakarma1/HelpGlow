@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { products, getMinQty, isSingleEntity } from '../config/product';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import LazyImage from '../components/LazyImage';
 
 const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Products');
@@ -316,18 +317,11 @@ const Menu = () => {
                   >
                     {/* Image Header with Responsive Non-overlapping Pill Tags */}
                     <div style={{ width: '100%', height: '230px', overflow: 'hidden', position: 'relative', backgroundColor: '#10182E' }}>
-                      <motion.img
-                        whileHover={{ scale: 1.08 }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      <LazyImage
                         src={product.img}
                         alt={product.name}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          objectPosition: 'center',
-                          display: 'block'
-                        }}
+                        objectFit="cover"
+                        containerStyle={{ width: '100%', height: '100%' }}
                       />
 
                       {/* Flex Container for Top Pill Tags (Prevents Overlap) */}
