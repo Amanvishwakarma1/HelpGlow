@@ -141,25 +141,25 @@ const Menu = () => {
         {addedToast && (
           <motion.div
             key={addedToast.key}
-            initial={{ opacity: 0, y: -90, scale: 0.85, x: '-50%' }}
+            initial={{ opacity: 0, y: -30, scale: 0.95, x: '-50%' }}
             animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
-            exit={{ opacity: 0, y: -60, scale: 0.9, x: '-50%' }}
+            exit={{ opacity: 0, y: -30, scale: 0.95, x: '-50%' }}
             transition={{ type: "spring", stiffness: 450, damping: 30 }}
             style={{
               position: 'fixed',
-              top: '24px',
+              top: '96px',
               left: '50%',
-              zIndex: 10000,
+              zIndex: 1000000,
               width: '92%',
-              maxWidth: '540px',
-              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              maxWidth: '520px',
+              backgroundColor: 'rgba(15, 23, 42, 0.96)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              borderRadius: '24px',
+              borderRadius: '20px',
               border: '1.5px solid rgba(10, 144, 181, 0.55)',
-              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(10, 144, 181, 0.3)',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(10, 144, 181, 0.3)',
               overflow: 'hidden',
-              padding: '16px 20px'
+              padding: '14px 18px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
