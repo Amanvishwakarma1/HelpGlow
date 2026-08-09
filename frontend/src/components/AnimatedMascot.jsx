@@ -32,7 +32,7 @@ const AnimatedMascot = ({ isPasswordFocused, isRegistering, inputValueLength = 0
   return (
     <div 
       ref={mascotRef}
-      style={{ position: 'relative', width: '160px', height: '160px', margin: '0 auto -20px auto', zIndex: 10 }}
+      style={{ position: 'relative', width: '125px', height: '125px', margin: '0 auto -16px auto', zIndex: 10 }}
     >
       <svg 
         viewBox="0 0 200 200" 

@@ -306,7 +306,7 @@ const Login = () => {
   };
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#16203A', color: '#FFFFFF', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 24px 60px 24px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#16203A', color: '#FFFFFF', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '140px 24px 60px 24px', position: 'relative', overflow: 'hidden' }}>
       
       {/* Background Ambient Orbs */}
       <motion.div 
