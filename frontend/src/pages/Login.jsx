@@ -499,8 +499,32 @@ const Login = () => {
                 gap: '8px'
               }}
             >
-              <CheckCircle2 size={16} />
-              {successMsg}
+              <CheckCircle2 size={16} /> {successMsg}
+            </motion.div>
+          )}
+
+          {reasonMessage && !error && !successMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                backgroundColor: 'rgba(10, 144, 181, 0.15)',
+                border: '1px solid rgba(10, 144, 181, 0.4)',
+                color: '#0A90B5',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                fontSize: '13.5px',
+                fontWeight: 700,
+                marginBottom: '20px',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <Sparkles size={16} color="#0A90B5" />
+              {reasonMessage}
             </motion.div>
           )}
 

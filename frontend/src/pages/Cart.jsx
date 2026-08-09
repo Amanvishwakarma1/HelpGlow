@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShieldCheck, 
   Sparkles, CheckCircle2, Heart, CreditCard, Lock, Upload, 
   Camera, FileText, Calendar, User, Phone, Mail, MessageSquare, AlertCircle, ArrowLeft
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import PaymentQRCard from '../components/PaymentQRCard';
 import LazyImage from '../components/LazyImage';
 import { API_ENDPOINTS } from '../config/api';
@@ -17,6 +18,9 @@ const ADMIN_WHATSAPP_NUMBER = '8528220733';
 
 const Cart = () => {
   const { cart, updateQty, removeFromCart, clearCart, cartTotal } = useCart();
+  const { user, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   // Checkout Modal State
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -40,6 +44,54 @@ const Cart = () => {
 
   // Error messaging inside modal
   const [modalError, setModalError] = useState('');
+
+  // Auto-fill form details if user is logged in
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      if (user.email && !email) setEmail(user.email);
+      if ((user.name || user.username) && !fullName) setFullName(user.name || user.username);
+      if ((user.name || user.username) && !printName) setPrintName(user.name || user.username);
+    }
+  }, [isLoggedIn, user]);
+
+  // Restore saved draft and auto-open checkout after login redirect
+  useEffect(() => {
+    const shouldOpenCheckout = searchParams.get('openCheckout') === 'true';
+    if (isLoggedIn && (shouldOpenCheckout || sessionStorage.getItem('helpglow_redirect_after_login'))) {
+      const savedDraft = sessionStorage.getItem('helpglow_checkout_draft');
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft);
+          if (draft.fullName) setFullName(draft.fullName);
+          if (draft.whatsapp) setWhatsapp(draft.whatsapp);
+          if (draft.email) setEmail(draft.email);
+          if (draft.printName) setPrintName(draft.printName);
+          if (draft.wishingDetails) setWishingDetails(draft.wishingDetails);
+          if (draft.videoDate) setVideoDate(draft.videoDate);
+        } catch (e) {
+          console.error("Error parsing saved draft:", e);
+        }
+        sessionStorage.removeItem('helpglow_checkout_draft');
+      }
+      sessionStorage.removeItem('helpglow_redirect_after_login');
+      setIsCheckoutOpen(true);
+      setStep(1);
+    }
+  }, [isLoggedIn, searchParams]);
+
+  // Login-Protected Checkout Handler
+  const handleProceedToPay = () => {
+    if (!isLoggedIn) {
+      const draft = { fullName, whatsapp, email, printName, wishingDetails, videoDate };
+      sessionStorage.setItem('helpglow_checkout_draft', JSON.stringify(draft));
+      sessionStorage.setItem('helpglow_redirect_after_login', '/cart?openCheckout=true');
+      navigate('/login?redirect=/cart?openCheckout=true&message=Please+log+in+to+complete+your+donation');
+      return;
+    }
+    setIsCheckoutOpen(true);
+    setStep(1);
+    setModalError('');
+  };
 
   // Handle donor photo upload to Cloudinary
   const handleDonorPhotoUpload = async (e) => {
@@ -477,11 +529,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                   {/* Proceed to Pay Button */}
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsCheckoutOpen(true);
-                      setStep(1);
-                      setModalError('');
-                    }}
+                    onClick={handleProceedToPay}
                     style={{
                       background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)',
                       color: '#FFFFFF',
@@ -522,29 +570,31 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
           <div style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(11, 11, 14, 0.85)',
-            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(15, 23, 42, 0.88)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
-            padding: '20px',
-            zIndex: 2000,
+            padding: '95px 16px 40px 16px',
+            zIndex: 1000001,
             overflowY: 'auto'
           }}>
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
               style={{
                 backgroundColor: '#FFFFFF',
-                borderRadius: '28px',
+                borderRadius: '24px',
                 maxWidth: '560px',
                 width: '100%',
-                maxHeight: '90vh',
+                maxHeight: 'calc(100vh - 120px)',
                 overflowY: 'auto',
-                padding: '36px 32px',
-                boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
-                position: 'relative'
+                padding: '32px 28px',
+                boxShadow: '0 25px 70px rgba(0, 0, 0, 0.5)',
+                position: 'relative',
+                border: '1px solid rgba(10, 144, 181, 0.2)'
               }}
             >
               {/* Close Modal Button */}
