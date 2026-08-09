@@ -25,6 +25,14 @@ function ScrollToTop() {
   return null;
 }
 
+// Immediate synchronous check for static host page reloads (e.g. /#/menu -> /menu)
+if (typeof window !== 'undefined' && window.location.hash && window.location.hash.startsWith('#/')) {
+  const targetPath = window.location.hash.slice(1);
+  if (targetPath) {
+    window.history.replaceState(null, '', targetPath);
+  }
+}
+
 // Helper component that restores deep routes on static page reload (e.g. /menu)
 function PathRestorer() {
   const navigate = useNavigate();
