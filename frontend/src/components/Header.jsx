@@ -108,14 +108,9 @@ const Header = () => {
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '4px', 
+            gap: '12px', 
             flexWrap: 'nowrap', 
-            whiteSpace: 'nowrap',
-            backgroundColor: 'rgba(255, 255, 255, 0.06)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            padding: '4px 6px',
-            borderRadius: '50px',
-            boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.2)'
+            whiteSpace: 'nowrap'
           }}
         >
           {navItems.map((item) => {
