@@ -6,12 +6,17 @@
     <meta name="theme-color" content="#0F172A" />
     <title>HelpGlow Foundation</title>
     <script>
-      // Fallback for GitHub Pages and static web hosts
-      var path = window.location.pathname + window.location.search + window.location.hash;
-      window.location.replace('/#' + path);
+      // Single Page Application (SPA) route restoration fallback
+      var l = window.location;
+      var path = l.pathname + l.search + l.hash;
+      if (l.pathname && l.pathname !== '/') {
+        l.replace('/#' + path);
+      } else {
+        l.replace('/');
+      }
     </script>
   </head>
   <body style="background-color: #0F172A; color: #FFFFFF; font-family: sans-serif; text-align: center; padding-top: 50px;">
-    <p>Redirecting to HelpGlow Foundation...</p>
+    <p>Loading HelpGlow Foundation...</p>
   </body>
 </html>

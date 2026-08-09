@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -25,6 +25,24 @@ function ScrollToTop() {
   return null;
 }
 
+// Helper component that restores deep routes on static page reload (e.g. /menu)
+function PathRestorer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash && window.location.hash.startsWith('#/')) {
+      const targetPath = window.location.hash.slice(1);
+      if (targetPath && targetPath !== location.pathname) {
+        window.history.replaceState(null, '', targetPath);
+        navigate(targetPath, { replace: true });
+      }
+    }
+  }, [navigate, location]);
+
+  return null;
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -32,6 +50,7 @@ function App() {
         <CartProvider>
           <BrowserRouter>
             <ScrollToTop />
+            <PathRestorer />
             <Routes>
               {/* Parent route renders the Header and Footer layout */}
               <Route element={<MainLayout />}>
