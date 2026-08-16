@@ -122,17 +122,6 @@ export const products = [
     badgeText: 'Big Grand Celebration Package',
     desc: 'The most grand, high-impact celebration package covering full festive meals, gifts, and special activities for 100+ children.',
     img: 'https://i.postimg.cc/K4X4kKTv/Whats-App-Image-2026-06-24-at-10-39-45-AM.jpg' 
-  },
-  { 
-    id: 11, 
-    category: 'Single Product', 
-    name: 'Test Payment Pack', 
-    price: 2, 
-    unit: 'test',
-    icon: '🧪', 
-    badgeText: 'Test Payment (₹2)',
-    desc: 'Quick ₹2 verification card to test checkout, payment receipt upload, and order processing flow.',
-    img: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=800&auto=format&fit=crop'
   }
 ];
 
@@ -143,5 +132,5 @@ export const getMinQty = (price) => {
 
 export const isSingleEntity = (product) => {
   if (!product) return false;
-  return [7, 8, 9, 10, 11, 12].includes(product.id);
+  return [7, 8, 9, 10, 12].includes(product.id);
 };
