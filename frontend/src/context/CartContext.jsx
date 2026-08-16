@@ -9,7 +9,10 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(() => {
     try {
       const savedCart = localStorage.getItem('helpglow_cart');
-      return savedCart ? JSON.parse(savedCart) : [];
+      if (!savedCart) return [];
+      const parsed = JSON.parse(savedCart);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter(item => item && typeof item === 'object' && item.id != null);
     } catch (e) {
       return [];
     }
@@ -23,57 +26,66 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart]);
 
-  const getItemKey = (item) => item.cartItemId || (item.unit ? `${item.id}_${item.unit}` : item.id);
+  const getItemKey = (item) => {
+    if (!item) return '';
+    return item.cartItemId || (item.unit ? `${item.id}_${item.unit}` : item.id);
+  };
 
   const addToCart = (product) => {
+    if (!product || product.id == null) return;
     setCart((prevCart) => {
+      const safePrevCart = Array.isArray(prevCart) ? prevCart.filter(Boolean) : [];
       const itemKey = getItemKey(product);
-      const existingItem = prevCart.find((item) => getItemKey(item) === itemKey);
+      const existingItem = safePrevCart.find((item) => getItemKey(item) === itemKey);
       const isSingle = isSingleEntity(product);
-      const minQty = isSingle ? 1 : getMinQty(product.price);
+      const minQty = isSingle ? 1 : getMinQty(product.price || 0);
 
       if (existingItem) {
-        return prevCart.map((item) =>
+        return safePrevCart.map((item) =>
           getItemKey(item) === itemKey
-            ? { ...item, qty: item.qty + 1 }
+            ? { ...item, qty: (item.qty || 1) + 1 }
             : item
         );
       } else {
-        return [...prevCart, { ...product, cartItemId: itemKey, qty: minQty, minQty }];
+        return [...safePrevCart, { ...product, cartItemId: itemKey, qty: minQty, minQty }];
       }
     });
   };
 
   const updateQty = (productIdOrKey, newQty) => {
-    setCart((prevCart) =>
-      prevCart.map((item) => {
+    setCart((prevCart) => {
+      const safePrevCart = Array.isArray(prevCart) ? prevCart.filter(Boolean) : [];
+      return safePrevCart.map((item) => {
         const itemKey = getItemKey(item);
         if (itemKey === productIdOrKey || item.id === productIdOrKey) {
           const isSingle = isSingleEntity(item);
-          const minQty = isSingle ? 1 : getMinQty(item.price);
-          const validQty = Math.max(minQty, newQty);
+          const minQty = isSingle ? 1 : getMinQty(item.price || 0);
+          const validQty = Math.max(minQty, newQty || 1);
           return { ...item, qty: validQty };
         }
         return item;
-      })
-    );
+      });
+    });
   };
 
   const removeFromCart = (productIdOrKey) => {
-    setCart((prevCart) => prevCart.filter((item) => getItemKey(item) !== productIdOrKey && item.id !== productIdOrKey));
+    setCart((prevCart) => {
+      const safePrevCart = Array.isArray(prevCart) ? prevCart.filter(Boolean) : [];
+      return safePrevCart.filter((item) => getItemKey(item) !== productIdOrKey && item.id !== productIdOrKey);
+    });
   };
 
   const clearCart = () => {
     setCart([]);
   };
 
-  const totalItemsCount = cart.reduce((total, item) => total + item.qty, 0);
-  
-  const cartTotal = cart.reduce((total, item) => total + (item.price * item.qty), 0);
+  const safeCart = Array.isArray(cart) ? cart.filter(Boolean) : [];
+  const totalItemsCount = safeCart.reduce((total, item) => total + (Number(item?.qty) || 0), 0);
+  const cartTotal = safeCart.reduce((total, item) => total + ((Number(item?.price) || 0) * (Number(item?.qty) || 0)), 0);
 
   return (
     <CartContext.Provider value={{
-      cart,
+      cart: safeCart,
       addToCart,
       updateQty,
       removeFromCart,

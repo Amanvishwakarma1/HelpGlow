@@ -344,7 +344,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
       <section style={{ padding: '60px 24px 100px 24px' }}>
         <div style={{ maxWidth: '1280px', width: '95%', margin: '0 auto' }}>
 
-          {cart.length === 0 ? (
+          {(!Array.isArray(cart) || cart.length === 0) ? (
             /* Empty Cart View */
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
@@ -403,8 +403,11 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <AnimatePresence>
-                    {cart.map((item) => {
-                      const itemKey = item.cartItemId || item.id;
+                    {cart.map((item, idx) => {
+                      if (!item) return null;
+                      const itemKey = item.cartItemId || (item.id != null ? (item.unit ? `${item.id}_${item.unit}` : item.id) : `item_${idx}`);
+                      const itemPrice = Number(item.price) || 0;
+                      const itemQty = Number(item.qty) || 1;
                       return (
                       <motion.div
                         key={itemKey}
@@ -427,7 +430,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                         <div style={{ width: '100px', height: '100px', borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
                           <LazyImage 
                             src={item.img || item.image} 
-                            alt={item.name} 
+                            alt={item.name || 'Item'} 
                             objectFit="cover"
                             containerStyle={{ width: '100%', height: '100%', borderRadius: '14px' }}
                           />
@@ -437,10 +440,10 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                             {item.category || 'Direct Giving'}
                           </span>
                           <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#16203A', margin: '4px 0 6px 0' }}>
-                            {item.name}
+                            {item.name || 'Sponsorship Packet'}
                           </h3>
                           <div style={{ fontSize: '18px', fontWeight: 800, color: '#0A90B5' }}>
-                            ₹{item.price.toLocaleString()} <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500 }}>/ {item.unit || 'packet'}</span>
+                            ₹{itemPrice.toLocaleString()} <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500 }}>/ {item.unit || 'packet'}</span>
                           </div>
                         </div>
 
@@ -449,17 +452,17 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                           <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#F3F4F6', borderRadius: '12px', padding: '4px' }}>
                             <button
                               type="button"
-                              onClick={() => updateQty(itemKey, item.qty - 1)}
+                              onClick={() => updateQty(itemKey, itemQty - 1)}
                               style={{ backgroundColor: '#FFFFFF', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                               <Minus size={14} color="#111827" />
                             </button>
                             <span style={{ padding: '0 16px', fontWeight: 800, fontSize: '16px', color: '#111827' }}>
-                              {item.qty}
+                              {itemQty}
                             </span>
                             <button
                               type="button"
-                              onClick={() => updateQty(itemKey, item.qty + 1)}
+                              onClick={() => updateQty(itemKey, itemQty + 1)}
                               style={{ backgroundColor: '#FFFFFF', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                               <Plus size={14} color="#111827" />
@@ -467,7 +470,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                           </div>
 
                           <div style={{ fontSize: '18px', fontWeight: 800, color: '#16203A', minWidth: '80px', textAlign: 'right' }}>
-                            ₹{(item.price * item.qty).toLocaleString()}
+                            ₹{(itemPrice * itemQty).toLocaleString()}
                           </div>
 
                           <button
@@ -506,12 +509,17 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                   </h3>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px', borderBottom: '1px solid #E5E7EB', paddingBottom: '20px' }}>
-                    {cart.map((item) => (
-                      <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14.5px', color: '#4B5563' }}>
-                        <span>{item.name} ({item.qty} packets)</span>
-                        <strong style={{ color: '#111827' }}>₹{(item.price * item.qty).toLocaleString()}</strong>
+                    {cart.map((item, index) => {
+                      if (!item) return null;
+                      const p = Number(item.price) || 0;
+                      const q = Number(item.qty) || 1;
+                      return (
+                      <div key={item.cartItemId || (item.id != null ? `${item.id}_${index}` : index)} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14.5px', color: '#4B5563' }}>
+                        <span>{item.name || 'Sponsorship'} ({q} packets)</span>
+                        <strong style={{ color: '#111827' }}>₹{(p * q).toLocaleString()}</strong>
                       </div>
-                    ))}
+                    );
+                    })}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#6B7280', paddingTop: '10px' }}>
                       <span>Platform & Execution Fee</span>
                       <strong style={{ color: '#16A34A' }}>FREE (₹0)</strong>
@@ -522,7 +530,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
                     <span style={{ fontSize: '18px', fontWeight: 800, color: '#16203A' }}>Total Donation Amount</span>
                     <span style={{ fontSize: '32px', fontWeight: 800, color: '#0A90B5' }}>
-                      ₹{cartTotal.toLocaleString()}
+                      ₹{(Number(cartTotal) || 0).toLocaleString()}
                     </span>
                   </div>
 
@@ -548,7 +556,7 @@ ${donorPhotoUrl ? `📷 *Donor Photo:* ${donorPhotoUrl}\n` : ''}
                     }}
                   >
                     <CreditCard size={22} />
-                    Proceed to Pay (₹{cartTotal.toLocaleString()})
+                    Proceed to Pay (₹{(Number(cartTotal) || 0).toLocaleString()})
                   </button>
 
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#9CA3AF', fontSize: '13px', marginTop: '16px', fontWeight: 600 }}>

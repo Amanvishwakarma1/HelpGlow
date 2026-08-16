@@ -6,12 +6,12 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
-  const { cart } = useCart();
+  const { cart, totalItemsCount } = useCart();
   const { user, isLoggedIn, logout } = useAuth();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
-  const cartItemCount = cart.length;
+  const cartItemCount = totalItemsCount ?? (Array.isArray(cart) ? cart.length : 0);
 
   const toggleMobileNav = () => setMobileNavOpen(!mobileNavOpen);
   const closeMobileNav = () => setMobileNavOpen(false);
