@@ -27,9 +27,9 @@ const Footer = () => {
             <div className="footer-sub-container">
               <div className="footer-main-text">Ways to Help</div>
               <div className="w-layout-grid footer-sub-grid">
-                <a href="#monthly-giving" className="footer-text-link">Monthly Giving</a>
-                <a href="#corporate-partner" className="footer-text-link">Corporate Partner</a>
-                <a href="#volunteer" className="footer-text-link">Volunteer</a>
+                <Link to="/menu" className="footer-text-link">Monthly Giving</Link>
+                <Link to="/about" className="footer-text-link">Corporate Partner</Link>
+                <Link to="/about" className="footer-text-link">Volunteer</Link>
                 <Link to="/causes" className="footer-text-link">Our Causes</Link>
               </div>
             </div>

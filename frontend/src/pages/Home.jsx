@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import Hero from '../components/Hero';
 import CauseCard from '../components/CauseCard';
@@ -155,7 +156,7 @@ const Home = () => {
       <Hero />
 
       {/* Dynamic Causes Grid Component section */}
-      <section className="donate-section" style={{ marginTop: '60px', paddingTop: '0px', position: 'relative', zIndex: 10 }}>
+      <section id="donate" className="donate-section" style={{ marginTop: '60px', paddingTop: '0px', position: 'relative', zIndex: 10 }}>
         <div className="wrapper-1200px donate-flex" style={{ maxWidth: '1400px', width: '95%', margin: '0 auto' }}>
           <div className="donate-container" style={{ width: '100%' }}>
             <div className="donate-collection-list-wrapper w-dyn-list" style={{ width: '100%' }}>
@@ -218,7 +219,7 @@ const Home = () => {
               </div>
               <div className="button-conatiner margin-top-56px">
                 <div className="button-wrapper">
-                  <a href="/about" className="primary-button-large w-button">About us</a>
+                  <Link to="/about" className="primary-button-large w-button">About us</Link>
                 </div>
               </div>
             </div>
@@ -231,7 +232,7 @@ const Home = () => {
               </div>
               <div className="button-conatiner margin-top-56px">
                 <div className="button-wrapper">
-                  <a href="/about" className="primary-button-large w-button">Our Vision</a>
+                  <Link to="/about" className="primary-button-large w-button">Our Vision</Link>
                 </div>
               </div>
             </div>

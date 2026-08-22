@@ -1,11 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import LazyImage from './LazyImage';
 
 const StoryCard = ({ title, author, date, excerpt, image, link, index = 0 }) => {
   return (
     <div role="listitem" className="stories-collection-item w-dyn-item">
-      <a href={link} className="stories-wrapper w-inline-block" style={{ overflow: 'hidden' }}>
+      <Link to={link} className="stories-wrapper w-inline-block" style={{ overflow: 'hidden' }}>
         
         {/* Content sliding in from the LEFT with increased duration & stagger delay */}
         <motion.div 
@@ -44,7 +45,7 @@ const StoryCard = ({ title, author, date, excerpt, image, link, index = 0 }) => 
           <LazyImage src={image} alt={title} className="stories-thumbnail-image" containerStyle={{ width: '100%', height: '100%' }} />
         </motion.div>
 
-      </a>
+      </Link>
     </div>
   );
 };

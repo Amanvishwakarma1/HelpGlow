@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import slide1 from '../assets/slide1.mp4';
 import slide2 from '../assets/slide2.mp4';
 import slide3 from '../assets/slide3.mp4';
@@ -106,18 +107,30 @@ const Hero = () => {
           </motion.div>
 
           <motion.div variants={itemVariants} className="button-hero-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
-            <a 
-              href="#donate" 
-              className="primary-button-with-icon w-inline-block" 
-              style={{ 
-                background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)', 
-                boxShadow: '0 8px 24px rgba(10, 144, 181, 0.4), 0 4px 12px rgba(217, 91, 40, 0.3)',
-                borderRadius: '50px'
-              }}
+            <motion.div
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: 0.2 }}
             >
-              <div className="button-text">Donate Now</div>
-              <img src="https://cdn.prod.website-files.com/61f3c8415b08f243cf83a932/61f3db66c57203a7d81cb458_arrow-left-line%201.svg" loading="lazy" alt="" className="arrow-icon" />
-            </a>
+              <Link 
+                to="/menu" 
+                className="primary-button-with-icon w-inline-block" 
+                style={{ 
+                  background: 'linear-gradient(90deg, #0A90B5 0%, #D95B28 100%)', 
+                  boxShadow: '0 8px 24px rgba(10, 144, 181, 0.4), 0 4px 12px rgba(217, 91, 40, 0.3)',
+                  borderRadius: '50px',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <div className="button-text" style={{ color: '#FFFFFF' }}>Donate Now</div>
+                <img src="https://cdn.prod.website-files.com/61f3c8415b08f243cf83a932/61f3db66c57203a7d81cb458_arrow-left-line%201.svg" loading="lazy" alt="" className="arrow-icon" />
+              </Link>
+            </motion.div>
           </motion.div>
         </motion.div>
 
